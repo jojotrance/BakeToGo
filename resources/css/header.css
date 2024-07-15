@@ -1,0 +1,308 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+
+/* CSS Variables for Repeated Values */
+:root {
+    --main-color: salmon;
+    --font-family: 'Montserrat', sans-serif;
+    --transition-ease: all 0.3s ease;
+    --transition-ease-long: all 0.4s ease;
+    --box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    --box-shadow-hover: 0 8px 16px rgba(0, 0, 0, 0.12);
+}
+
+.header {
+    background-color: white;
+    box-shadow: var(--box-shadow);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.5rem 2rem;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    font-family: var(--font-family);
+    height: 70px;
+    transition: var(--transition-ease-long);
+}
+
+.header:hover {
+    box-shadow: var(--box-shadow-hover);
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+}
+
+.profile-section {
+    display: flex;
+    align-items: center;
+    position: relative;
+    cursor: pointer;
+    padding: 5px 10px;
+    border-radius: 20px;
+    transition: var(--transition-ease);
+}
+
+.profile-section:hover {
+    background-color: rgba(250, 128, 114, 0.1);
+}
+
+.profile-pic {
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    margin-right: 10px;
+    border: 2px solid transparent;
+    transition: var(--transition-ease);
+}
+
+.profile-section:hover .profile-pic {
+    border-color: var(--main-color);
+    box-shadow: 0 0 10px rgba(250, 128, 114, 0.3);
+}
+
+.welcome-message {
+    font-size: 16px;
+    margin-right: 20px;
+    transition: var(--transition-ease);
+}
+
+.username {
+    color: var(--main-color);
+    font-weight: bold;
+    transition: var(--transition-ease);
+}
+
+.profile-section:hover .username {
+    text-shadow: 1px 1px 3px rgba(250, 128, 114, 0.3);
+}
+
+.profile-dropdown {
+    position: absolute;
+    top: 60px;
+    right: 2rem;
+    background-color: white;
+    box-shadow: var(--box-shadow);
+    list-style: none;
+    padding: 10px 0;
+    margin: 0;
+    width: 200px;
+    border-radius: 8px;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: var(--transition-ease-long);
+    left: -8rem;
+}
+
+.profile-dropdown.visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.profile-dropdown li {
+    padding: 10px 20px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.profile-dropdown li:hover {
+    background-color: #f0f0f0;
+    transform: translateX(5px);
+}
+
+.profile-dropdown li a,
+.profile-dropdown li button {
+    text-decoration: none;
+    color: #333;
+    font-weight: 600;
+    display: block;
+    width: 100%;
+    text-align: left;
+    background: none;
+    border: none;
+    padding: 0;
+    transition: color 0.3s ease;
+}
+
+.profile-dropdown li a:hover,
+.profile-dropdown li button:hover {
+    color: var(--main-color);
+}
+
+.search-bar {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0 20px;
+    max-width: 400px;
+}
+
+.search-input-container {
+    position: relative;
+    width: 100%;
+    display: flex;
+    align-items: center;
+}
+
+.search-input {
+    width: 100%;
+    padding: 12px 50px 12px 40px; /* Adjust padding for better alignment */
+    border-radius: 25px;
+    border: 2px solid #e0e0e0;
+    outline: none;
+    font-size: 1rem;
+    transition: var(--transition-ease);
+}
+
+.search-input:focus {
+    border-color: var(--main-color);
+    box-shadow: 0 0 15px rgba(250, 128, 114, 0.15);
+}
+
+.search-input::placeholder {
+    color: rgba(0, 0, 0, 0.5);
+    font-weight: bold;
+}
+
+.search-icon {
+    position: absolute;
+    left: 15px;
+    color: #888;
+    transition: color 0.3s ease, transform 0.3s ease;
+    pointer-events: none; /* Prevent the icon from capturing mouse events */
+}
+
+.search-input:focus + .search-icon {
+    color: var(--main-color);
+    transform: scale(1.1);
+}
+
+.right-section {
+    display: flex;
+    align-items: center;
+}
+
+.cart-icon-container {
+    position: relative;
+    margin-right: 20px;
+    cursor: pointer;
+}
+
+.cart-icon {
+    color: #333;
+    font-size: 24px;
+    transition: transform 0.3s ease;
+}
+
+.cart-icon:hover {
+    transform: scale(1.1);
+}
+
+/* Popup Adjustment Start */
+.header .cart-popup {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: var(--box-shadow);
+    padding: 10px;
+    z-index: 1000;
+    width: 400px; /* Adjust the width to make it larger */
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(10px);
+    transition: var(--transition-ease);
+}
+
+.header .cart-icon-container:hover .cart-popup {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+/* Popup Adjustment End */
+
+.cart-popup-content {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start; /* Align content to the left */
+    width: 100%; /* Ensure full width */
+}
+
+.cart-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    padding-bottom: 10px; /* Adjust padding */
+    border-bottom: 1px solid #f0f0f0; /* Add a border for separation */
+    width: 100%; /* Ensure the cart item takes full width */
+}
+
+.cart-item-image {
+    width: 40px;
+    height: 40px;
+    margin-right: 10px;
+    flex-shrink: 0; /* Prevent image from shrinking */
+}
+
+.cart-item-details {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    min-width: 0; /* Allows text to shrink below its minimum content size */
+}
+
+.cart-item-name {
+    flex-grow: 1;
+    font-size: 14px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-right: 10px; /* Add some space between name and price */
+}
+
+.cart-item-price {
+    font-weight: bold;
+    font-size: 14px;
+    white-space: nowrap;
+}
+
+.view-cart-button {
+    margin-top: 10px;
+    padding: 8px 10px;
+    background-color: var(--main-color);
+    color: white;
+    border-radius: 5px;
+    text-decoration: none;
+    text-align: center;
+    display: block;
+    width: 100%;
+    font-size: 14px;
+    white-space: nowrap;
+}
+
+.cart-popup-header {
+    font-size: 14px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    text-align: left;
+    color: #666;
+    width: 100%;
+}
