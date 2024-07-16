@@ -5,9 +5,9 @@ use App\Http\Controllers\Api\CourierController;
 use App\Http\Controllers\Api\PaymentMethodController;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\SpreadsheetController;
+use App\Http\Controllers\Api\StocksController;
 use App\Http\Controllers\Api\SupplierController;
 use App\Http\Controllers\Api\UserManagementController;
-use App\Http\Controllers\SupplierTransactionController;
 use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -15,15 +15,14 @@ use Illuminate\Support\Facades\Route;
 
 
 
+
 Route::apiResource('products', ProductController::class);
-
 Route::apiResource('suppliers', SupplierController::class);
-
 Route::apiResource('paymentmethods', PaymentMethodController::class);
-
 Route::apiResource('couriers', CourierController::class);
+Route::apiResource('stocks', StocksController::class);
 
-Route::apiResource('supplier_transaction', SupplierTransactionController::class);
+
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();

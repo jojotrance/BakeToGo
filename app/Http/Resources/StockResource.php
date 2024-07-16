@@ -5,7 +5,7 @@ namespace App\Http\Resources;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class SupplierTransactionResource extends JsonResource
+class StockResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -14,13 +14,11 @@ class SupplierTransactionResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        // return parent::toArray($request);
+        //return parent::toArray($request);
         return [
             'id' => $this->id,
-            'supplier_id' => $this->supplier_id,
-            'product_id' => $this->product_id,
             'quantity' => $this->quantity,
-            'image' => $this->image
+            'supplier_id' => $this->supplier_id,
         ];
     }
 }
