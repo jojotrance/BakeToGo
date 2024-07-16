@@ -4,6 +4,8 @@ jQuery(document).ready(function($) {
     var loginUrl = $('#signupForm').data('login-url');
     var checkEmailUrl = $('#signupForm').data('check-email-url');
     var checkUsernameUrl = $('#signupForm').data('check-username-url');
+    var emailExists = false;
+    var usernameExists = false;
 
     showStep(currentStep);
 
@@ -17,11 +19,35 @@ jQuery(document).ready(function($) {
         $('#step-' + step + ' .form-control').each(function() {
             if (!$(this).val()) {
                 isValid = false;
-                $(this).siblings('.danger-text').text('This field is required.');
+                $(this).siblings('.error-text').text('This field is required.');
             } else {
-                $(this).siblings('.danger-text').text('');
+                $(this).siblings('.error-text').text('');
             }
         });
+
+        if (step == 1) {
+            var firstName = $('#inputFirstName').val();
+            var lastName = $('#inputLastName').val();
+            if (!firstName) {
+                isValid = false;
+                $('#error-fname').text('First name is required.');
+            } else {
+                $('#error-fname').text('');
+            }
+            if (!lastName) {
+                isValid = false;
+                $('#error-lname').text('Last name is required.');
+            } else {
+                $('#error-lname').text('');
+            }
+        }
+
+        if (step == 2) {
+            if (emailExists || usernameExists) {
+                isValid = false;
+                showPopupMessage('error', 'Please use a unique username and email.');
+            }
+        }
 
         if (step == 3) {
             var password = $('#inputPassword').val();
@@ -92,7 +118,7 @@ jQuery(document).ready(function($) {
                     $('.loading-overlay').removeClass('show');
                     var errors = xhr.responseJSON.errors;
                     for (var key in errors) {
-                        $('#' + key).siblings('.danger-text').text(errors[key][0]);
+                        $('#' + key).siblings('.error-text').text(errors[key][0]);
                     }
                     showPopupMessage('error', 'Please fix the errors below');
                 }
@@ -129,8 +155,10 @@ jQuery(document).ready(function($) {
             $.post(checkUsernameUrl, { name: username, _token: $('meta[name="csrf-token"]').attr('content') }, function(response) {
                 if (response.exists) {
                     $('#error-name').text('Username already exists.');
+                    usernameExists = true;
                 } else {
                     $('#error-name').text('');
+                    usernameExists = false;
                 }
             });
         }
@@ -142,8 +170,10 @@ jQuery(document).ready(function($) {
             $.post(checkEmailUrl, { email: email, _token: $('meta[name="csrf-token"]').attr('content') }, function(response) {
                 if (response.exists) {
                     $('#error-email').text('Email already exists.');
+                    emailExists = true;
                 } else {
                     $('#error-email').text('');
+                    emailExists = false;
                 }
             });
         }

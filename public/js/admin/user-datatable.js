@@ -90,6 +90,20 @@ $(document).ready(function() {
         });
     }
 
+    // Custom sorting for First Name column using insertion sort
+    $.fn.dataTable.ext.order['insertion-sort'] = function(settings, col) {
+        return this.api().column(col, { order: 'index' }).nodes().map(function(td, i) {
+            return $(td).text();
+        }).sort(function(a, b) {
+            return a.localeCompare(b);
+        });
+    };
+
+    // Enable custom sorting on 'First Name' column
+    $('#datatable').on('click', 'th:contains("First Name")', function() {
+        dataTable.order([3, 'insertion-sort']).draw();
+    });
+
     // Handle cell click to show full text
     $('#datatable tbody').on('click', 'td', function() {
         var cellData = dataTable.cell(this).data();
