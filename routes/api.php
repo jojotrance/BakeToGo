@@ -1,10 +1,26 @@
 <?php
 
+use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\CourierController;
+use App\Http\Controllers\Api\PaymentMethodController;
+use App\Http\Controllers\Api\ProductController;
+use App\Http\Controllers\Api\SpreadsheetController;
+use App\Http\Controllers\Api\SupplierController;
+use App\Http\Controllers\Api\UserManagementController;
+use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\AuthController;
-use App\Http\Controllers\Api\UserManagementController;
-use App\Http\Controllers\Api\SpreadsheetController;
+
+
+
+
+Route::apiResource('products', ProductController::class);
+
+Route::apiResource('suppliers', SupplierController::class);
+
+Route::apiResource('paymentmethods', PaymentMethodController::class);
+
+Route::apiResource('couriers', CourierController::class);
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
@@ -29,7 +45,7 @@ Route::get('/public-route', function () {
 });
 
 // User Management Routes
-Route::middleware('auth:sanctum')->prefix('admin')->group(function(){
+Route::middleware('auth:sanctum')->prefix('admin')->group(function () {
     Route::post('/saveUser', [UserManagementController::class, 'saveUser'])->name('api.admin.saveUser');
     Route::get('/user/{id}', [UserManagementController::class, 'getEditUserData'])->name('api.admin.getEditUserData');
     Route::delete('/users/delete/{id}', [UserManagementController::class, 'deleteUser'])->name('api.admin.deleteUser');
