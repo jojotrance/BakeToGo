@@ -12,6 +12,7 @@
   <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 </head>
 <body>
+  <div class="background-overlay"></div> <!-- Background overlay -->
   <div class="container-scroller">
     <div class="container-fluid page-body-wrapper full-page-wrapper">
       <div class="content-wrapper d-flex align-items-center auth px-0">
@@ -34,11 +35,11 @@
                   <div class="side-by-side">
                     <div class="form-group">
                       <input type="text" class="form-control" id="inputFirstName" name="fname" placeholder="First Name" value="{{ old('fname') }}">
-                      <span class="danger-text" id="error-fname"></span>
+                      <span class="danger-text error-text" id="error-fname"></span>
                     </div>
                     <div class="form-group">
                       <input type="text" class="form-control" id="inputLastName" name="lname" placeholder="Last Name" value="{{ old('lname') }}">
-                      <span class="danger-text" id="error-lname"></span>
+                      <span class="danger-text error-text" id="error-lname"></span>
                     </div>
                   </div>
                   <div class="mt-3">
@@ -51,20 +52,20 @@
                   <div class="side-by-side">
                     <div class="form-group">
                       <input type="text" class="form-control" id="exampleInputUsername1" name="name" placeholder="Username" value="{{ old('name') }}">
-                      <span class="danger-text" id="error-name"></span>
+                      <span class="danger-text error-text" id="error-name"></span>
                     </div>
                     <div class="form-group">
                       <input type="email" class="form-control" id="exampleInputEmail1" name="email" placeholder="Email" value="{{ old('email') }}">
-                      <span class="danger-text" id="error-email"></span>
+                      <span class="danger-text error-text" id="error-email"></span>
                     </div>
                   </div>
                   <div class="form-group">
                     <input type="text" class="form-control" id="inputContact" name="contact" placeholder="Contact Number" value="{{ old('contact') }}">
-                    <span class="danger-text" id="error-contact"></span>
+                    <span class="danger-text error-text" id="error-contact"></span>
                   </div>
                   <div class="form-group">
                     <textarea class="form-control" id="inputAddress" name="address" rows="3" placeholder="Address">{{ old('address') }}</textarea>
-                    <span class="danger-text" id="error-address"></span>
+                    <span class="danger-text error-text" id="error-address"></span>
                   </div>
                   <div class="mt-3">
                     <button type="button" class="auth-form-btn prev-btn" data-prev-step="1">Back</button>
@@ -77,12 +78,12 @@
                   <div class="side-by-side">
                     <div class="form-group">
                       <input type="password" class="form-control" id="inputPassword" name="password" placeholder="Password">
-                      <span class="danger-text" id="error-password"></span>
+                      <span class="danger-text error-text" id="error-password"></span>
                       <span class="toggle-password" toggle="#inputPassword"><i class="fa fa-fw fa-eye toggle-password-icon" aria-hidden="true"></i></span>
                     </div>
                     <div class="form-group">
                       <input type="password" class="form-control" id="inputConfirmPassword" name="password_confirmation" placeholder="Confirm Password">
-                      <span class="danger-text" id="error-password-confirm"></span>
+                      <span class="danger-text error-text" id="error-password-confirm"></span>
                       <span class="toggle-password" toggle="#inputConfirmPassword"><i class="fa fa-fw fa-eye toggle-password-icon" aria-hidden="true"></i></span>
                     </div>
                   </div>
@@ -92,7 +93,7 @@
                       <i class="fas fa-user"></i>
                     </label>
                     <input type="file" id="inputProfileImage" name="profile_image" style="display: none;">
-                    <span class="danger-text" id="error-profile-image"></span>
+                    <span class="danger-text error-text" id="error-profile-image"></span>
                   </div>
                   <div class="mt-3">
                     <button type="button" class="auth-form-btn prev-btn" data-prev-step="2">Back</button>

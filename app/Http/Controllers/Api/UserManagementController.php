@@ -14,49 +14,53 @@ use Illuminate\Support\Facades\Validator;
 class UserManagementController extends Controller
 {
     public function fetchUsers(Request $request)
-    {
-        $query = User::leftJoin('customers', 'users.id', '=', 'customers.user_id')
-            ->select('users.*', 'customers.fname', 'customers.lname', 'customers.contact', 'customers.address');
-        
-        if ($request->has('search')) {
-            $searchValue = $request->input('search');
-            $query->where(function($q) use ($searchValue) {
-                $q->where('users.name', 'like', "%{$searchValue}%")
-                  ->orWhere('users.email', 'like', "%{$searchValue}%")
-                  ->orWhere('customers.fname', 'like', "%{$searchValue}%")
-                  ->orWhere('customers.lname', 'like', "%{$searchValue}%");
-            });
-        }
-    
-        $totalRecords = $query->count();
-        $filteredRecords = $totalRecords;
-    
-        $users = $query->skip($request->input('start'))
-                       ->take($request->input('length'))
-                       ->get();
-    
-        $formattedUsers = $users->map(function($user) {
-            return [
-                'id' => $user->id,
-                'profile_image' => $user->profile_image ? asset('storage/' . $user->profile_image) : null,
-                'name' => $user->name,
-                'email' => $user->email,
-                'active_status' => $user->active_status,
-                'role' => $user->role,
-                'fname' => $user->fname,
-                'lname' => $user->lname,
-                'contact' => $user->contact,
-                'address' => $user->address,
-            ];
+{
+    // Use eager loading with 'with' method
+    $query = User::with('customer')
+        ->select('users.*');
+
+    if ($request->has('search')) {
+        $searchValue = $request->input('search');
+        $query->where(function($q) use ($searchValue) {
+            $q->where('users.name', 'like', "%{$searchValue}%")
+              ->orWhere('users.email', 'like', "%{$searchValue}%")
+              ->orWhereHas('customer', function ($q) use ($searchValue) {
+                  $q->where('fname', 'like', "%{$searchValue}%")
+                    ->orWhere('lname', 'like', "%{$searchValue}%");
+              });
         });
-    
-        return response()->json([
-            'draw' => $request->input('draw'),
-            'recordsTotal' => $totalRecords,
-            'recordsFiltered' => $filteredRecords,
-            'data' => $formattedUsers,
-        ]);
     }
+
+    $totalRecords = $query->count();
+    $filteredRecords = $totalRecords;
+
+    $users = $query->skip($request->input('start'))
+                   ->take($request->input('length'))
+                   ->get();
+
+    $formattedUsers = $users->map(function($user) {
+        return [
+            'id' => $user->id,
+            'profile_image' => $user->profile_image ? asset('storage/' . $user->profile_image) : null,
+            'name' => $user->name,
+            'email' => $user->email,
+            'active_status' => $user->active_status,
+            'role' => $user->role,
+            'fname' => $user->customer ? $user->customer->fname : null,
+            'lname' => $user->customer ? $user->customer->lname : null,
+            'contact' => $user->customer ? $user->customer->contact : null,
+            'address' => $user->customer ? $user->customer->address : null,
+        ];
+    });
+
+    return response()->json([
+        'draw' => $request->input('draw'),
+        'recordsTotal' => $totalRecords,
+        'recordsFiltered' => $filteredRecords,
+        'data' => $formattedUsers,
+    ]);
+}
+
 
     public function getEditUserData($id)
     {
