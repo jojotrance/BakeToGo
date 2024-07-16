@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Resources\SupplierTransactionResource;
+use App\Models\Product;
 use App\Models\Supplier;
 use App\Models\Supplier_Transaction;
 use Illuminate\Http\Request;
@@ -17,13 +18,6 @@ class SupplierTransactionController extends Controller
             ->whereNull('supplier_transaction.deleted_at') // Exclude soft-deleted records
             ->get(); // Retrieve all records without pagination
 
-        return view('admin.supplier_transaction.index', compact('suppliers'));
-
-        $suppliers = Supplier_Transaction::get();
-        if ($suppliers->count() > 0) {
-            return SupplierTransactionResource::collection($suppliers);
-        } else {
-            return response()->json(['message' => 'no records'], 200);
-        }
+        return SupplierTransactionResource::collection($suppliers);
     }
 }

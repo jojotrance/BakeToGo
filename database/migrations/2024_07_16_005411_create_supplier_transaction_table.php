@@ -19,7 +19,7 @@ return new class extends Migration
             $table->integer('quantity');
             $table->timestamps();
 
-            //fk
+            // Foreign keys
             $table->foreign('supplier_id')->references('id')->on('suppliers')->onDelete('Cascade');
             $table->foreign('product_id')->references('id')->on('products')->onDelete('Cascade');
         });
