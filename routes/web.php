@@ -21,8 +21,9 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'is_admin']], functi
     Route::get('/dashboard', [AdminController::class, 'index'])->name('admin.index');
     Route::get('/orders', [AdminController::class, 'orders'])->name('orderindex');
     Route::get('/products', [AdminController::class, 'products'])->name('productindex');
-    Route::get('/suppliers', [AdminController::class, 'suppliers'])->name('supplierindex');
-    Route::get('/inventory', [AdminController::class, 'inventory'])->name('inventoryindex');
+    Route::get('/suppliers', [AdminController::class, 'suppliersindex'])->name('suppliersindex');
+    Route::get('/courier', [AdminController::class, 'courier'])->name('courierindex');
+    Route::get('/stock', [AdminController::class, 'stock'])->name('stock');  // Corrected typo
 
     Route::prefix('/users')->group(function () {
         Route::get('/', [AdminController::class, 'users'])->name('userindex');

@@ -1,5 +1,3 @@
-*
-
 /* Remove outer scroll */
 html, body {
     overflow-x: hidden;
@@ -14,31 +12,44 @@ body {
     overflow-x: hidden;
 }
 
+/* Container for consistent centering */
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+    padding: 2rem;
+    margin-top: -4rem;
+}
+
 .card {
     border: none;
     border-radius: 0.5rem;
     box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
-    top: -13rem;
+    width: 100%;
+    max-width: 1200px;
+    margin-bottom: 2rem; /* Adjust the margin for better spacing */
 }
 
 /* Info Bar Styles */
 .info-bar {
     background-color: #6c757d; /* Neutral grey color */
     color: white;
-    margin-bottom: 0.5rem; /* Lift the info bar higher */
+    margin-bottom: 1rem; /* Adjust spacing */
+    width: 100%;
 }
 
 .info-bar .card-body {
-    padding: 0.5rem; /* Reduce padding */
+    padding: 1rem; /* Adjust padding */
 }
 
 .info-bar .card-title {
-    font-size: 1rem; /* Reduce font size */
+    font-size: 1.25rem; /* Adjust font size */
     font-weight: 600;
 }
 
 .info-bar .card-text {
-    font-size: 0.875rem; /* Reduce font size */
+    font-size: 1rem; /* Adjust font size */
     margin-bottom: 0;
 }
 
@@ -46,28 +57,32 @@ body {
 .card-header {
     background-color: #343a40; /* Darker neutral color */
     color: white;
-    font-size: 1rem; /* Reduce font size */
+    font-size: 1.25rem; /* Adjust font size */
     font-weight: 600;
-    padding: 0.75rem; /* Reduce padding */
+    padding: 1rem; /* Adjust padding */
     border-bottom: 2px solid #23272b;
 }
 
 .card-body {
-    padding: 1.5rem;
-    height: 10rem; /* Adjust the height to fit the viewport */
+    padding: 2rem; /* Adjust padding */
+}
+
+.table-responsive {
+    margin-top: 1rem; /* Adjust margin */
+    width: 100%; /* Ensure the table takes full width */
+    max-height: calc(100vh - 350px); /* Adjust the max height to fit within the viewport */
+    overflow-y: auto; /* Enable vertical scrolling */
 }
 
 .table {
-    margin-top: 0.5rem; /* Lift the table higher */
     width: 100%; /* Ensure the table takes full width */
     border-collapse: collapse; /* Collapsed borders */
-    height: 100%; /* Full height for the table */
 }
 
 .table th, .table td {
     text-align: center; /* Center text */
-    padding: 10px; /* Add padding for better readability */
-    border: 1px solid #dee2e6; /* Make borders thin */
+    padding: 1rem; /* Add padding for better readability */
+    border: 1px solid #dee2e6; /* Thin borders */
 }
 
 .table thead th {
@@ -93,22 +108,85 @@ body {
 .chip-active {
     background-color: #d4edda;
     color: #155724;
-    padding: 5px 10px;
+    padding: 0.5rem 1rem;
     border-radius: 25px;
 }
 
 .chip-inactive {
     background-color: #f8d7da;
     color: #721c24;
-    padding: 5px 10px;
+    padding: 0.5rem 1rem;
     border-radius: 25px;
 }
 
-.table-responsive {
-    max-height: calc(100vh - 350px); /* Adjust the max height to fit within the viewport */
-    overflow-y: auto; /* Enable vertical scrolling */
+.btn-primary {
+    margin-left: 5px;
 }
 
-.btn-warning {
-    margin-left: 5px;
+.modal-content {
+    border-radius: 0.5rem;
+}
+
+.modal-header {
+    border-bottom: none;
+}
+
+.modal-body {
+    padding: 2rem;
+}
+
+.modal-footer {
+    border-top: none;
+    padding: 1rem 2rem;
+}
+
+.text-danger {
+    font-size: 0.875rem;
+}
+
+.img-thumbnail {
+    max-width: 50px;
+    height: auto;
+}
+
+/* Success Notification Styles */
+#success-alert {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1050;
+    display: none;
+    animation: fadeInOut 4s ease-in-out;
+}
+
+/* Error Notification Styles */
+#error-alert {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1050;
+    display: none;
+    animation: fadeInOut 4s ease-in-out;
+}
+
+/* Animation for notification */
+@keyframes fadeInOut {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -60%);
+    }
+    10% {
+        opacity: 1;
+        transform: translate(-50%, -50%);
+    }
+    90% {
+        opacity: 1;
+        transform: translate(-50%, -50%);
+    }
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -40%);
+    }
 }

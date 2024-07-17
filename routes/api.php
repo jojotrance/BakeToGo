@@ -5,7 +5,6 @@ use App\Http\Controllers\Api\CourierController;
 use App\Http\Controllers\Api\PaymentMethodController;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\SpreadsheetController;
-use App\Http\Controllers\Api\StocksController;
 use App\Http\Controllers\Api\SupplierController;
 use App\Http\Controllers\Api\UserManagementController;
 use App\Http\Controllers\UserController;
@@ -15,14 +14,13 @@ use Illuminate\Support\Facades\Route;
 
 
 
-
 Route::apiResource('products', ProductController::class);
+
 Route::apiResource('suppliers', SupplierController::class);
+
 Route::apiResource('paymentmethods', PaymentMethodController::class);
+
 Route::apiResource('couriers', CourierController::class);
-Route::apiResource('stocks', StocksController::class);
-
-
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
@@ -56,4 +54,13 @@ Route::middleware('auth:sanctum')->prefix('admin')->group(function () {
     Route::get('/fetchUsers', [UserManagementController::class, 'fetchUsers'])->name('api.admin.fetchUsers');
     Route::post('/import', [SpreadsheetController::class, 'importUsers'])->name('api.admin.importUsers');
     Route::get('/export', [SpreadsheetController::class, 'exportUsers'])->name('api.admin.exportUsers');
+
+   
+    //Route::prefix('/products')->group(function () {
+       // Route::post('/storeProducts', [ProductController::class, 'store'])->name('api.admin.storeProduct');
+       // Route::get('/fetchProducts', [ProductController::class, 'index'])->name('api.admin.fetchProducts');
+       // Route::get('/{product}', [ProductController::class, 'show'])->name('api.admin.showProduct');
+       // Route::post('/{product}', [ProductController::class, 'update'])->name('api.admin.updateProduct');
+       // Route::delete('/{product}', [ProductController::class, 'destroy'])->name('api.admin.deleteProduct');
+   // });
 });

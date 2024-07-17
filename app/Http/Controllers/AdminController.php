@@ -5,6 +5,7 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use Validator;
 
+
 class AdminController extends Controller
 {
     public function index()
@@ -27,14 +28,18 @@ class AdminController extends Controller
         return view('admin.pages.users.userindex');
     }
 
-    public function suppliers()
+    public function suppliersindex()
     {
         return view('admin.pages.suppliers.supplierindex');
     }
 
-    public function inventory()
+    public function courier()
     {
-        return view('admin.pages.inventory.inventoryindex');
+        return view('admin.pages.courier.courierindex');
+    }
+
+    public function stock(){
+        return view('admin.pages.stock.stockindex');
     }
 
 }

@@ -2,6 +2,6 @@
 @extends('layouts.app')
 
 @section('content')
-  <div id="order-content">
-  </div>
+
+
 @endsection

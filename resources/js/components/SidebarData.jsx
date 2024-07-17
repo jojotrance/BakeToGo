@@ -4,6 +4,7 @@ import ViewQuiltSharpIcon from '@mui/icons-material/ViewQuiltSharp';
 import Inventory2SharpIcon from '@mui/icons-material/Inventory2Sharp';
 import AccountTreeIcon from '@mui/icons-material/AccountTree';
 import DashboardRoundedIcon from '@mui/icons-material/DashboardRounded';
+import DeliveryDiningRoundedIcon from '@mui/icons-material/DeliveryDiningRounded';
 import GroupIcon from '@mui/icons-material/Group';
 
 export const SidebarData = [
@@ -30,9 +31,9 @@ export const SidebarData = [
     },
 
     {
-        title: "Inventory",
-        icon: <Inventory2SharpIcon  />,
-        link: "/admin/inventory"
+        title: "Couriers",
+        icon: <DeliveryDiningRoundedIcon   />,
+        link: "/admin/courier"
 
     },
 
@@ -47,6 +48,13 @@ export const SidebarData = [
         title: "Users",
         icon: <GroupIcon  />,
         link: "/admin/users"
+
+    },
+    
+    {
+        title: "Stock",
+        icon: <Inventory2SharpIcon   />,
+        link: "/admin/stock"
 
     },
     
