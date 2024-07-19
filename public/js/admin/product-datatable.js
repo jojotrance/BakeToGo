@@ -1,161 +1,170 @@
 $(document).ready(function() {
-    console.log('Document is ready');
+    console.log('DataTable Initialization');
 
-    var productTable = $('#product_table').DataTable({
-        data: [
-            {id: 1, name: 'Product A', description: 'Description for Product A', price: 10.99, category: 'Bread', stock: 100, image: 'image1.jpg'},
-            {id: 2, name: 'Product B', description: 'Description for Product B', price: 5.99, category: 'Pastries', stock: 50, image: 'image2.jpg'},
-            {id: 3, name: 'Product C', description: 'Description for Product C', price: 7.99, category: 'Cookies', stock: 75, image: 'image3.jpg'},
-            {id: 4, name: 'Product D', description: 'Description for Product D', price: 15.99, category: 'Cakes', stock: 30, image: 'image4.jpg'},
-            {id: 5, name: 'Product E', description: 'Description for Product E', price: 3.99, category: 'Muffins', stock: 150, image: 'image5.jpg'}
-        ],
-        columns: [
-            { data: 'id', name: 'id' },
-            { data: 'name', name: 'name' },
-            { data: 'description', name: 'description' },
-            { data: 'price', name: 'price' },
-            { data: 'category', name: 'category' },
-            { data: 'stock', name: 'stock' },
-            { 
-                data: 'image', 
-                name: 'image', 
-                render: function(data) {
-                    return '<img src="/storage/' + data + '" class="img-thumbnail" width="50" />';
+    var productDataTable;
+
+    // Initialize DataTable if not already initialized
+    if (!$.fn.DataTable.isDataTable('#product_datatable')) {
+        productDataTable = $('#product_datatable').DataTable({
+            processing: true,
+            serverSide: true,
+            ajax: {
+                url: "/api/admin/products/fetchProducts",
+                type: "GET",
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                dataSrc: function(json) {
+                    console.log('JSON Response:', json);
+                    if (!json || !json.data) {
+                        console.error("Invalid JSON response:", json);
+                        return [];
+                    }
+                    return json.data;
+                },
+                error: function(xhr, error, thrown) {
+                    console.error("Error in fetching data: ", xhr.responseText);
                 }
             },
-            { 
-                data: null, 
-                orderable: false, 
-                searchable: false,
-                render: function(data, type, full, meta) {
-                    return '<button type="button" class="edit btn btn-primary btn-sm" data-id="' + full.id + '">Edit</button> ' +
-                           '<button type="button" class="delete btn btn-danger btn-sm" data-id="' + full.id + '">Delete</button>';
+            columns: [
+                { data: 'id', name: 'id', width: '5%' },
+                { data: 'name', name: 'name', width: '20%' },
+                { data: 'description', name: 'description', width: '30%' },
+                { data: 'price', name: 'price', width: '10%' },
+                { data: 'category', name: 'category', width: '10%' },
+                { data: 'stock', name: 'stock', width: '10%' },
+                {
+                    data: 'image',
+                    name: 'image',
+                    width: '10%',
+                    render: function(data, type, full, meta) {
+                        if (type === 'display') {
+                            return '<img src="' + (data ? data : '/images/default-placeholder.png') + '" alt="Product Image" class="img-thumbnail" width="30" height="30">';
+                        }
+                        return data;
+                    }
+                },
+                {
+                    data: null,
+                    width: '15%',
+                    render: function(data, type, row) {
+                        return `
+                            <button type="button" class="btn btn-warning btn-sm edit-btn" data-id="${row.id}">Edit</button>
+                            <button type="button" class="btn btn-danger btn-sm delete-btn" data-id="${row.id}">Delete</button>
+                        `;
+                    }
                 }
-            }
-        ],
-        responsive: true,
-        lengthMenu: [10, 25, 50, 75, 100],
-        pageLength: 10,
-        language: {
-            searchPlaceholder: "Search products",
-            search: ""
-        },
-    });
-
-    function validateForm() {
-        let isValid = true;
-        $('.text-danger').text('');  // Clear previous error messages
-
-        if ($('#name').val().trim() === '') {
-            $('#name_error').text('Name is required');
-            isValid = false;
-        }
-        if ($('#description').val().trim() === '') {
-            $('#description_error').text('Description is required');
-            isValid = false;
-        }
-        if ($('#price').val().trim() === '' || isNaN($('#price').val().trim()) || $('#price').val().trim() <= 0) {
-            $('#price_error').text('Valid price is required and must be greater than zero');
-            isValid = false;
-        }
-        if ($('#category').val().trim() === '') {
-            $('#category_error').text('Category is required');
-            isValid = false;
-        }
-        if ($('#stock').val().trim() === '' || isNaN($('#stock').val().trim()) || $('#stock').val().trim() < 0) {
-            $('#stock_error').text('Valid stock quantity is required and cannot be negative');
-            isValid = false;
-        }
-        if ($('#action_button').text() === 'Create' && $('#image').val().trim() === '') {
-            $('#image_error').text('Image is required');
-            isValid = false;
-        }
-
-        return isValid;
+            ]
+        });
     }
 
-    $('#create_product').on('click', function() {
-        console.log('Create Product button clicked');
-        $('#product_form')[0].reset();
-        $('#modal_title').text('Add New Product');
-        $('#action_button').text('Create');
-        $('#image').attr('required', true);
-        $('.text-danger').text('');
-        $('#product_modal').modal('show');
+    // Handle form submissions
+    $('#product_form').on('submit', function(event) {
+        event.preventDefault();
+        var formData = new FormData(this);
+        var actionUrl = $('#hidden_id').val() ? `/api/admin/products/update/${$('#hidden_id').val()}` : '/api/admin/products/create';
+        var method = $('#hidden_id').val() ? 'POST' : 'POST';
+
+        $.ajax({
+            url: actionUrl,
+            method: method,
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function(response) {
+                console.log('Response:', response);
+                if (response.success) {
+                    $('#product_modal').modal('hide');
+                    $('#success-message').text(response.message);
+                    $('#success-alert').show();
+                    productDataTable.ajax.reload();
+                } else {
+                    $('#error-message').text(response.message);
+                    $('#error-alert').show();
+                }
+            },
+            error: function(xhr) {
+                console.error("Error:", xhr.responseText);
+                $('#error-message').text('An error occurred. Please try again.');
+                $('#error-alert').show();
+            }
+        });
     });
 
-    $('#product_form').on('submit', function(e) {
-        e.preventDefault();
-        if (validateForm()) {
-            $('#confirm_message').text('Are you sure you want to ' + ($('#action_button').text() === 'Create' ? 'add this product?' : 'update this product?'));
-            $('#confirm_button').text($('#action_button').text() === 'Create' ? 'Add' : 'Update');
-            $('#confirmModal').modal('show');
-        }
-    });
-
-    $('#confirm_button').on('click', function() {
-        $('#confirmModal').modal('hide');
-        $('#product_modal').modal('hide');
-        showNotification('Product has been successfully ' + ($('#action_button').text() === 'Create' ? 'added!' : 'updated!'), 'success');
-    });
-
-    $(document).on('click', '.edit', function() {
+    // Handle edit button click
+    $(document).on('click', '.edit-btn', function() {
         var id = $(this).data('id');
-        alert('Edit clicked for ID: ' + id);
-        $('#name').val('Product A');  // Example value
-        $('#description').val('Description for Product A');  // Example value
-        $('#price').val(10.99);  // Example value
-        $('#category').val('Bread');  // Example value
-        $('#stock').val(100);  // Example value
-        $('#hidden_id').val(id);
-        $('#modal_title').text('Edit Product');
-        $('#action_button').text('Update');
-        $('#image').attr('required', false);
-        $('.text-danger').text('');
-        $('#product_modal').modal('show');
+        $.ajax({
+            url: `/api/admin/products/${id}`,
+            method: 'GET',
+            success: function(response) {
+                if (response.success) {
+                    var product = response.data;
+                    $('#name').val(product.name);
+                    $('#description').val(product.description);
+                    $('#price').val(product.price);
+                    $('#category').val(product.category);
+                    $('#stock').val(product.stock);
+                    $('#hidden_id').val(product.id);
+                    $('#modal_title').text('Edit Product');
+                    $('#product_modal').modal('show');
+                } else {
+                    console.error('Failed to fetch product data.');
+                }
+            },
+            error: function(xhr) {
+                console.error("Error:", xhr.responseText);
+            }
+        });
     });
 
-    $(document).on('click', '.delete', function() {
+    // Handle delete button click
+    $(document).on('click', '.delete-btn', function() {
         var id = $(this).data('id');
         $('#confirm_message').text('Are you sure you want to delete this product?');
-        $('#confirm_button').text('Delete');
+        $('#confirm_button').data('id', id);
         $('#confirmModal').modal('show');
+    });
 
-        $('#confirm_button').off('click').on('click', function() {
-            $('#confirmModal').modal('hide');
-            showNotification('Product has been successfully deleted!', 'success');
+    // Confirm delete action
+    $('#confirm_button').on('click', function() {
+        var id = $(this).data('id');
+        $.ajax({
+            url: `/api/admin/products/delete/${id}`,
+            method: 'DELETE',
+            success: function(response) {
+                if (response.success) {
+                    $('#confirmModal').modal('hide');
+                    $('#success-message').text(response.message);
+                    $('#success-alert').show();
+                    productDataTable.ajax.reload();
+                } else {
+                    $('#error-message').text(response.message);
+                    $('#error-alert').show();
+                }
+            },
+            error: function(xhr) {
+                console.error("Error:", xhr.responseText);
+                $('#error-message').text('An error occurred. Please try again.');
+                $('#error-alert').show();
+            }
         });
     });
 
-    $('#export_excel').on('click', function() {
-        console.log('Export to Excel button clicked');
-        var data = productTable.rows({ search: 'applied' }).data().toArray(); // Get all the data from the table
-        var formattedData = data.map(function(product) {
-            return {
-                ID: product.id,
-                Name: product.name,
-                Description: product.description,
-                Price: product.price,
-                Category: product.category,
-                Stock: product.stock,
-                Image: product.image
-            };
-        });
-        var ws = XLSX.utils.json_to_sheet(formattedData);
-        var wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "Products");
-        XLSX.writeFile(wb, "products.xlsx");
+    // Clear alerts on modal hide
+    $('#product_form').on('hidden.bs.modal', function() {
+        $('#success-alert').hide();
+        $('#error-alert').hide();
+        $('#product_form')[0].reset();
+        $('#hidden_id').val('');
+        $('#modal_title').text('Add New Product');
     });
 
-    function showNotification(message, type) {
-        var alertDiv = type === 'success' ? $('#success-alert') : $('#error-alert');
-        var messageSpan = type === 'success' ? $('#success-message') : $('#error-message');
-        
-        messageSpan.html(message);
-        alertDiv.fadeIn();
-
-        setTimeout(function() {
-            alertDiv.fadeOut();
-        }, 4000);
-    }
+    // Handle create product button click
+    $('#create_product').on('click', function() {
+        $('#product_form')[0].reset();
+        $('#hidden_id').val('');
+        $('#modal_title').text('Add New Product');
+        $('#product_modal').modal('show');
+    });
 });

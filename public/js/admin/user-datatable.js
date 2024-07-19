@@ -3,12 +3,13 @@ $(document).ready(function() {
 
     var dataTable;
 
+    // Initialize DataTable if not already initialized
     if (!$.fn.DataTable.isDataTable('#datatable')) {
         dataTable = $('#datatable').DataTable({
             processing: true,
             serverSide: true,
             ajax: {
-                url: "/api/admin/fetchUsers",
+                url: "/api/admin/users/fetchUsers",
                 type: "GET",
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -74,14 +75,14 @@ $(document).ready(function() {
             ],
             searching: true,
             language: {
-                emptyTable: "<tr><td colspan='11'>No data available in table</td></tr>",
+                emptyTable: "No data available in table",
                 info: "Showing _START_ to _END_ of _TOTAL_ entries",
                 infoEmpty: "Showing 0 to 0 of 0 entries",
                 lengthMenu: "Show _MENU_ entries",
                 loadingRecords: "Loading...",
                 processing: "Processing...",
                 search: "Search:",
-                zeroRecords: "<tr><td colspan='11'>No matching records found</td></tr>"
+                zeroRecords: "No matching records found"
             },
             order: [[0, "desc"]],
             scrollY: "60vh",
@@ -114,10 +115,10 @@ $(document).ready(function() {
     // Handle Add/Edit modal actions
     $('#sample_form').on('submit', function(event) {
         event.preventDefault();
-        var action_url = "/api/admin/store";
+        var action_url = "/api/admin/users/store";
 
-        if ($('#action').val() == 'Edit') {
-            action_url = "/api/admin/updateUserData";
+        if ($('#action').val() === 'Edit') {
+            action_url = "/api/admin/users/updateUserData";
         }
 
         var formData = {
@@ -168,7 +169,7 @@ $(document).ready(function() {
         $('#sample_form').find('.text-danger').html('');
 
         $.ajax({
-            url: "/api/admin/user/" + id,
+            url: "/api/admin/users/user/" + id,
             method: 'GET',
             dataType: 'json',
             success: function(data) {
@@ -195,7 +196,7 @@ $(document).ready(function() {
         var id = $(this).data('id');
         if (confirm("Are you sure you want to delete this user?")) {
             $.ajax({
-                url: "/api/admin/users/delete/" + id,
+                url: "/api/admin/users/users/delete/" + id,
                 method: 'DELETE',
                 data: { id: id },
                 dataType: 'json',
@@ -228,7 +229,7 @@ $(document).ready(function() {
         event.preventDefault();
         var formData = new FormData(this);
         $.ajax({
-            url: "/api/admin/import",
+            url: "/api/admin/users/import",
             method: "POST",
             data: formData,
             contentType: false,
@@ -266,6 +267,6 @@ $(document).ready(function() {
 
     // Handle Export action
     $('#export_excel').click(function() {
-        window.location.href = "/api/admin/export";
+        window.location.href = "/api/admin/users/export";
     });
 });

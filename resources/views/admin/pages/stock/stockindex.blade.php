@@ -75,9 +75,7 @@
                                 <label class="form-label">Supplier</label>
                                 <select name="supplier_id" id="supplier_id" class="form-control" required>
                                     <option value="">Select Supplier</option>
-                                    <option value="1">Supplier A</option>
-                                    <option value="2">Supplier B</option>
-                                    <option value="3">Supplier C</option>
+                                    <!-- Dynamic options will be loaded here -->
                                 </select>
                                 <span id="supplier_id_error" class="text-danger"></span>
                             </div>
@@ -92,45 +90,6 @@
             </div>
         </div>
         <!-- End of Stock Form Modal -->
-
-        <!-- Custom Confirm Modal for Add/Edit -->
-        <div class="modal fade" id="customConfirmModal" tabindex="-1" role="dialog" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Confirmation</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <p id="custom_confirm_message"></p>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="button" class="btn btn-primary" id="custom_confirm_button">Confirm</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- End of Custom Confirm Modal -->
-
-        <!-- Custom Fail Modal -->
-        <div class="modal fade" id="customFailModal" tabindex="-1" role="dialog" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Error</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                    </div>
-                    <div class="modal-body">
-                        <p id="custom_fail_message"></p>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">OK</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- End of Custom Fail Modal -->
 
         <!-- Confirm Modal for Delete -->
         <div class="modal fade" id="confirmDeleteModal" tabindex="-1" role="dialog" aria-hidden="true">
@@ -154,4 +113,6 @@
 
     </div>
 </div>
+
+<script src="{{ asset('js/stock_management.js') }}"></script>
 @endsection

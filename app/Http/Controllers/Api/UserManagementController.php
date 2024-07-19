@@ -10,62 +10,61 @@ use App\Models\User;
 use App\Models\Customer;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Cache;
 
 class UserManagementController extends Controller
 {
     public function fetchUsers(Request $request)
-{
-    // Use eager loading with 'with' method
-    $query = User::with('customer')
-        ->select('users.*');
+    {
+        $query = User::with('customer')
+            ->select('users.*');
 
-    if ($request->has('search')) {
-        $searchValue = $request->input('search');
-        $query->where(function($q) use ($searchValue) {
-            $q->where('users.name', 'like', "%{$searchValue}%")
-              ->orWhere('users.email', 'like', "%{$searchValue}%")
-              ->orWhereHas('customer', function ($q) use ($searchValue) {
-                  $q->where('fname', 'like', "%{$searchValue}%")
-                    ->orWhere('lname', 'like', "%{$searchValue}%");
-              });
+        if ($request->has('search')) {
+            $searchValue = $request->input('search');
+            $query->where(function ($q) use ($searchValue) {
+                $q->where('users.name', 'like', "%{$searchValue}%")
+                    ->orWhere('users.email', 'like', "%{$searchValue}%")
+                    ->orWhereHas('customer', function ($q) use ($searchValue) {
+                        $q->where('fname', 'like', "%{$searchValue}%")
+                            ->orWhere('lname', 'like', "%{$searchValue}%");
+                    });
+            });
+        }
+
+        $totalRecords = $query->count();
+        $filteredRecords = $totalRecords;
+
+        $users = $query->paginate($request->input('length'));
+
+        $formattedUsers = $users->map(function ($user) {
+            return [
+                'id' => $user->id,
+                'profile_image' => $user->profile_image ? asset('storage/' . $user->profile_image) : null,
+                'name' => $user->name,
+                'email' => $user->email,
+                'active_status' => $user->active_status,
+                'role' => $user->role,
+                'fname' => $user->customer ? $user->customer->fname : null,
+                'lname' => $user->customer ? $user->customer->lname : null,
+                'contact' => $user->customer ? $user->customer->contact : null,
+                'address' => $user->customer ? $user->customer->address : null,
+            ];
         });
+
+        return response()->json([
+            'draw' => $request->input('draw'),
+            'recordsTotal' => $totalRecords,
+            'recordsFiltered' => $filteredRecords,
+            'data' => $formattedUsers,
+        ]);
     }
-
-    $totalRecords = $query->count();
-    $filteredRecords = $totalRecords;
-
-    $users = $query->skip($request->input('start'))
-                   ->take($request->input('length'))
-                   ->get();
-
-    $formattedUsers = $users->map(function($user) {
-        return [
-            'id' => $user->id,
-            'profile_image' => $user->profile_image ? asset('storage/' . $user->profile_image) : null,
-            'name' => $user->name,
-            'email' => $user->email,
-            'active_status' => $user->active_status,
-            'role' => $user->role,
-            'fname' => $user->customer ? $user->customer->fname : null,
-            'lname' => $user->customer ? $user->customer->lname : null,
-            'contact' => $user->customer ? $user->customer->contact : null,
-            'address' => $user->customer ? $user->customer->address : null,
-        ];
-    });
-
-    return response()->json([
-        'draw' => $request->input('draw'),
-        'recordsTotal' => $totalRecords,
-        'recordsFiltered' => $filteredRecords,
-        'data' => $formattedUsers,
-    ]);
-}
-
 
     public function getEditUserData($id)
     {
         try {
-            $user = User::with('customer')->findOrFail($id);
+            $user = Cache::remember("user-{$id}", 60, function () use ($id) {
+                return User::with('customer')->findOrFail($id);
+            });
 
             return response()->json([
                 'id' => $user->id,
@@ -88,49 +87,43 @@ class UserManagementController extends Controller
         }
     }
 
-
-
-
     public function updateUserData(Request $request)
-{
-    // Add logging to capture the input request
-    \Log::info('Update User Data Request: ', $request->all());
+    {
+        \Log::info('Update User Data Request: ', $request->all());
 
-    $request->validate([
-        'active_status' => 'required|in:1,0',
-        'role' => 'required|in:admin,customer',
-    ]);
-
-    DB::beginTransaction();
-
-    try {
-        $user = User::findOrFail($request->id);
-
-        // Update user data
-        $user->active_status = $request->active_status == 1 ? 1 : 0;
-        $user->role = $request->role;
-
-        $user->save();
-
-        DB::commit();
-
-        return response()->json([
-            'success' => 'User updated successfully'
+        $request->validate([
+            'active_status' => 'required|in:1,0',
+            'role' => 'required|in:admin,customer',
         ]);
-    } catch (\Exception $e) {
-        DB::rollBack();
-        // Log the error details
-        \Log::error('Error updating user data: ', ['error' => $e->getMessage()]);
-        return response()->json([
-            'error' => [
-                'message' => 'An error occurred while updating the user.',
-                'details' => $e->getMessage()
-            ]
-        ], 500);
-    }
-}
-    
 
+        DB::beginTransaction();
+
+        try {
+            $user = User::findOrFail($request->id);
+
+            $user->active_status = $request->active_status == 1 ? 1 : 0;
+            $user->role = $request->role;
+
+            $user->save();
+
+            Cache::forget("user-{$user->id}");
+
+            DB::commit();
+
+            return response()->json([
+                'success' => 'User updated successfully'
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            \Log::error('Error updating user data: ', ['error' => $e->getMessage()]);
+            return response()->json([
+                'error' => [
+                    'message' => 'An error occurred while updating the user.',
+                    'details' => $e->getMessage()
+                ]
+            ], 500);
+        }
+    }
 
     public function deleteUser($id)
     {
@@ -140,6 +133,8 @@ class UserManagementController extends Controller
 
         try {
             $user->delete();
+
+            Cache::forget("user-{$id}");
 
             DB::commit();
 
@@ -157,9 +152,6 @@ class UserManagementController extends Controller
         }
     }
 
-
-
-        
     public function storeUser(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -173,7 +165,7 @@ class UserManagementController extends Controller
             'contact' => 'nullable|string|max:255',
             'address' => 'nullable|string|max:255',
         ]);
-        
+
         if ($validator->fails()) {
             return response()->json(['errors' => $validator->errors()], 422);
         }
@@ -183,7 +175,6 @@ class UserManagementController extends Controller
         try {
             $user = $request->id ? User::find($request->id) : new User();
 
-            // Update the user data
             $user->name = $request->name;
             $user->email = $request->email;
             if ($request->filled('password')) {
@@ -206,6 +197,8 @@ class UserManagementController extends Controller
             $customer->address = $request->address;
 
             $customer->save();
+
+            Cache::forget("user-{$user->id}");
 
             DB::commit();
 

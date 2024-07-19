@@ -1,7 +1,6 @@
-  <!-- resources/views/layouts/app.blade.php -->
-  <!DOCTYPE html>
-  <html lang="en">
-  <head>
+<!DOCTYPE html>
+<html lang="en">
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Supplier</title>
@@ -19,7 +18,7 @@
     <!-- Custom CSS Files -->
     <link rel="stylesheet" href="{{ asset('css/orderindex.css') }}">
     <link rel="stylesheet" href="{{ asset('css/user-datatable.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/error403.scss') }}">
+    <link rel="stylesheet" href="{{ asset('css/error403.css') }}">
 
     <!-- React and Vite -->
     @viteReactRefresh
@@ -27,20 +26,20 @@
 
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
-  </head>
-  <body>
+</head>
+<body>
     @php
-      $hideReactComponents = isset($hideReactComponents) && $hideReactComponents ? 'true' : 'false';
+        $hideReactComponents = isset($hideReactComponents) && $hideReactComponents ? 'true' : 'false';
     @endphp
 
     <div id="hello-react" 
-        data-user="{{ json_encode(Auth::user()) }}" 
-        data-role="{{ Auth::user()->is_admin ? 'admin' : 'customer' }}"
-        data-hide-components="{{ $hideReactComponents }}">
+         data-user="{{ json_encode(Auth::user()) }}" 
+         data-role="{{ Auth::user()->is_admin ? 'admin' : 'customer' }}"
+         data-hide-components="{{ $hideReactComponents }}">
     </div>
 
     <div id="content">
-      @yield('content')
+        @yield('content')
     </div>
 
     <!-- jQuery -->
@@ -59,28 +58,27 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.70/pdfmake.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.70/vfs_fonts.js"></script>
-    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons  .html5.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.html5.min.js"></script>
     <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js"></script>
 
+    <!-- Custom JS Files -->
     <script src="{{ asset('js/error403.js') }}"></script>
     <script src="{{ asset('js/admin/user-datatable.js') }}"></script>
     <script src="{{ asset('js/admin/product-datatable.js') }}"></script>
-      <script src="{{ asset('js/admin/courier-datatable.js') }}"></script>
-      <script src="{{ asset('js/admin/order-datatable.js') }}"></script>
-      <script src="{{ asset('js/admin/stock-datatable.js') }}"></script>
-      <script src="{{ asset('js/admin/supplier-datatable.js') }}"></script>
-
-
+    <script src="{{ asset('js/admin/courier-datatable.js') }}"></script>
+    <script src="{{ asset('js/admin/order-datatable.js') }}"></script>
+    <script src="{{ asset('js/admin/stock-datatable.js') }}"></script>
+    <script src="{{ asset('js/admin/supplier-datatable.js') }}"></script>
 
     <!-- Include pushed scripts -->
     @stack('scripts')
 
     <script>
-      $.ajaxSetup({
-        headers: {
-          'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-        }
-      });
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
     </script>
-  </body>
-  </html>
+</body>
+</html>

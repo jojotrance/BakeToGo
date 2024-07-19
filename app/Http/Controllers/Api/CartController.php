@@ -2,7 +2,7 @@
 
 // app/Http/Controllers/Customer/CartController.php
 
-namespace App\Http\Controllers\Customer;
+namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;

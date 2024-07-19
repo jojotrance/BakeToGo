@@ -12,12 +12,12 @@ class ProductController extends Controller
 {
     public function index()
     {
-        $products = Product::get();
-        if ($products->count() > 0) {
-            return ProductResource::collection($products);
-        } else {
-            return response()->json(['message' => 'no records'], 200);
-        }
+        \Log::info('Fetching products');
+        $products = Product::all();
+        \Log::info('Products count: ' . $products->count());
+        return response()->json([
+            'data' => ProductResource::collection($products)->resolve()
+        ]);
     }
 
     public function store(Request $request)

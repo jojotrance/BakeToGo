@@ -40,7 +40,7 @@
             </div>
             <div class="card-body">
                 <div class="table-responsive">
-                    <table class="table" id="product_table">
+                    <table class="table" id="product_datatable">
                         <thead>
                             <tr>
                                 <th>ID</th>
@@ -87,14 +87,7 @@
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Category</label>
-                                <select name="category" id="category" class="form-control" required>
-                                    <option value="">Select Category</option>
-                                    <option value="Bread">Bread</option>
-                                    <option value="Pastries">Pastries</option>
-                                    <option value="Cookies">Cookies</option>
-                                    <option value="Cakes">Cakes</option>
-                                    <option value="Muffins">Muffins</option>
-                                </select>
+                                <input type="text" name="category" id="category" class="form-control" required />
                                 <span id="category_error" class="text-danger"></span>
                             </div>
                             <div class="mb-3">
@@ -104,14 +97,14 @@
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Image</label>
-                                <input type="file" name="image" id="image" class="form-control" accept="image/*" required />
+                                <input type="file" name="image" id="image" class="form-control" />
                                 <span id="image_error" class="text-danger"></span>
                             </div>
-                            <input type="hidden" name="hidden_id" id="hidden_id" />
+                            <input type="hidden" id="hidden_id" name="id" />
                         </div>
                         <div class="modal-footer">
+                            <button type="submit" class="btn btn-primary">Save</button>
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            <button type="submit" class="btn btn-primary" id="action_button">Create</button>
                         </div>
                     </form>
                 </div>
@@ -119,12 +112,12 @@
         </div>
         <!-- End of Product Form Modal -->
 
-        <!-- Confirm Modal -->
-        <div class="modal fade" id="confirmModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <!-- Confirm Delete Modal -->
+        <div class="modal fade" id="confirmModal" tabindex="-1" aria-labelledby="confirmModalLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title">Confirmation</h5>
+                        <h5 class="modal-title" id="confirmModalLabel">Confirm Delete</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
@@ -132,14 +125,14 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="button" class="btn btn-primary" id="confirm_button">Confirm</button>
+                        <button type="button" id="confirm_button" class="btn btn-danger">Delete</button>
                     </div>
                 </div>
             </div>
         </div>
-        <!-- End of Confirm Modal -->
-
+        <!-- End of Confirm Delete Modal -->
     </div>
 </div>
-@endsection
 
+<script src="{{ asset('js/product_management.js') }}"></script>
+@endsection
