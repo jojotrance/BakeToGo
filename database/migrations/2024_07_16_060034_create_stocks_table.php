@@ -14,7 +14,7 @@ c<?php
             Schema::create('stocks', function (Blueprint $table) {
                 $table->id();
                 $table->integer('quantity');
-                $table->unsignedBigInteger('supplier_id');
+                $table->unsignedBigInteger('supplier_id')->nullable();
                 $table->unsignedBigInteger('product_id');
                 $table->foreign('supplier_id')->references('id')->on('suppliers')->onDelete('cascade');
                 $table->foreign('product_id')->references('id')->on('products')->onDelete('cascade');

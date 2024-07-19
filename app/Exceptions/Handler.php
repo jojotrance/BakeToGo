@@ -56,11 +56,21 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Throwable $exception)
     {
-       if($this->isHttpException($exception)){
-        return response()->view('handlers.error404');
-    }else{
-        return response()->view('handlers.error403');
+        if ($this->isHttpException($exception)) {
+            // Handle 404 error
+            if ($exception->getStatusCode() == 404) {
+                return response()->json(['error' => 'Page not found'], 404);
+            }
+            
+            // Handle other HTTP exceptions
+            return response()->json(['error' => 'An error occurred'], $exception->getStatusCode());
+        } elseif ($exception instanceof \Illuminate\Auth\Access\AuthorizationException) {
+            // Handle 403 error
+            return response()->json(['error' => 'Forbidden'], 403);
+        }
+
+        // Handle all other exceptions
+        return parent::render($request, $exception);
     }
 }
 
-}

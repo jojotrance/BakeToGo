@@ -42,6 +42,4 @@ Route::group(['prefix' => 'auth', 'middleware' => 'guest'], function () {
     Route::get('/signup', [AuthController::class, 'signup'])->name('signup');
 });
 
-// Error Routes
-Route::get('/404', [ErrorController::class, 'error404'])->name('error.404');
-Route::get('/403', [ErrorController::class, 'error403'])->name('error.403');
+

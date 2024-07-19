@@ -9,7 +9,7 @@ $(document).ready(function() {
             processing: true,
             serverSide: true,
             ajax: {
-                url: "/api/admin/users/fetchUsers",
+                url: "/",
                 type: "GET",
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -115,10 +115,10 @@ $(document).ready(function() {
     // Handle Add/Edit modal actions
     $('#sample_form').on('submit', function(event) {
         event.preventDefault();
-        var action_url = "/api/admin/users/store";
+        var action_url = "/api/users";
 
         if ($('#action').val() === 'Edit') {
-            action_url = "/api/admin/users/updateUserData";
+            action_url = "/api/users/" + $('#id').val();
         }
 
         var formData = {
@@ -169,7 +169,7 @@ $(document).ready(function() {
         $('#sample_form').find('.text-danger').html('');
 
         $.ajax({
-            url: "/api/admin/users/user/" + id,
+            url: "/api/users/" + id,
             method: 'GET',
             dataType: 'json',
             success: function(data) {
@@ -196,7 +196,7 @@ $(document).ready(function() {
         var id = $(this).data('id');
         if (confirm("Are you sure you want to delete this user?")) {
             $.ajax({
-                url: "/api/admin/users/users/delete/" + id,
+                url: "/api/users/" + id,
                 method: 'DELETE',
                 data: { id: id },
                 dataType: 'json',
@@ -229,7 +229,7 @@ $(document).ready(function() {
         event.preventDefault();
         var formData = new FormData(this);
         $.ajax({
-            url: "/api/admin/users/import",
+            url: "/api/users/import",
             method: "POST",
             data: formData,
             contentType: false,
@@ -267,6 +267,6 @@ $(document).ready(function() {
 
     // Handle Export action
     $('#export_excel').click(function() {
-        window.location.href = "/api/admin/users/export";
+        window.location.href = "/api/users/export";
     });
 });

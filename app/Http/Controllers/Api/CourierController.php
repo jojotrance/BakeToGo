@@ -12,12 +12,8 @@ class CourierController extends Controller
 {
     public function index()
     {
-        $couriers = Courier::get();
-        if ($couriers->count() > 0) {
-            return CourierResource::collection($couriers);
-        } else {
-            return response()->json(['message' => 'no records'], 200);
-        }
+        $couriers = Courier::all();
+        return CourierResource::collection($couriers);
     }
 
     public function store(Request $request)
@@ -25,24 +21,22 @@ class CourierController extends Controller
         $validator = Validator::make($request->all(), [
             'courier_name' => 'required',
             'branch' => 'required',
-            'image' => 'required'
+            'image' => 'required|image'
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['error' => $validator->errors()], 401);
+            return response()->json(['error' => $validator->errors()], 422);
         }
+
+        $imagePath = $request->file('image')->store('couriers', 'public');
 
         $courier = Courier::create([
             'courier_name' => $request->courier_name,
             'branch' => $request->branch,
-            'image' => $request->image
-
+            'image' => $imagePath
         ]);
-        return response()->json([
-            'message' => 'Courier created',
-            'data' => new CourierResource($courier)
 
-        ], 200);
+        return response()->json(['message' => 'Courier created', 'data' => new CourierResource($courier)], 201);
     }
 
     public function show(Courier $courier)
@@ -50,29 +44,30 @@ class CourierController extends Controller
         return new CourierResource($courier);
     }
 
-
     public function update(Request $request, Courier $courier)
     {
         $validator = Validator::make($request->all(), [
             'courier_name' => 'required',
             'branch' => 'required',
-            'image' => 'required'
+            'image' => 'nullable|image'
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['error' => $validator->errors()], 401);
+            return response()->json(['error' => $validator->errors()], 422);
         }
 
-        $courier->update([
-            'courier_name' => $request->courier_name,
-            'branch' => $request->branch,
-            'image' => $request->image
-        ]);
-        return response()->json([
-            'message' => 'Courier created',
-            'data' => new CourierResource($courier)
+        if ($request->hasFile('image')) {
+            $imagePath = $request->file('image')->store('couriers', 'public');
+            $courier->update([
+                'courier_name' => $request->courier_name,
+                'branch' => $request->branch,
+                'image' => $imagePath
+            ]);
+        } else {
+            $courier->update($request->only(['courier_name', 'branch']));
+        }
 
-        ], 200);
+        return response()->json(['message' => 'Courier updated', 'data' => new CourierResource($courier)], 200);
     }
 
     public function destroy(Courier $courier)

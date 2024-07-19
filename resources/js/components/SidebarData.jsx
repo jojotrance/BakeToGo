@@ -30,6 +30,15 @@ export const SidebarData = [
 
     },
 
+
+    
+    {
+        title: "Suppliers",
+        icon: <AccountTreeIcon />,
+        link: "/admin/suppliers"
+
+    },
+    
     {
         title: "Couriers",
         icon: <DeliveryDiningRoundedIcon   />,
@@ -37,12 +46,6 @@ export const SidebarData = [
 
     },
 
-    {
-        title: "Suppliers",
-        icon: <AccountTreeIcon />,
-        link: "/admin/suppliers"
-
-    },
 
     {
         title: "Users",

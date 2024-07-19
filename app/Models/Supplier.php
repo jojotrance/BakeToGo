@@ -4,10 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Laravel\Sanctum\HasApiTokens;
+use Illuminate\Notifications\Notifiable;
 
 class Supplier extends Model
 {
-    use HasFactory;
+    use HasFactory, HasApiTokens, Notifiable;
     protected $table = 'suppliers';
 
     protected $fillable = [
@@ -19,4 +21,5 @@ class Supplier extends Model
     {
         return $this->hasMany(Stock::class);
     }
+    
 }

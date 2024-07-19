@@ -62,7 +62,6 @@
     <script src="https://cdn.datatables.net/buttons/2.4.2/js/buttons.print.min.js"></script>
 
     <!-- Custom JS Files -->
-    <script src="{{ asset('js/error403.js') }}"></script>
     <script src="{{ asset('js/admin/user-datatable.js') }}"></script>
     <script src="{{ asset('js/admin/product-datatable.js') }}"></script>
     <script src="{{ asset('js/admin/courier-datatable.js') }}"></script>

@@ -20,6 +20,8 @@ class StockResource extends JsonResource
             'quantity' => $this->quantity,
             'supplier_id' => $this->supplier_id,
             'supplier_name' => $this->supplier ? $this->supplier->supplier_name : null, // Include supplier name
+            'product_id' => $this->product_id,
+            'product_name' => $this->product ? $this->product->name : null, // Include product name
         ];
     }
 }

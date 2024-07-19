@@ -1,17 +1,34 @@
-$(function() {
-    console.log('Document is ready');
+$(document).ready(function() {
+    let suppliers = [];
 
+    // Fetch all suppliers and store them locally
+    $.ajax({
+        url: "/api/admin/suppliers",
+        method: 'GET',
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        },
+        success: function(response) {
+            suppliers = response.data;
+        },
+        error: function(xhr, status, error) {
+            console.error('Failed to fetch suppliers:', error);
+        }
+    });
+
+    // Initialize DataTable for suppliers
     var supplierTable = $('#supplier_table').DataTable({
         processing: true,
         serverSide: true,
         ajax: {
-            url: "/api/admin/suppliers/fetchSuppliers",
+            url: "/api/admin/suppliers",
             type: 'GET',
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             },
             dataSrc: function(json) {
                 console.log('Supplier data:', json.data);
+                suppliers = json.data; // Update the local suppliers array
                 return json.data;
             },
             error: function(xhr, status, error) {
@@ -49,45 +66,22 @@ $(function() {
         }
     });
 
-    var stockTable = $('#stock_table').DataTable({
-        processing: true,
-        serverSide: true,
-        ajax: {
-            url: "/api/admin/stocks/fetchStocks",
-            type: 'GET',
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            },
-            dataSrc: function(json) {
-                console.log('Stock data:', json.data);
-                return json.data;
-            },
-            error: function(xhr, status, error) {
-                console.error('AJAX Error:', status, error);
-                console.error('Response Text:', xhr.responseText);
-                showNotification('Failed to load stocks. Please try again.', 'error');
-            }
-        },
-        columns: [
-            { data: 'id', name: 'id' },
-            { data: 'quantity', name: 'quantity' },
-            { data: 'supplier.supplier_name', name: 'supplier.supplier_name' },
-            {
-                data: null,
-                orderable: false,
-                searchable: false,
-                render: function(data, type, full, meta) {
-                    return '<button type="button" class="edit btn btn-primary btn-sm" data-id="' + full.id + '">Edit</button> ' +
-                           '<button type="button" class="delete btn btn-danger btn-sm" data-id="' + full.id + '">Delete</button>';
-                }
-            }
-        ],
-        responsive: true,
-        lengthMenu: [10, 25, 50, 75, 100],
-        pageLength: 10,
-        language: {
-            searchPlaceholder: "Search stocks",
-            search: ""
+    // Real-time supplier name detection
+    $('#supplier_name').on('input', function() {
+        var supplierName = $(this).val().trim().toLowerCase();
+        if (supplierName === '') {
+            $('#supplier_name_error').text('');
+            return;
+        }
+
+        var exists = suppliers.some(function(supplier) {
+            return supplier.supplier_name.toLowerCase() === supplierName;
+        });
+
+        if (exists && $('#action_button_supplier').text() !== 'Update') {
+            $('#supplier_name_error').text('Supplier with this name already exists.');
+        } else {
+            $('#supplier_name_error').text('');
         }
     });
 
@@ -108,36 +102,15 @@ $(function() {
         if (!validateForm()) return;
 
         var action_url = $('#action_button_supplier').text() === 'Update' ? 
-                        "/api/admin/suppliers/suppliers/" + $('#hidden_id_supplier').val() : 
-                        "/api/admin/suppliers/storeSuppliers";
-        var method = $('#action_button_supplier').text() === 'Update' ? 'PUT' : 'POST';
+                        "/api/admin/suppliers/" + $('#hidden_id_supplier').val() : 
+                        "/api/admin/suppliers";
+        var method = $('#action_button_supplier').text() === 'Update' ? 'POST' : 'POST';
         var formData = new FormData(this);
 
-        // Check for existing supplier before submitting
-        $.ajax({
-            url: "/api/admin/suppliers/checkSupplierExistence",
-            method: 'POST',
-            data: { supplier_name: $('#supplier_name').val().trim() },
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            },
-            success: function(data) {
-                if (data.exists && $('#action_button_supplier').text() !== 'Update') {
-                    showModalNotification('Supplier with this name already exists. Please choose a different name.', 'error');
-                    return; // Prevent submission
-                } else {
-                    submitForm(action_url, method, formData);
-                }
-            },
-            error: function(xhr, status, error) {
-                console.error('AJAX Error:', error);
-                console.log('Response:', xhr.responseText);
-                showModalNotification('An error occurred while checking for existing suppliers. Please try again.', 'error');
-            }
-        });
-    });
+        if ($('#action_button_supplier').text() === 'Update') {
+            formData.append('_method', 'PUT');
+        }
 
-    function submitForm(action_url, method, formData) {
         $.ajax({
             url: action_url,
             method: method,
@@ -149,16 +122,14 @@ $(function() {
             },
             success: function(data) {
                 console.log('Submit response:', data);
-                if (data.success) {
+                if (data.message) {
                     $('#supplier_modal').modal('hide');
                     supplierTable.ajax.reload(null, false);
                     showNotification(data.message, 'success');
                     $('#supplier_form')[0].reset();
-
-                    // Update stock table with new supplier and default stock
-                    stockTable.ajax.reload(null, false);
+                    suppliers.push(data.supplier); // Add new supplier to the local array
                 } else {
-                    showModalNotification(data.message || 'An error occurred', 'error');
+                    showModalNotification(data.error || 'An error occurred', 'error');
                 }
             },
             error: function(xhr, status, error) {
@@ -167,7 +138,7 @@ $(function() {
                 showModalNotification('An error occurred. Please try again.', 'error');
             }
         });
-    }
+    });
 
     // Handle Edit action
     $(document).on('click', '.edit', function() {
@@ -180,9 +151,12 @@ $(function() {
             url: "/api/admin/suppliers/" + id,
             method: 'GET',
             dataType: 'json',
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
             success: function(response) {
                 console.log('Edit Data:', response);
-                if (response.success && response.data) {
+                if (response.data) {
                     var supplier = response.data;
                     $('#supplier_name').val(supplier.supplier_name || '');
                     $('#hidden_id_supplier').val(supplier.id || '');
@@ -200,6 +174,9 @@ $(function() {
                 }
             },
             error: function(xhr, status, error) {
+                if (xhr.status === 419) {
+                    console.error('CSRF token mismatch:', xhr.responseText);
+                }
                 console.error('AJAX Error:', error);
                 console.log('Response:', xhr.responseText);
                 showModalNotification('Failed to load supplier details.', 'error');
@@ -286,6 +263,17 @@ $(function() {
             $('#supplier_name_error').text('Name is required');
             isValid = false;
         }
+
+        var supplierName = $('#supplier_name').val().trim().toLowerCase();
+        var exists = suppliers.some(function(supplier) {
+            return supplier.supplier_name.toLowerCase() === supplierName;
+        });
+
+        if (exists && $('#action_button_supplier').text() !== 'Update') {
+            $('#supplier_name_error').text('Supplier with this name already exists.');
+            isValid = false;
+        }
+
         if ($('#action_button_supplier').text() === 'Create' && $('#image').val().trim() === '') {
             $('#image_error').text('Image is required');
             isValid = false;
@@ -293,36 +281,6 @@ $(function() {
 
         return isValid;
     }
-
-    // Real-time supplier name detection
-    $('#supplier_name').on('input', function() {
-        var supplierName = $(this).val().trim();
-        if (supplierName === '') {
-            $('#supplier_name_error').text('');
-            return;
-        }
-
-        $.ajax({
-            url: "/api/admin/suppliers/checkSupplierExistence",
-            method: 'POST',
-            data: { supplier_name: supplierName },
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            },
-            success: function(data) {
-                if (data.exists && $('#action_button_supplier').text() !== 'Update') {
-                    $('#supplier_name_error').text('Supplier with this name already exists.');
-                } else {
-                    $('#supplier_name_error').text('');
-                }
-            },
-            error: function(xhr, status, error) {
-                console.error('AJAX Error:', error);
-                console.log('Response:', xhr.responseText);
-                $('#supplier_name_error').text('An error occurred while checking for existing suppliers.');
-            }
-        });
-    });
 
     // Image preview
     $('#image').on('change', function() {

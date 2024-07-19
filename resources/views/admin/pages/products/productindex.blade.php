@@ -87,12 +87,17 @@
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Category</label>
-                                <input type="text" name="category" id="category" class="form-control" required />
+                                <select name="category" id="category" class="form-control" required>
+                                    <option value="">Select Category</option>
+                                    <option value="Cake">Cake</option>
+                                    <option value="Pastries">Pastries</option>
+                                    <!-- Add more categories as needed -->
+                                </select>
                                 <span id="category_error" class="text-danger"></span>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Stock</label>
-                                <input type="number" name="stock" id="stock" class="form-control" required />
+                                <input type="number" name="stock" id="stock" class="form-control" value="0" readonly />
                                 <span id="stock_error" class="text-danger"></span>
                             </div>
                             <div class="mb-3">
@@ -103,7 +108,7 @@
                             <input type="hidden" id="hidden_id" name="id" />
                         </div>
                         <div class="modal-footer">
-                            <button type="submit" class="btn btn-primary">Save</button>
+                            <button type="submit" class="btn btn-primary" id="action_button">Save</button>
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                         </div>
                     </form>
@@ -133,6 +138,5 @@
         <!-- End of Confirm Delete Modal -->
     </div>
 </div>
-
-<script src="{{ asset('js/product_management.js') }}"></script>
 @endsection
+

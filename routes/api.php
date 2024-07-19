@@ -12,79 +12,87 @@ use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-
-
-
+// API Resources
 Route::apiResource('products', ProductController::class);
-
 Route::apiResource('suppliers', SupplierController::class);
-
-Route::apiResource('paymentmethods', PaymentMethodController::class);
-
+Route::apiResource('payment-methods', PaymentMethodController::class);
 Route::apiResource('couriers', CourierController::class);
 
+// Sanctum authenticated user route
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-// Route pages
-Route::prefix('auth')->middleware(['web'])->group(function () {
+// Auth routes
+Route::prefix('auth')->group(function () {
     Route::post('/register-user', [AuthController::class, 'registerUser'])->name('api.register-user');
     Route::post('/authenticate', [AuthController::class, 'authenticate'])->name('api.authenticate');
     Route::post('/check-email', [AuthController::class, 'checkEmail'])->name('api.check-email');
     Route::post('/check-username', [AuthController::class, 'checkUsername'])->name('api.check-username');
 });
 
+// Authenticated routes
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('api.logout');
     Route::get('/user-profile', [AuthController::class, 'getUserProfile'])->name('api.user-profile');
     Route::get('/user/profile', [UserController::class, 'profile']);
 });
 
+// Public route
 Route::get('/public-route', function () {
     return response()->json(['message' => 'This is a public route accessible to all']);
 });
 
-// User Management Routes
-Route::middleware('auth:sanctum')->prefix('admin')->group(function () {
-    Route::prefix('users')->group(function () {
+// Admin routes
+// routes/api.php
 
-    Route::post('/saveUser', [UserManagementController::class, 'saveUser'])->name('api.admin.saveUser');
-    Route::get('/user/{id}', [UserManagementController::class, 'getEditUserData'])->name('api.admin.getEditUserData');
-    Route::delete('/users/delete/{id}', [UserManagementController::class, 'deleteUser'])->name('api.admin.deleteUser');
-    Route::post('/updateUserData', [UserManagementController::class, 'updateUserData'])->name('api.admin.updateUserData');
-    Route::post('/store', [UserManagementController::class, 'storeUser'])->name('api.admin.storeUser');
-    Route::get('/fetchUsers', [UserManagementController::class, 'fetchUsers'])->name('api.admin.fetchUsers');
-    Route::post('/import', [SpreadsheetController::class, 'importUsers'])->name('api.admin.importUsers');
-    Route::get('/export', [SpreadsheetController::class, 'exportUsers'])->name('api.admin.exportUsers');
-});
-    Route::prefix('/products')->group(function () {
-        Route::post('/storeProducts', [ProductController::class, 'store'])->name('api.admin.storeProduct');
-        Route::get('/fetchProducts', [ProductController::class, 'index'])->name('api.admin.fetchProducts');
+Route::prefix('admin')->middleware(['auth:sanctum'])->group(function () {
+    // User Management Routes
+    Route::prefix('users')->group(function () {
+        Route::post('/save', [UserManagementController::class, 'saveUser'])->name('api.admin.saveUser');
+        Route::get('/{user}', [UserManagementController::class, 'getEditUserData'])->name('api.admin.getEditUserData');
+        Route::delete('/{user}', [UserManagementController::class, 'deleteUser'])->name('api.admin.deleteUser');
+        Route::put('/{user}', [UserManagementController::class, 'updateUserData'])->name('api.admin.updateUserData');
+        Route::post('/', [UserManagementController::class, 'storeUser'])->name('api.admin.storeUser');
+        Route::get('/', [UserManagementController::class, 'fetchUsers'])->name('api.admin.fetchUsers');
+        Route::post('/import', [SpreadsheetController::class, 'importUsers'])->name('api.admin.importUsers');
+        Route::get('/export', [SpreadsheetController::class, 'exportUsers'])->name('api.admin.exportUsers');
+    });
+
+    // Products Routes
+    Route::prefix('products')->group(function () {
+        Route::post('/', [ProductController::class, 'store'])->name('api.admin.storeProduct');
+        Route::get('/', [ProductController::class, 'index'])->name('api.admin.fetchProducts');
         Route::get('/{product}', [ProductController::class, 'show'])->name('api.admin.showProduct');
         Route::put('/{product}', [ProductController::class, 'update'])->name('api.admin.updateProduct');
         Route::delete('/{product}', [ProductController::class, 'destroy'])->name('api.admin.deleteProduct');
     });
- // routes/api.php
 
-Route::prefix('suppliers')->group(function () {
-    Route::post('/storeSuppliers', [SupplierController::class, 'store'])->name('api.admin.storeSupplier');
-    Route::get('/fetchSuppliers', [SupplierController::class, 'index'])->name('api.admin.fetchSuppliers');
-    Route::get('/{supplier}', [SupplierController::class, 'show'])->name('api.admin.showSupplier');
-    Route::put('/suppliers/{supplier}', [SupplierController::class, 'update'])->name('api.admin.updateSupplier');
-    Route::delete('/{supplier}', [SupplierController::class, 'destroy'])->name('api.admin.deleteSupplier');
-    Route::post('/checkSupplierExistence', [SupplierController::class, 'checkSupplierExistence'])->name('api.admin.checkSupplierExistence');
-});
+    // Suppliers Routes
+    Route::prefix('suppliers')->group(function () {
+        Route::post('/', [SupplierController::class, 'store'])->name('api.admin.storeSupplier');
+        Route::get('/', [SupplierController::class, 'index'])->name('api.admin.fetchSuppliers');
+        Route::get('/{supplier}', [SupplierController::class, 'show'])->name('api.admin.showSupplier');
+        Route::put('/{supplier}', [SupplierController::class, 'update'])->name('api.admin.updateSupplier');
+        Route::delete('/{supplier}', [SupplierController::class, 'destroy'])->name('api.admin.deleteSupplier');
+        Route::get('/check-existence', [SupplierController::class, 'checkSupplierExistence'])->name('api.admin.checkSupplierExistence');
+    });
 
-
+    // Stocks Routes
     Route::prefix('stocks')->group(function () {
-        Route::post('/storeStocks', [StocksController::class, 'store'])->name('api.admin.storeStock');
-        Route::get('/fetchStocks', [StocksController::class, 'index'])->name('api.admin.fetchStocks');
+        Route::post('/', [StocksController::class, 'store'])->name('api.admin.storeStock');
+        Route::get('/', [StocksController::class, 'index'])->name('api.admin.fetchStocks');
         Route::get('/{stock}', [StocksController::class, 'show'])->name('api.admin.showStock');
         Route::put('/{stock}', [StocksController::class, 'update'])->name('api.admin.updateStock');
         Route::delete('/{stock}', [StocksController::class, 'destroy'])->name('api.admin.deleteStock');
+    });
 
-        Route::post('/create-default', [StocksController::class, 'createDefaultStock'])->name('api.admin.createDefaultStock');
-
+    // Couriers Routes
+    Route::prefix('couriers')->group(function () {
+        Route::post('/', [CourierController::class, 'store'])->name('api.admin.storeCourier');
+        Route::get('/', [CourierController::class, 'index'])->name('api.admin.fetchCouriers');
+        Route::get('/{courier}', [CourierController::class, 'show'])->name('api.admin.showCourier');
+        Route::put('/{courier}', [CourierController::class, 'update'])->name('api.admin.updateCourier');
+        Route::delete('/{courier}', [CourierController::class, 'destroy'])->name('api.admin.deleteCourier');
     });
 });

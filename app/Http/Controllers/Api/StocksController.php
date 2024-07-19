@@ -6,44 +6,67 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Stock;
 use App\Http\Resources\StockResource;
+use App\Models\Product;
+use App\Models\Supplier;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Support\Facades\Log;
 
 class StocksController extends Controller
 {
     public function index()
     {
-        $stocks = Stock::with('supplier')->get();
-        if ($stocks->isEmpty()) {
-            return response()->json(['error' => 'No records found'], 404);
-        }
-        return StockResource::collection($stocks);
+        $stocks = Stock::with(['product', 'supplier'])->get();
+
+        $stocksData = $stocks->map(function ($stock) {
+            return [
+                'id' => $stock->id,
+                'product_id' => $stock->product_id,
+                'product_name' => $stock->product ? $stock->product->name : 'N/A',
+                'quantity' => $stock->quantity,
+                'supplier_name' => $stock->supplier ? $stock->supplier->name : 'N/A',
+            ];
+        });
+
+        return response()->json(['data' => $stocksData]);
+    }
+
+    public function show(Stock $stock)
+    {
+        return response()->json($stock->load('product', 'supplier'));
     }
 
     public function store(Request $request)
     {
-        $stock = Stock::create($request->all());
-        // Return a single StockResource instance
-        return new StockResource($stock);
+        $validatedData = $request->validate([
+            'product_id' => 'required|exists:products,id',
+            'quantity' => 'required|integer|min:0',
+            'supplier_id' => 'nullable|exists:suppliers,id',
+        ]);
+
+        $stock = Stock::updateOrCreate(
+            ['product_id' => $validatedData['product_id']],
+            $validatedData
+        );
+
+        return response()->json(['success' => true, 'data' => $stock]);
     }
 
-    public function show($id)
+    public function update(Request $request, Stock $stock)
     {
-        // Find the stock and wrap it with StockResource
-        $stock = Stock::with('supplier')->findOrFail($id);
-        return new StockResource($stock);
+        $validatedData = $request->validate([
+            'quantity' => 'required|integer|min:0',
+            'supplier_id' => 'nullable|exists:suppliers,id',
+        ]);
+
+        $stock->update($validatedData);
+
+        return response()->json(['success' => true, 'data' => $stock]);
     }
 
-    public function update(Request $request, $id)
+    public function destroy(Stock $stock)
     {
-        $stock = Stock::findOrFail($id);
-        $stock->update($request->all());
-        // Return the updated stock as a StockResource
-        return new StockResource($stock);
-    }
+        $stock->delete();
 
-    public function destroy($id)
-    {
-        Stock::destroy($id);
-        // Return a 204 No Content response
-        return response()->json(null, 204);
+        return response()->json(['success' => true, 'message' => 'Stock deleted successfully']);
     }
 }

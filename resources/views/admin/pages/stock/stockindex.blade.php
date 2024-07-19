@@ -43,7 +43,7 @@
                     <table class="table" id="stock_table">
                         <thead>
                             <tr>
-                                <th>ID</th>
+                                <th>Product</th>
                                 <th>Quantity</th>
                                 <th>Supplier</th>
                                 <th>Action</th>
@@ -67,13 +67,21 @@
                         </div>
                         <div class="modal-body">
                             <div class="mb-3">
+                                <label class="form-label">Product</label>
+                                <select name="product_id" id="product_id" class="form-control" required>
+                                    <option value="">Select Product</option>
+                                    <!-- Dynamic options will be loaded here -->
+                                </select>
+                                <span id="product_id_error" class="text-danger"></span>
+                            </div>
+                            <div class="mb-3">
                                 <label class="form-label">Quantity</label>
                                 <input type="number" name="quantity" id="quantity" class="form-control" required />
                                 <span id="quantity_error" class="text-danger"></span>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Supplier</label>
-                                <select name="supplier_id" id="supplier_id" class="form-control" required>
+                                <select name="supplier_id" id="supplier_id" class="form-control">
                                     <option value="">Select Supplier</option>
                                     <!-- Dynamic options will be loaded here -->
                                 </select>
@@ -92,7 +100,7 @@
         <!-- End of Stock Form Modal -->
 
         <!-- Confirm Modal for Delete -->
-        <div class="modal fade" id="confirmDeleteModal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal fade" id="confirmModal" tabindex="-1" role="dialog" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -100,11 +108,11 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
-                        <p id="delete_confirm_message"></p>
+                        <p id="confirm_message"></p>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="button" class="btn btn-danger" id="delete_confirm_button">Delete</button>
+                        <button type="button" class="btn btn-danger" id="confirm_button">Delete</button>
                     </div>
                 </div>
             </div>
@@ -113,6 +121,4 @@
 
     </div>
 </div>
-
-<script src="{{ asset('js/stock_management.js') }}"></script>
 @endsection
