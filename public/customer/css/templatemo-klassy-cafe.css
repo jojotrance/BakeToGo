@@ -23,16 +23,16 @@ Table of contents
 12. portfolio
 
 --------------------------------------------- */
-/* 
+/*
 ---------------------------------------------
 font & reset css
---------------------------------------------- 
+---------------------------------------------
 */
 @import url("https://fonts.googleapis.com/css?family=Poppins:100,200,300,400,500,600,700,800,900");
-/* 
+/*
 ---------------------------------------------
 reset
---------------------------------------------- 
+---------------------------------------------
 */
 html, body, div, span, applet, object, iframe, h1, h2, h3, h4, h5, h6, p, blockquote, div
 pre, a, abbr, acronym, address, big, cite, code, del, dfn, em, font, img, ins, kbd, q,
@@ -108,10 +108,10 @@ p {
   color: #2a2a2a;
 }
 
-/* 
+/*
 ---------------------------------------------
 global styles
---------------------------------------------- 
+---------------------------------------------
 */
 html,
 body {
@@ -194,17 +194,17 @@ body {
 .section-heading h2 {
   line-height: 40px;
   margin-top: 20px;
-  margin-bottom: 25px; 
+  margin-bottom: 25px;
   font-size: 30px;
   font-weight: 900;
   color: #2a2a2a;
 }
 
 
-/* 
+/*
 ---------------------------------------------
 header
---------------------------------------------- 
+---------------------------------------------
 */
 
 .background-header {
@@ -641,10 +641,10 @@ header
 }
 
 
-/* 
+/*
 ---------------------------------------------
 banner
---------------------------------------------- 
+---------------------------------------------
 */
 
 #top {
@@ -923,10 +923,10 @@ menu
 }
 
 .card1 {
-  background-image: url(../images/menu-item-01.jpg);
+  background-image: url(../images/Pandesal.png);
 }
 .card2 {
-  background-image: url(../images/menu-item-02.jpg);
+  background-image: url(../images/Empanada.png);
 }
 .card3 {
   background-image: url(../images/menu-item-03.jpg);
@@ -937,6 +937,22 @@ menu
 .card5 {
   background-image: url(../images/menu-item-05.jpg);
 }
+.card5 {
+  background-image: url(../images/menu-item-05.jpg);
+}
+.card5 {
+  background-image: url(../images/menu-item-05.jpg);
+}
+.card5 {
+  background-image: url(../images/menu-item-05.jpg);
+}
+.card5 {
+  background-image: url(../images/menu-item-05.jpg);
+}
+.card5 {
+  background-image: url(../images/menu-item-05.jpg);
+}
+
 
 .info {
   position: relative;
@@ -1001,7 +1017,7 @@ menu
 #menu .owl-dots {
   display: none;
 }
-    
+
 #menu .owl-nav .owl-prev{
   margin-right: 10px;
   outline: none;
@@ -1176,10 +1192,10 @@ chefs
 }
 
 
-/* 
+/*
 ---------------------------------------------
 reservation
---------------------------------------------- 
+---------------------------------------------
 */
 
 #reservation .section-heading {
@@ -1461,10 +1477,10 @@ offers
 }
 
 
-/* 
+/*
 ---------------------------------------------
 footer
---------------------------------------------- 
+---------------------------------------------
 */
 
 footer {
@@ -1526,10 +1542,10 @@ footer .right-text-content ul li a:hover {
   color: #2a2a2a;
 }
 
-/* 
+/*
 ---------------------------------------------
 responsive
---------------------------------------------- 
+---------------------------------------------
 */
 
 @media (max-width: 992px) {
