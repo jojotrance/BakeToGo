@@ -57,39 +57,39 @@ $(document).ready(function() {
     $('#product_form').on('submit', function(event) {
         event.preventDefault();
         var formData = new FormData(this);
-        var actionUrl = $('#hidden_id').val() ? `/api/products/${$('#hidden_id').val()}` : '/api/products';
-        var method = $('#hidden_id').val() ? 'POST' : 'POST';
+        var id = $('#hidden_id').val();
+        var actionUrl = id ? `/api/products/${id}` : '/api/products';
+        var method = id ? 'POST' : 'POST'; // use POST initially
+
+        if (id) {
+            formData.append('_method', 'PUT'); // Laravel spoofing PUT method
+        }
 
         $.ajax({
             url: actionUrl,
-            method: method,
+            method: 'POST', // always use POST for form submission
             data: formData,
             processData: false,
             contentType: false,
             success: function(response) {
                 if (response.success) {
                     $('#product_modal').modal('hide');
-                    $('#success-message').text(response.message);
-                    $('#success-alert').show();
+                    showSuccessMessage(response.message);
                     productDataTable.ajax.reload();
 
                     // Trigger the productCreated event
                     $(document).trigger('productCreated');
-                    // Set localStorage item
                     localStorage.setItem('productCreated', 'true');
 
-                    // If this is a new product (not an update), clear the form
-                    if (!$('#hidden_id').val()) {
+                    if (!id) {
                         $('#product_form')[0].reset();
                     }
                 } else {
-                    $('#error-message').text(response.message);
-                    $('#error-alert').show();
+                    showErrorMessage(response.message);
                 }
             },
             error: function(xhr) {
-                $('#error-message').text('An error occurred. Please try again.');
-                $('#error-alert').show();
+                showErrorMessage('An error occurred. Please try again.');
             }
         });
     });
@@ -103,22 +103,16 @@ $(document).ready(function() {
             method: 'GET',
             success: function(response) {
                 console.log("AJAX response:", response);
-                if (response.success) {
-                    var product = response.data;
-                    $('#name').val(product.name);
-                    $('#description').val(product.description);
-                    $('#price').val(product.price);
-                    $('#category').val(product.category);
-                    $('#stock').val(product.stock);
-                    $('#image').val(''); // Clear the file input
-                    $('#hidden_id').val(product.id);
-                    $('#modal_title').text('Edit Product');
-                    $('#action_button').text('Update');
-                    $('#product_modal').modal('show');
-                    console.log("Modal should be shown now");
-                } else {
-                    console.error('Failed to fetch product data.');
-                }
+                var product = response.data;
+                $('#name').val(product.name);
+                $('#description').val(product.description);
+                $('#price').val(product.price);
+                $('#category').val(product.category);
+                $('#stock').val(product.stock);
+                $('#hidden_id').val(product.id);
+                $('#modal_title').text('Edit Product');
+                $('#action_button').text('Update');
+                $('#product_modal').modal('show');
             },
             error: function(xhr) {
                 console.error("Error:", xhr.responseText);
@@ -143,17 +137,14 @@ $(document).ready(function() {
             success: function(response) {
                 if (response.success) {
                     $('#confirmModal').modal('hide');
-                    $('#success-message').text(response.message);
-                    $('#success-alert').show();
+                    showSuccessMessage(response.message);
                     productDataTable.ajax.reload();
                 } else {
-                    $('#error-message').text(response.message);
-                    $('#error-alert').show();
+                    showErrorMessage(response.message);
                 }
             },
             error: function(xhr) {
-                $('#error-message').text('An error occurred. Please try again.');
-                $('#error-alert').show();
+                showErrorMessage('An error occurred. Please try again.');
             }
         });
     });
@@ -165,7 +156,7 @@ $(document).ready(function() {
         $('#product_form')[0].reset();
         $('#hidden_id').val('');
         $('#modal_title').text('Add New Product');
-        $('#action_button').text('Create');
+        $('#action_button').text('Save');
     });
 
     // Handle create product button click
@@ -173,7 +164,7 @@ $(document).ready(function() {
         $('#product_form')[0].reset();
         $('#hidden_id').val('');
         $('#modal_title').text('Add New Product');
-        $('#action_button').text('Create');
+        $('#action_button').text('Save');
         $('#product_modal').modal('show');
     });
 

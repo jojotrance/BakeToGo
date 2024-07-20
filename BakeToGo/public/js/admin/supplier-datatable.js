@@ -1,9 +1,9 @@
 $(document).ready(function() {
     let suppliers = [];
 
-    // Fetch all suppliers and store them locally
+    // Fetch suppliers data
     $.ajax({
-        url: "/api/admin/suppliers",
+        url: "/api/suppliers",
         method: 'GET',
         headers: {
             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -21,19 +21,16 @@ $(document).ready(function() {
         processing: true,
         serverSide: true,
         ajax: {
-            url: "/api/admin/suppliers",
+            url: "/api/suppliers",
             type: 'GET',
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             },
             dataSrc: function(json) {
-                console.log('Supplier data:', json.data);
-                suppliers = json.data; // Update the local suppliers array
+                suppliers = json.data;
                 return json.data;
             },
             error: function(xhr, status, error) {
-                console.error('AJAX Error:', status, error);
-                console.error('Response Text:', xhr.responseText);
                 showNotification('Failed to load suppliers. Please try again.', 'error');
             }
         },
@@ -52,8 +49,8 @@ $(document).ready(function() {
                 orderable: false,
                 searchable: false,
                 render: function(data, type, full, meta) {
-                    return '<button type="button" class="edit btn btn-primary btn-sm" data-id="' + full.id + '">Edit</button> ' +
-                           '<button type="button" class="delete btn btn-danger btn-sm" data-id="' + full.id + '">Delete</button>';
+                    return '<button type="button" class="edit-supplier btn btn-primary btn-sm" data-id="' + full.id + '">Edit</button> ' +
+                           '<button type="button" class="delete-supplier btn btn-danger btn-sm" data-id="' + full.id + '">Delete</button>';
                 }
             }
         ],
@@ -66,7 +63,7 @@ $(document).ready(function() {
         }
     });
 
-    // Real-time supplier name detection
+    // Supplier name input validation
     $('#supplier_name').on('input', function() {
         var supplierName = $(this).val().trim().toLowerCase();
         if (supplierName === '') {
@@ -85,9 +82,8 @@ $(document).ready(function() {
         }
     });
 
-    // Create Supplier button click event
+    // Create supplier button click
     $(document).on('click', '#create_supplier', function() {
-        console.log('Create Supplier button clicked');
         $('#supplier_form')[0].reset();
         $('#modal_title_supplier').text('Add New Supplier');
         $('#action_button_supplier').text('Create');
@@ -96,20 +92,23 @@ $(document).ready(function() {
         $('#supplier_modal').modal('show');
     });
 
-    // Handle Add/Edit modal actions
+    // Supplier form submit
     $('#supplier_form').on('submit', function(event) {
         event.preventDefault();
         if (!validateForm()) return;
 
         var action_url = $('#action_button_supplier').text() === 'Update' ? 
-                        "/api/admin/suppliers/" + $('#hidden_id_supplier').val() : 
-                        "/api/admin/suppliers";
+                        "/api/suppliers/" + $('#hidden_id_supplier').val() : 
+                        "/api/suppliers";
         var method = $('#action_button_supplier').text() === 'Update' ? 'POST' : 'POST';
         var formData = new FormData(this);
 
         if ($('#action_button_supplier').text() === 'Update') {
             formData.append('_method', 'PUT');
         }
+
+        console.log('Form URL:', action_url);
+        console.log('Form Method:', method);
 
         $.ajax({
             url: action_url,
@@ -121,45 +120,53 @@ $(document).ready(function() {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             },
             success: function(data) {
-                console.log('Submit response:', data);
                 if (data.message) {
                     $('#supplier_modal').modal('hide');
                     supplierTable.ajax.reload(null, false);
                     showNotification(data.message, 'success');
                     $('#supplier_form')[0].reset();
-                    suppliers.push(data.supplier); // Add new supplier to the local array
+                    suppliers.push(data.supplier);
                 } else {
                     showModalNotification(data.error || 'An error occurred', 'error');
                 }
             },
             error: function(xhr, status, error) {
-                console.error('AJAX Error:', error);
-                console.log('Response:', xhr.responseText);
-                showModalNotification('An error occurred. Please try again.', 'error');
+                if (xhr.responseJSON && xhr.responseJSON.error) {
+                    displayValidationErrors(xhr.responseJSON.error);
+                } else {
+                    showModalNotification('An error occurred. Please try again.', 'error');
+                }
             }
         });
     });
 
-    // Handle Edit action
-    $(document).on('click', '.edit', function() {
-        var id = $(this).data('id');
-        console.log('Edit button clicked for supplier ID:', id);
+    function displayValidationErrors(errors) {
+        for (var key in errors) {
+            if (errors.hasOwnProperty(key)) {
+                $('#' + key + '_error').text(errors[key][0]);
+            }
+        }
+    }
 
+    // Edit supplier button click
+    $(document).on('click', '.edit-supplier', function() {
+        var id = $(this).data('id');
+        console.log('Edit supplier ID:', id);
         $('#supplier_form').find('.text-danger').html('');
 
         $.ajax({
-            url: "/api/admin/suppliers/" + id,
+            url: "/api/suppliers/" + id,
             method: 'GET',
             dataType: 'json',
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             },
             success: function(response) {
-                console.log('Edit Data:', response);
                 if (response.data) {
                     var supplier = response.data;
                     $('#supplier_name').val(supplier.supplier_name || '');
                     $('#hidden_id_supplier').val(supplier.id || '');
+                    console.log('Supplier ID set in form:', supplier.id);
                     if (supplier.image) {
                         $('#image_preview').attr('src', '/storage/' + supplier.image).show();
                     } else {
@@ -174,50 +181,44 @@ $(document).ready(function() {
                 }
             },
             error: function(xhr, status, error) {
-                if (xhr.status === 419) {
-                    console.error('CSRF token mismatch:', xhr.responseText);
-                }
-                console.error('AJAX Error:', error);
-                console.log('Response:', xhr.responseText);
                 showModalNotification('Failed to load supplier details.', 'error');
             }
         });
     });
 
-    // Handle Delete action
-    $(document).on('click', '.delete', function() {
+    // Delete supplier button click
+    $(document).on('click', '.delete-supplier', function() {
         var id = $(this).data('id');
-        console.log('Delete button clicked for supplier ID:', id);
-
+        console.log('Delete supplier ID:', id);
+        if (!id) {
+            showModalNotification('Invalid supplier ID. Please try again.', 'error');
+            return;
+        }
         $('#confirm_message').text('Are you sure you want to delete this supplier?');
         $('#confirm_button').text('Delete');
         $('#confirmModal').modal('show');
-
+    
         $('#confirm_button').off('click').on('click', function() {
             $('#confirmModal').modal('hide');
             $.ajax({
-                url: "/api/admin/suppliers/" + id,
+                url: "/api/suppliers/" + id,
                 method: 'DELETE',
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 },
                 success: function(data) {
-                    console.log('Delete response:', data);
                     supplierTable.ajax.reload(null, false);
                     showNotification('Supplier has been successfully deleted!', 'success');
                 },
                 error: function(xhr, status, error) {
-                    console.error('AJAX Error:', error);
-                    console.log('Response:', xhr.responseText);
                     showNotification('An error occurred while deleting the supplier. Please try again.', 'error');
                 }
-            });
+            }); 
         });
     });
 
-    // Handle Export to Excel action
+    // Export suppliers to Excel
     $('#export_excel').on('click', function() {
-        console.log('Export to Excel button clicked');
         var data = supplierTable.rows({ search: 'applied' }).data().toArray();
         var formattedData = data.map(function(supplier) {
             return {
@@ -233,9 +234,8 @@ $(document).ready(function() {
     });
 
     function showNotification(message, type) {
-        var alertDiv = type === 'success' ? $('#success-alert') : $('#error-alert');
-        var messageSpan = type === 'success' ? $('#success-message') : $('#error-message');
-        
+        var alertDiv = type === 'success' ? $('#supplier_success-alert') : $('#supplier_error-alert');
+        var messageSpan = type === 'success' ? $('#supplier_success-message') : $('#supplier_error-message');
         messageSpan.text(message);
         alertDiv.fadeIn();
 
@@ -247,7 +247,6 @@ $(document).ready(function() {
     function showModalNotification(message, type) {
         var alertDiv = type === 'success' ? '<div class="alert alert-success">' : '<div class="alert alert-danger">';
         alertDiv += message + '</div>';
-        
         $('#supplier_modal .modal-body').prepend(alertDiv);
 
         setTimeout(function() {
@@ -274,16 +273,15 @@ $(document).ready(function() {
             isValid = false;
         }
 
-        if ($('#action_button_supplier').text() === 'Create' && $('#image').val().trim() === '') {
-            $('#image_error').text('Image is required');
+        if ($('#action_button_supplier').text() === 'Create' && $('#supplier_image').val().trim() === '') {
+            $('#supplier_image_error').text('Image is required');
             isValid = false;
         }
 
         return isValid;
     }
 
-    // Image preview
-    $('#image').on('change', function() {
+    $('#supplier_image').on('change', function() {
         var file = this.files[0];
         if (file) {
             var reader = new FileReader();
@@ -291,8 +289,6 @@ $(document).ready(function() {
                 $('#image_preview').attr('src', e.target.result).show();
             }
             reader.readAsDataURL(file);
-        } else {
-            $('#image_preview').hide();
         }
     });
 });

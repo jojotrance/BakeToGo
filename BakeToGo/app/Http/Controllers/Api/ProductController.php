@@ -52,42 +52,44 @@ class ProductController extends Controller
     }
 
     public function show(Product $product)
-    {
-        return new ProductResource($product);
+{
+    return response()->json(['data' => new ProductResource($product)]);
+}
+
+
+public function update(Request $request, Product $product)
+{
+    $validator = Validator::make($request->all(), [
+        'name' => 'required',
+        'description' => 'required',
+        'price' => 'required|integer',
+        'category' => 'required',
+        'image' => 'sometimes|image|mimes:jpeg,png,jpg,gif,svg|max:2048'
+    ]);
+
+    if ($validator->fails()) {
+        return response()->json(['error' => $validator->errors()], 401);
     }
 
-    public function update(Request $request, Product $product)
-    {
-        $validator = Validator::make($request->all(), [
-            'name' => 'required',
-            'description' => 'required',
-            'price' => 'required|integer',
-            'category' => 'required',
-            'image' => 'required'
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(['error' => $validator->errors()], 401);
+    try {
+        if ($request->hasFile('image')) {
+            $imageName = time().'.'.$request->image->extension();  
+            $request->image->storeAs('public/product_images', $imageName);
+            $product->image = $imageName;
         }
 
-        try {
-            $product->update([
-                'name' => $request->name,
-                'description' => $request->description,
-                'price' => $request->price,
-                'category' => $request->category,
-                'image' => $request->image
-            ]);
-
-            return response()->json([
-                'message' => 'Product updated',
-                'data' => new ProductResource($product)
-            ], 200);
-        } catch (\Exception $e) {
-            \Log::error('Product update failed: ' . $e->getMessage());
-            return response()->json(['error' => 'Product update failed'], 500);
-        }
+        $product->update($request->only(['name', 'description', 'price', 'category']));
+        
+        return response()->json([
+            'message' => 'Product updated',
+            'data' => new ProductResource($product)
+        ], 200);
+    } catch (\Exception $e) {
+        \Log::error('Product update failed: ' . $e->getMessage());
+        return response()->json(['error' => 'Product update failed'], 500);
     }
+}
+
 
     public function destroy(Product $product)
     {

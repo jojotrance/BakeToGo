@@ -3,7 +3,6 @@ $(document).ready(function() {
 
     var dataTable;
 
-    // Initialize DataTable if not already initialized
     if (!$.fn.DataTable.isDataTable('#datatable')) {
         dataTable = $('#datatable').DataTable({
             processing: true,
@@ -27,6 +26,7 @@ $(document).ready(function() {
                 },
                 error: function(xhr, error, thrown) {
                     console.error("Error in fetching data: ", xhr.responseText);
+                    alert('An error occurred while fetching user data. Please try again.');
                 }
             },
             columns: [
@@ -68,8 +68,8 @@ $(document).ready(function() {
                     data: null,
                     width: '10%',
                     render: function(data, type, row) {
-                        return '<button class="btn btn-icon edit" data-id="' + row.id + '"><i class="fas fa-edit" style="color: green;"></i></button> ' +
-                            '<button class="btn btn-icon delete" data-id="' + row.id + '"><i class="fas fa-trash" style="color: red;"></i></button>';
+                        return '<button class="btn btn-icon edit-user" data-id="' + row.id + '"><i class="fas fa-edit" style="color: green;"></i></button> ' +
+                               '<button type="button" class="delete-user btn btn-danger btn-sm" data-id="' + row.id + '">Delete</button>';
                     }
                 }
             ],
@@ -91,27 +91,6 @@ $(document).ready(function() {
         });
     }
 
-    // Custom sorting for First Name column using insertion sort
-    $.fn.dataTable.ext.order['insertion-sort'] = function(settings, col) {
-        return this.api().column(col, { order: 'index' }).nodes().map(function(td, i) {
-            return $(td).text();
-        }).sort(function(a, b) {
-            return a.localeCompare(b);
-        });
-    };
-
-    // Enable custom sorting on 'First Name' column
-    $('#datatable').on('click', 'th:contains("First Name")', function() {
-        dataTable.order([3, 'insertion-sort']).draw();
-    });
-
-    // Handle cell click to show full text
-    $('#datatable tbody').on('click', 'td', function() {
-        var cellData = dataTable.cell(this).data();
-        $('#text_modal_body').text(cellData);
-        $('#text_modal').modal('show');
-    });
-
     // Handle Add/Edit modal actions
     $('#sample_form').on('submit', function(event) {
         event.preventDefault();
@@ -121,20 +100,21 @@ $(document).ready(function() {
             action_url = "/api/admin/users/" + $('#id').val();
         }
 
-        var formData = {
-            id: $('#id').val(),
-            active_status: $('#active_status').val(),
-            role: $('#role').val(),
-            action: $('#action').val()
-        };
+        var formData = new FormData(this);
 
-        console.log('Form Data:', formData);
+        if ($('#action').val() === 'Edit') {
+            formData.append('_method', 'PUT');
+        }
 
         $.ajax({
             url: action_url,
-            method: $('#action').val() === 'Edit' ? "PUT" : "POST",
+            method: $('#action').val() === 'Edit' ? "POST" : "POST",
             data: formData,
-            dataType: "json",
+            processData: false,
+            contentType: false,
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
             success: function(data) {
                 if (data.errors) {
                     $.each(data.errors, function(key, value) {
@@ -163,7 +143,7 @@ $(document).ready(function() {
     });
 
     // Handle Edit action
-    $(document).on('click', '.edit', function() {
+    $(document).on('click', '.edit-user', function() {
         var id = $(this).data('id');
 
         $('#sample_form').find('.text-danger').html('');
@@ -181,6 +161,7 @@ $(document).ready(function() {
                 $('#dynamic_modal_title').text('Edit User');
                 $('#action_button').text('Edit');
                 $('#action').val('Edit');
+                $('#form_method').val('PUT');
                 $('#action_modal').modal('show');
             },
             error: function(xhr, status, error) {
@@ -192,7 +173,7 @@ $(document).ready(function() {
     });
 
     // Handle Delete action
-    $(document).on('click', '.delete', function() {
+    $(document).on('click', '.delete-user', function() {
         var id = $(this).data('id');
         if (confirm("Are you sure you want to delete this user?")) {
             $.ajax({
