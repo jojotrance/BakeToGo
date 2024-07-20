@@ -14,5 +14,6 @@ class Courier extends Model
         'courier_name',
         'branch',
         'image',
+        
     ];
 }

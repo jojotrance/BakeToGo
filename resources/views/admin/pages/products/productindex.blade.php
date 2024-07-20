@@ -105,7 +105,7 @@
                                 <input type="file" name="image" id="image" class="form-control" />
                                 <span id="image_error" class="text-danger"></span>
                             </div>
-                            <input type="hidden" id="hidden_id" name="id" />
+                            <input type="hidden" id="hidden_id" name="hidden_id" />
                         </div>
                         <div class="modal-footer">
                             <button type="submit" class="btn btn-primary" id="action_button">Save</button>
@@ -139,4 +139,3 @@
     </div>
 </div>
 @endsection
-

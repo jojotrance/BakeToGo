@@ -1,23 +1,19 @@
-$(function() {
+$(document).ready(function() {
     console.log('Courier Page is ready');
 
-    // Initialize DataTable for couriers
     var courierTable = $('#courier_table').DataTable({
         processing: true,
         serverSide: true,
         ajax: {
-            url: "/api/couriers",
+            url: "/api/admin/couriers/list",
             type: 'GET',
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             },
             dataSrc: function(json) {
-                console.log('Courier data:', json.data);
                 return json.data;
             },
             error: function(xhr, status, error) {
-                console.error('AJAX Error:', status, error);
-                console.error('Response Text:', xhr.responseText);
                 showNotification('Failed to load couriers. Please try again.', 'error');
             }
         },
@@ -29,7 +25,7 @@ $(function() {
                 data: 'image', 
                 name: 'image', 
                 render: function(data) {
-                    return '<img src="/storage/' + data + '" class="img-thumbnail" width="50" />';
+                    return data ? '<img src="/storage/' + data + '" class="img-thumbnail" width="50" />' : 'No Image';
                 }
             },
             {
@@ -37,8 +33,8 @@ $(function() {
                 orderable: false,
                 searchable: false,
                 render: function(data, type, full, meta) {
-                    return '<button type="button" class="edit btn btn-primary btn-sm" data-id="' + full.id + '">Edit</button> ' +
-                           '<button type="button" class="delete btn btn-danger btn-sm" data-id="' + full.id + '">Delete</button>';
+                    return '<button type="button" class="edit-courier btn btn-primary btn-sm" data-id="' + full.id + '">Edit</button> ' +
+                           '<button type="button" class="delete-courier btn btn-danger btn-sm" data-id="' + full.id + '">Delete</button>';
                 }
             }
         ],
@@ -51,25 +47,25 @@ $(function() {
         }
     });
 
-    // Create Courier button click event
+    // Handle Create Courier Button
     $(document).on('click', '#create_courier', function() {
-        console.log('Create Courier button clicked');
         $('#courier_form')[0].reset();
         $('#modal_title_courier').text('Add New Courier');
         $('#action_button_courier').text('Create');
         $('#image').attr('required', true);
         $('.text-danger').text('');
+        $('#image_preview').hide();
         $('#courier_modal').modal('show');
     });
 
-    // Handle Add/Edit modal actions
+    // Handle Form Submission
     $('#courier_form').on('submit', function(event) {
         event.preventDefault();
         if (!validateForm()) return;
 
         var action_url = $('#action_button_courier').text() === 'Update' ? 
-                        "/api/couriers/" + $('#hidden_id_courier').val() : 
-                        "/api/couriers";
+                        "/api/admin/couriers/update/" + $('#hidden_id_courier').val() : 
+                        "/api/admin/couriers/create";
         var method = $('#action_button_courier').text() === 'Update' ? 'POST' : 'POST';
         var formData = new FormData(this);
 
@@ -87,40 +83,35 @@ $(function() {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             },
             success: function(data) {
-                console.log('Submit response:', data);
-                if (data.message) {
+                if (data.data) {
                     $('#courier_modal').modal('hide');
                     courierTable.ajax.reload(null, false);
-                    showNotification(data.message, 'success');
+                    showNotification('Courier has been successfully ' + ($('#action_button_courier').text() === 'Update' ? 'updated' : 'created') + '!', 'success');
                     $('#courier_form')[0].reset();
                 } else {
                     showModalNotification(data.error || 'An error occurred', 'error');
                 }
             },
             error: function(xhr, status, error) {
-                console.error('AJAX Error:', error);
-                console.log('Response:', xhr.responseText);
                 showModalNotification('An error occurred. Please try again.', 'error');
             }
         });
     });
 
-    // Handle Edit action
-    $(document).on('click', '.edit', function() {
+    // Handle Edit Courier Button
+    $(document).on('click', '.edit-courier', function() {
         var id = $(this).data('id');
-        console.log('Edit button clicked for courier ID:', id);
-
+        console.log('Edit courier ID:', id); // Log the ID to ensure it's correct
         $('#courier_form').find('.text-danger').html('');
 
         $.ajax({
-            url: "/api/couriers/" + id,
+            url: "/api/admin/couriers/view/" + id,
             method: 'GET',
             dataType: 'json',
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             },
             success: function(response) {
-                console.log('Edit Data:', response);
                 if (response.data) {
                     var courier = response.data;
                     $('#courier_name').val(courier.courier_name || '');
@@ -140,18 +131,15 @@ $(function() {
                 }
             },
             error: function(xhr, status, error) {
-                console.error('AJAX Error:', error);
-                console.log('Response:', xhr.responseText);
                 showModalNotification('Failed to load courier details.', 'error');
             }
         });
     });
 
-    // Handle Delete action
-    $(document).on('click', '.delete', function() {
+    // Handle Delete Courier Button
+    $(document).on('click', '.delete-courier', function() {
         var id = $(this).data('id');
-        console.log('Delete button clicked for courier ID:', id);
-
+        console.log('Delete courier ID:', id); // Log the ID to ensure it's correct
         $('#confirm_message').text('Are you sure you want to delete this courier?');
         $('#confirm_button').text('Delete');
         $('#confirmModal').modal('show');
@@ -159,28 +147,24 @@ $(function() {
         $('#confirm_button').off('click').on('click', function() {
             $('#confirmModal').modal('hide');
             $.ajax({
-                url: "/api/couriers/" + id,
+                url: "/api/admin/couriers/destroy/" + id,
                 method: 'DELETE',
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 },
                 success: function(data) {
-                    console.log('Delete response:', data);
-                    courierTable.ajax.reload(null, false);
+                    $('#courier_table').DataTable().ajax.reload(null, false);
                     showNotification('Courier has been successfully deleted!', 'success');
                 },
                 error: function(xhr, status, error) {
-                    console.error('AJAX Error:', error);
-                    console.log('Response:', xhr.responseText);
                     showNotification('An error occurred while deleting the courier. Please try again.', 'error');
                 }
             });
         });
     });
 
-    // Handle Export to Excel action
+    // Handle Export to Excel Button
     $('#export_excel').on('click', function() {
-        console.log('Export to Excel button clicked');
         var data = courierTable.rows({ search: 'applied' }).data().toArray();
         var formattedData = data.map(function(courier) {
             return {
@@ -196,10 +180,10 @@ $(function() {
         XLSX.writeFile(wb, "couriers.xlsx");
     });
 
+    // Utility Functions
     function showNotification(message, type) {
         var alertDiv = type === 'success' ? $('#success-alert') : $('#error-alert');
         var messageSpan = type === 'success' ? $('#success-message') : $('#error-message');
-        
         messageSpan.text(message);
         alertDiv.fadeIn();
 
@@ -211,7 +195,6 @@ $(function() {
     function showModalNotification(message, type) {
         var alertDiv = type === 'success' ? '<div class="alert alert-success">' : '<div class="alert alert-danger">';
         alertDiv += message + '</div>';
-        
         $('#courier_modal .modal-body').prepend(alertDiv);
 
         setTimeout(function() {
@@ -238,4 +221,15 @@ $(function() {
 
         return isValid;
     }
+
+    $('#image').on('change', function() {
+        var file = this.files[0];
+        if (file) {
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                $('#image_preview').attr('src', e.target.result).show();
+            }
+            reader.readAsDataURL(file);
+        }
+    });
 });

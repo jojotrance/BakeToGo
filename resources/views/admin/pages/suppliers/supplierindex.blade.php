@@ -70,11 +70,11 @@
                                 <input type="file" name="image" id="supplier_image" class="form-control" accept="image/*" required />
                                 <span id="supplier_image_error" class="text-danger"></span>
                             </div>
-                            <input type="hidden" name="hidden_id" id="supplier_hidden_id" />
+                            <input type="hidden" name="hidden_id" id="hidden_id_supplier" />
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            <button type="submit" class="btn btn-primary" id="supplier_action_button_supplier">Create</button>
+                            <button type="submit" class="btn btn-primary" id="action_button_supplier">Create</button>
                         </div>
                     </form>
                 </div>

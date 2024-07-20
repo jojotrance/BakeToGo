@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::create('couriers', function (Blueprint $table) {
             $table->id();
-            $table->string('courier_name');
+            $table->string('courier_name')->unique();
             $table->string('branch');
-            $table->string('image');
+            $table->string('image')->nullable();
             $table->timestamps();
         });
     }
@@ -25,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('courier');
+        Schema::dropIfExists('couriers');
     }
 };

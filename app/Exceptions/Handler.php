@@ -5,6 +5,7 @@ namespace App\Exceptions;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Throwable;
 use Illuminate\Session\TokenMismatchException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class Handler extends ExceptionHandler
 {
@@ -47,7 +48,6 @@ class Handler extends ExceptionHandler
         });
     }
 
-
     /**
      * Render the exception into an HTTP response.
      *
@@ -56,6 +56,11 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Throwable $exception)
     {
+        if ($exception instanceof ModelNotFoundException) {
+            // Handle model not found exception
+            return response()->json(['error' => 'Resource not found'], 404);
+        }
+
         if ($this->isHttpException($exception)) {
             // Handle 404 error
             if ($exception->getStatusCode() == 404) {
@@ -73,4 +78,3 @@ class Handler extends ExceptionHandler
         return parent::render($request, $exception);
     }
 }
-

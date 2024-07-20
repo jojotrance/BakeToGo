@@ -1,9 +1,9 @@
-    @extends('layouts.app')
+@extends('layouts.app')
 
-    @section('content')
-    <div id="order-content">
-        <div id="message"></div>
-        <div class="container">
+@section('content')
+<div id="order-content">
+    <div id="message"></div>
+    <div class="container">
         <!-- Info Bar -->
         <div class="info-bar card mb-3">
             <div class="card-body d-flex justify-content-between align-items-center">
@@ -52,7 +52,6 @@
         </div>
     </div>
 
-
     <!-- Modal for Add/Edit -->
     <div class="modal" tabindex="-1" id="action_modal">
         <div class="modal-dialog">
@@ -83,6 +82,8 @@
                             </select>
                             <span id="active_status_error" class="text-danger"></span>
                         </div>
+                        <!-- Hidden method field -->
+                        <input type="hidden" name="_method" value="PUT" id="form_method">
                     </div>
                     <div class="modal-footer">
                         <input type="hidden" name="id" id="id" />
@@ -120,7 +121,5 @@
             </div>
         </div>
     </div>
-    
-    @endsection
-
-  
+</div>
+@endsection
