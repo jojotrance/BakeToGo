@@ -86,7 +86,7 @@ Route::prefix('admin')->middleware(['auth:sanctum'])->group(function () {
         Route::get('/{stock}', [StocksController::class, 'show'])->name('api.admin.showStock');
         Route::put('/{stock}', [StocksController::class, 'update'])->name('api.admin.updateStock');
         Route::delete('/{stock}', [StocksController::class, 'destroy'])->name('api.admin.deleteStock');
-    });
+    }); 
 
     // Couriers Routes
     Route::prefix('couriers')->group(function () {

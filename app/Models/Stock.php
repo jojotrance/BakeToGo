@@ -4,26 +4,28 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Laravel\Sanctum\HasApiTokens;
-use Illuminate\Notifications\Notifiable;
 
 class Stock extends Model
 {
-    use HasFactory, HasApiTokens, Notifiable;
+    use HasFactory;
 
     protected $table = 'stocks';
     
-    protected $fillable = ['product_id', 'quantity', 'supplier_id'];
+    protected $fillable = [
+        'product_id',
+        'quantity',
+        'supplier_id',
+    ];
 
-
-    public function supplier()
-    {
-        return $this->belongsTo(Supplier::class);
-    }
-
+    // A stock belongs to a single product
     public function product()
     {
         return $this->belongsTo(Product::class);
     }
-    
+
+    // A stock belongs to a single supplier
+    public function supplier()
+    {
+        return $this->belongsTo(Supplier::class);
+    }
 }

@@ -71,7 +71,7 @@ $(document).ready(function() {
     // Initialize the stock DataTable on document ready
     initializeStockTable();
 
-    // Load Suppliers
+    // Utility functions to load suppliers and products
     function loadSuppliers() {
         return $.ajax({
             url: "/api/admin/suppliers",
@@ -93,7 +93,6 @@ $(document).ready(function() {
         });
     }
 
-    // Load Products
     function loadProducts() {
         return $.ajax({
             url: "/api/admin/products",
@@ -285,4 +284,3 @@ $(document).ready(function() {
         localStorage.removeItem('productCreated');
     }
 });
-
