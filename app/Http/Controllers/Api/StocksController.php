@@ -3,36 +3,32 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Models\Stock;
 use App\Http\Resources\StockResource;
-use App\Models\Product;
-use App\Models\Supplier;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
+use App\Models\Stock;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
 class StocksController extends Controller
 {
     public function index()
     {
-        $stocks = Stock::with(['product', 'supplier'])->get();
-
-        $stocksData = $stocks->map(function ($stock) {
-            return [
-                'id' => $stock->id,
-                'product_id' => $stock->product_id,
-                'product_name' => $stock->product ? $stock->product->name : 'N/A',
-                'quantity' => $stock->quantity,
-                'supplier_name' => $stock->supplier ? $stock->supplier->name : 'N/A',
-            ];
-        });
-
-        return response()->json(['data' => $stocksData]);
+        try {
+            $stocks = Stock::with(['product', 'supplier'])->get();
+            return StockResource::collection($stocks);
+        } catch (\Exception $e) {
+            Log::error('Failed to fetch stocks: ' . $e->getMessage());
+            return response()->json(['error' => 'Failed to fetch stocks'], 500);
+        }
     }
 
     public function show(Stock $stock)
     {
-        return response()->json($stock->load('product', 'supplier'));
+        try {
+            return new StockResource($stock->load('product', 'supplier'));
+        } catch (\Exception $e) {
+            Log::error('Failed to fetch stock details: ' . $e->getMessage());
+            return response()->json(['error' => 'Failed to fetch stock details'], 500);
+        }
     }
 
     public function store(Request $request)
@@ -43,12 +39,17 @@ class StocksController extends Controller
             'supplier_id' => 'nullable|exists:suppliers,id',
         ]);
 
-        $stock = Stock::updateOrCreate(
-            ['product_id' => $validatedData['product_id']],
-            $validatedData
-        );
+        try {
+            $stock = Stock::updateOrCreate(
+                ['product_id' => $validatedData['product_id']],
+                $validatedData
+            );
 
-        return response()->json(['success' => true, 'data' => $stock]);
+            return response()->json(['success' => true, 'data' => new StockResource($stock)], 201);
+        } catch (\Exception $e) {
+            Log::error('Failed to create or update stock: ' . $e->getMessage());
+            return response()->json(['error' => 'Failed to create or update stock'], 500);
+        }
     }
 
     public function update(Request $request, Stock $stock)
@@ -58,15 +59,24 @@ class StocksController extends Controller
             'supplier_id' => 'nullable|exists:suppliers,id',
         ]);
 
-        $stock->update($validatedData);
+        try {
+            $stock->update($validatedData);
 
-        return response()->json(['success' => true, 'data' => $stock]);
+            return response()->json(['success' => true, 'data' => new StockResource($stock)]);
+        } catch (\Exception $e) {
+            Log::error('Failed to update stock: ' . $e->getMessage());
+            return response()->json(['error' => 'Failed to update stock'], 500);
+        }
     }
 
     public function destroy(Stock $stock)
     {
-        $stock->delete();
-
-        return response()->json(['success' => true, 'message' => 'Stock deleted successfully']);
+        try {
+            $stock->delete();
+            return response()->json(['success' => true, 'message' => 'Stock deleted successfully']);
+        } catch (\Exception $e) {
+            Log::error('Failed to delete stock: ' . $e->getMessage());
+            return response()->json(['error' => 'Failed to delete stock'], 500);
+        }
     }
 }

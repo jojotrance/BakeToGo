@@ -68,10 +68,7 @@
                         <div class="modal-body">
                             <div class="mb-3">
                                 <label class="form-label">Product</label>
-                                <select name="product_id" id="product_id" class="form-control" required>
-                                    <option value="">Select Product</option>
-                                    <!-- Dynamic options will be loaded here -->
-                                </select>
+                                <select name="product_id" id="product_id" class="form-control" required></select>
                                 <span id="product_id_error" class="text-danger"></span>
                             </div>
                             <div class="mb-3">
@@ -81,10 +78,7 @@
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Supplier</label>
-                                <select name="supplier_id" id="supplier_id" class="form-control">
-                                    <option value="">Select Supplier</option>
-                                    <!-- Dynamic options will be loaded here -->
-                                </select>
+                                <select name="supplier_id" id="supplier_id" class="form-control"></select>
                                 <span id="supplier_id_error" class="text-danger"></span>
                             </div>
                             <input type="hidden" name="hidden_id" id="hidden_id" />
@@ -99,7 +93,7 @@
         </div>
         <!-- End of Stock Form Modal -->
 
-        <!-- Confirm Modal for Delete -->
+        <!-- Confirm Modal -->
         <div class="modal fade" id="confirmModal" tabindex="-1" role="dialog" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
@@ -112,12 +106,12 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="button" class="btn btn-danger" id="confirm_button">Delete</button>
+                        <button type="button" class="btn btn-primary" id="confirm_button">Confirm</button>
                     </div>
                 </div>
             </div>
         </div>
-        <!-- End of Confirm Modal for Delete -->
+        <!-- End of Confirm Modal -->
 
     </div>
 </div>

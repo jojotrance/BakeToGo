@@ -1,14 +1,13 @@
 $(document).ready(function() {
     console.log('Document is ready');
 
-    // Function to initialize the stock DataTable
     function initializeStockTable() {
         $('#stock_table').DataTable({
             processing: true,
             serverSide: true,
             retrieve: true,
             ajax: {
-                url: "/api/stocks",
+                url: "/api/admin/stocks",
                 type: 'GET',
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -29,7 +28,7 @@ $(document).ready(function() {
             },
             columns: [
                 { 
-                    data: 'product_name',  // Use product_name instead of product_id
+                    data: 'product_name',  
                     name: 'product_name',
                     render: function(data, type, row) {
                         return data || 'N/A';
@@ -54,8 +53,8 @@ $(document).ready(function() {
                     orderable: false, 
                     searchable: false,
                     render: function(data, type, full, meta) {
-                        return '<button type="button" class="edit btn btn-primary btn-sm" data-id="' + full.id + '">Edit</button> ' +
-                            '<button type="button" class="delete btn btn-danger btn-sm" data-id="' + full.id + '">Delete</button>';
+                        return '<button type="button" class="edit-stock btn btn-primary btn-sm" data-id="' + full.id + '">Edit</button> ' +
+                            '<button type="button" class="delete-stock btn btn-danger btn-sm" data-id="' + full.id + '">Delete</button>';
                     }
                 }
             ],
@@ -72,15 +71,63 @@ $(document).ready(function() {
     // Initialize the stock DataTable on document ready
     initializeStockTable();
 
-    // Create Stock Button Click
+    // Load Suppliers
+    function loadSuppliers() {
+        return $.ajax({
+            url: "/api/admin/suppliers",
+            type: 'GET',
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        }).then(function(response) {
+            if (response.data) {
+                $('#supplier_id').empty().append('<option value="">Select Supplier</option>');
+                $.each(response.data, function(index, supplier) {
+                    $('#supplier_id').append('<option value="' + supplier.id + '">' + supplier.supplier_name + '</option>');
+                });
+            }
+        }).catch(function(xhr, status, error) {
+            console.error('AJAX Error:', status, error);
+            console.error('Response Text:', xhr.responseText);
+            alert('Failed to load suppliers. Please try again.');
+        });
+    }
+
+    // Load Products
+    function loadProducts() {
+        return $.ajax({
+            url: "/api/admin/products",
+            type: 'GET',
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        }).then(function(response) {
+            if (response.data) {
+                $('#product_id').empty().append('<option value="">Select Product</option>');
+                $.each(response.data, function(index, product) {
+                    $('#product_id').append('<option value="' + product.id + '">' + product.name + '</option>');
+                });
+            }
+        }).catch(function(xhr, status, error) {
+            console.error('AJAX Error:', status, error);
+            console.error('Response Text:', xhr.responseText);
+            alert('Failed to load products. Please try again.');
+        });
+    }
+
+    // Show Create Stock Modal
     $('#create_stock').on('click', function() {
         $('#stock_form')[0].reset();
         $('#modal_title').text('Add New Stock');
         $('#action_button').text('Create');
+        $('#product_name').val('');
+        $('#product_id').prop('disabled', false); // Enable product selection
         $('.text-danger').text('');
-        loadProducts();
-        loadSuppliers();
-        $('#stock_modal').modal('show');
+        
+        // Load products and suppliers before showing the modal
+        $.when(loadProducts(), loadSuppliers()).done(function() {
+            $('#stock_modal').modal('show');
+        });
     });
 
     // Form Submission
@@ -88,10 +135,10 @@ $(document).ready(function() {
         e.preventDefault();
         if (validateForm()) {
             let formData = new FormData(this);
-            let url = "/api/stocks";
+            let url = "/api/admin/stocks";
             let type = 'POST';
             if ($('#hidden_id').val()) {
-                url = "/api/stocks/" + $('#hidden_id').val();
+                url = "/api/admin/stocks/" + $('#hidden_id').val();
                 formData.append('_method', 'PUT');
             }
 
@@ -120,11 +167,11 @@ $(document).ready(function() {
     });
 
     // Edit Button Click
-    $(document).on('click', '.edit', function() {
+    $(document).on('click', '.edit-stock', function() {
         var id = $(this).data('id');
         console.log('Editing stock with ID:', id);
         $.ajax({
-            url: "/api/stocks/" + id,
+            url: "/api/admin/stocks/" + id,
             type: 'GET',
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -133,14 +180,15 @@ $(document).ready(function() {
                 console.log('Received stock data:', stock);
                 $('#quantity').val(stock.quantity || 0);
                 $('#supplier_id').val(stock.supplier_id || '');
-                $('#product_id').val(stock.product_id || '');
+                $('#product_id').val(stock.product_id || '').prop('disabled', true); // Disable product selection
+                $('#product_name').val(stock.product_name || ''); // Set the product name
                 $('#hidden_id').val(stock.id || '');
                 $('#modal_title').text('Edit Stock');
                 $('#action_button').text('Update');
                 $('.text-danger').text('');
-                loadSuppliers();
-                loadProducts();
-                $('#stock_modal').modal('show');
+                loadSuppliers().then(function() {
+                    $('#stock_modal').modal('show');
+                });
             },
             error: function(xhr, status, error) {
                 if (xhr.status === 419) {
@@ -154,7 +202,7 @@ $(document).ready(function() {
     });
 
     // Delete Button Click
-    $(document).on('click', '.delete', function() {
+    $(document).on('click', '.delete-stock', function() {
         var id = $(this).data('id');
         console.log('Delete button clicked for stock ID:', id);
         $('#confirm_message').text('Are you sure you want to delete this stock entry?');
@@ -164,7 +212,7 @@ $(document).ready(function() {
         $('#confirm_button').off('click').on('click', function() {
             console.log('Deleting stock with ID:', id);
             $.ajax({
-                url: "/api/stocks/" + id,
+                url: "/api/admin/stocks/" + id,
                 type: 'DELETE',
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -200,54 +248,6 @@ $(document).ready(function() {
         XLSX.utils.book_append_sheet(wb, ws, "Stocks");
         XLSX.writeFile(wb, "stocks.xlsx");
     });
-
-    // Load Suppliers
-    function loadSuppliers() {
-        $.ajax({
-            url: "/api/admin/suppliers",
-            type: 'GET',
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            },
-            success: function(response) {
-                if (response.data) {
-                    $('#supplier_id').empty().append('<option value="">Select Supplier</option>');
-                    $.each(response.data, function(index, supplier) {
-                        $('#supplier_id').append('<option value="' + supplier.id + '">' + supplier.supplier_name + '</option>');
-                    });
-                }
-            },
-            error: function(xhr, status, error) {
-                console.error('AJAX Error:', status, error);
-                console.error('Response Text:', xhr.responseText);
-                alert('Failed to load suppliers. Please try again.');
-            }
-        });
-    }
-
-    // Load Products
-    function loadProducts() {
-        $.ajax({
-            url: "/api/admin/products",
-            type: 'GET',
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            },
-            success: function(response) {
-                if (response.data) {
-                    $('#product_id').empty().append('<option value="">Select Product</option>');
-                    $.each(response.data, function(index, product) {
-                        $('#product_id').append('<option value="' + product.id + '">' + product.name + '</option>');
-                    });
-                }
-            },
-            error: function(xhr, status, error) {
-                console.error('AJAX Error:', status, error);
-                console.error('Response Text:', xhr.responseText);
-                alert('Failed to load products. Please try again.');
-            }
-        });
-    }
 
     // Form validation
     function validateForm() {
@@ -285,3 +285,4 @@ $(document).ready(function() {
         localStorage.removeItem('productCreated');
     }
 });
+
