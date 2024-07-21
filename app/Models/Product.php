@@ -36,6 +36,6 @@ class Product extends Model
     
     public function getTotalStockAttribute()
     {
-        return $this->stocks ? $this->stocks->sum('quantity') : 0;
+        return $this->stocks->sum('quantity');
     }
 }

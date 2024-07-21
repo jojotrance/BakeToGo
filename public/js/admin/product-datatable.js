@@ -231,4 +231,17 @@ $(document).ready(function() {
     $('.form-control').on('input', function() {
         $(this).removeClass('is-invalid');
     });
+
+    // Listen for stock update event
+    $(document).on('stockUpdated', function() {
+        console.log('Stock updated event received');
+        productDataTable.ajax.reload(); // Reload the product DataTable
+    });
+
+    // Check for stock update using localStorage (on page load)
+    if (localStorage.getItem('stockUpdated') === 'true') {
+        console.log('Stock updated detected, reloading product table');
+        productDataTable.ajax.reload();
+        localStorage.removeItem('stockUpdated');
+    }
 });

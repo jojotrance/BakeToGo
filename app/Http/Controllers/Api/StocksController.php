@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\StockResource;
 use App\Models\Stock;
+use App\Events\StockUpdated;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
@@ -51,6 +52,9 @@ class StocksController extends Controller
                 $stock = Stock::create($validatedData);
             }
 
+            // Trigger the stock updated event
+            event(new StockUpdated($stock->product));
+
             return response()->json(['success' => true, 'data' => new StockResource($stock)], 201);
         } catch (\Exception $e) {
             Log::error('Failed to create or update stock: ' . $e->getMessage());
@@ -68,6 +72,9 @@ class StocksController extends Controller
         try {
             $stock->update($validatedData);
 
+            // Trigger the stock updated event
+            event(new StockUpdated($stock->product));
+
             return response()->json(['success' => true, 'data' => new StockResource($stock)]);
         } catch (\Exception $e) {
             Log::error('Failed to update stock: ' . $e->getMessage());
@@ -78,7 +85,12 @@ class StocksController extends Controller
     public function destroy(Stock $stock)
     {
         try {
+            $product = $stock->product;
             $stock->delete();
+
+            // Trigger the stock updated event
+            event(new StockUpdated($product));
+
             return response()->json(['success' => true, 'message' => 'Stock deleted successfully']);
         } catch (\Exception $e) {
             Log::error('Failed to delete stock: ' . $e->getMessage());

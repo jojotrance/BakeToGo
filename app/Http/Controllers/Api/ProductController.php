@@ -13,7 +13,7 @@ class ProductController extends Controller
 {
     public function index()
     {
-        $products = Product::all();
+        $products = Product::with('stocks')->get(); // Ensure we load the stocks relationship
         return response()->json([
             'data' => ProductResource::collection($products)
         ]);
@@ -48,7 +48,11 @@ class ProductController extends Controller
             'supplier_id' => null
         ]);
 
-        return response()->json(['success' => 'Product created successfully', 'data' => $product], 200);
+        // Update product's stock field directly
+        $product->stock = 0;
+        $product->save();
+
+        return response()->json(['success' => 'Product created successfully', 'data' => new ProductResource($product)], 200);
     }
 
     public function show(Product $product)
@@ -63,6 +67,7 @@ class ProductController extends Controller
             'description' => 'required',
             'price' => 'required|integer',
             'category' => 'required',
+            'stock' => 'required|integer', // Validate the stock field
             'image' => 'sometimes|image|mimes:jpeg,png,jpg,gif,svg|max:2048'
         ]);
 
@@ -77,11 +82,27 @@ class ProductController extends Controller
                 $product->image = $imageName;
             }
 
-            $product->update($request->only(['name', 'description', 'price', 'category']));
+            $product->update($request->only(['name', 'description', 'price', 'category', 'stock']));
+            
+            // Update the stock
+            $stock = Stock::where('product_id', $product->id)->first();
+            if ($stock) {
+                $stock->update(['quantity' => $request->stock]);
+            } else {
+                Stock::create([
+                    'product_id' => $product->id,
+                    'quantity' => $request->stock,
+                    'supplier_id' => null // Adjust this according to your needs
+                ]);
+            }
+            
+            // Update product's stock field directly
+            $product->stock = $request->stock;
+            $product->save();
             
             return response()->json([
                 'message' => 'Product updated',
-                'data' => new ProductResource($product)
+                'data' => new ProductResource($product->load('stocks')) // Load the stocks relationship
             ], 200);
         } catch (\Exception $e) {
             \Log::error('Product update failed: ' . $e->getMessage());
