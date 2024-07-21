@@ -108,7 +108,7 @@
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                         <button type="button" class="btn btn-primary" id="confirm_button">Confirm</button>
                     </div>
-                </div>
+                </div>  
             </div>
         </div>
         <!-- End of Confirm Modal -->

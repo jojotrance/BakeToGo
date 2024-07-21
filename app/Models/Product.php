@@ -17,12 +17,12 @@ class Product extends Model
         'name',
         'description',
         'price',
-        'category',
+        'category', // Keep this as 'category' since you do not have a Category model
         'stock',
         'image'
     ];
 
-    protected $appends = ['image_url'];
+    protected $appends = ['image_url', 'total_stock'];
 
     public function getImageUrlAttribute()
     {
@@ -34,8 +34,8 @@ class Product extends Model
         return $this->hasMany(Stock::class);
     }
     
-    public function totalStock()
+    public function getTotalStockAttribute()
     {
-        return $this->stocks->sum('quantity');
+        return $this->stocks ? $this->stocks->sum('quantity') : 0;
     }
 }

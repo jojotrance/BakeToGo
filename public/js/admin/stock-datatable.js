@@ -38,14 +38,14 @@ $(document).ready(function() {
                     data: 'quantity', 
                     name: 'quantity',
                     render: function(data, type, row) {
-                        return data || '0';
+                        return `<span class="editable quantity" data-id="${row.id}">${data || '0'}</span>`;
                     }
                 },
                 { 
                     data: 'supplier_name', 
                     name: 'supplier_name',
                     render: function(data, type, row) {
-                        return data || 'N/A';
+                        return `<span class="editable supplier" data-id="${row.id}" data-supplier-id="${row.supplier_id}">${data || 'N/A'}</span>`;
                     }
                 },
                 { 
@@ -53,8 +53,7 @@ $(document).ready(function() {
                     orderable: false, 
                     searchable: false,
                     render: function(data, type, full, meta) {
-                        return '<button type="button" class="edit-stock btn btn-primary btn-sm" data-id="' + full.id + '">Edit</button> ' +
-                            '<button type="button" class="delete-stock btn btn-danger btn-sm" data-id="' + full.id + '">Delete</button>';
+                        return '<button type="button" class="delete-stock btn btn-danger btn-sm" data-id="' + full.id + '">Delete</button>';
                     }
                 }
             ],
@@ -71,7 +70,7 @@ $(document).ready(function() {
     // Initialize the stock DataTable on document ready
     initializeStockTable();
 
-    // Utility functions to load suppliers and products
+    // Load suppliers for dropdown
     function loadSuppliers() {
         return $.ajax({
             url: "/api/admin/suppliers",
@@ -81,10 +80,11 @@ $(document).ready(function() {
             }
         }).then(function(response) {
             if (response.data) {
-                $('#supplier_id').empty().append('<option value="">Select Supplier</option>');
+                let options = '<option value="">Select Supplier</option>';
                 $.each(response.data, function(index, supplier) {
-                    $('#supplier_id').append('<option value="' + supplier.id + '">' + supplier.supplier_name + '</option>');
+                    options += `<option value="${supplier.id}">${supplier.supplier_name}</option>`;
                 });
+                return options;
             }
         }).catch(function(xhr, status, error) {
             console.error('AJAX Error:', status, error);
@@ -93,6 +93,7 @@ $(document).ready(function() {
         });
     }
 
+    // Load products for dropdown
     function loadProducts() {
         return $.ajax({
             url: "/api/admin/products",
@@ -102,10 +103,11 @@ $(document).ready(function() {
             }
         }).then(function(response) {
             if (response.data) {
-                $('#product_id').empty().append('<option value="">Select Product</option>');
+                let options = '<option value="">Select Product</option>';
                 $.each(response.data, function(index, product) {
-                    $('#product_id').append('<option value="' + product.id + '">' + product.name + '</option>');
+                    options += `<option value="${product.id}">${product.name}</option>`;
                 });
+                return options;
             }
         }).catch(function(xhr, status, error) {
             console.error('AJAX Error:', status, error);
@@ -114,88 +116,150 @@ $(document).ready(function() {
         });
     }
 
-    // Show Create Stock Modal
-    $('#create_stock').on('click', function() {
-        $('#stock_form')[0].reset();
-        $('#modal_title').text('Add New Stock');
-        $('#action_button').text('Create');
-        $('#product_name').val('');
-        $('#product_id').prop('disabled', false); // Enable product selection
-        $('.text-danger').text('');
-        
-        // Load products and suppliers before showing the modal
-        $.when(loadProducts(), loadSuppliers()).done(function() {
-            $('#stock_modal').modal('show');
-        });
-    });
+    // Add new row for creating stock
+    $('#create_stock').on('click', async function() {
+        let productOptions = await loadProducts();
+        let supplierOptions = await loadSuppliers();
 
-    // Form Submission
-    $('#stock_form').on('submit', function(e) {
-        e.preventDefault();
-        if (validateForm()) {
-            let formData = new FormData(this);
-            let url = "/api/admin/stocks";
-            let type = 'POST';
-            if ($('#hidden_id').val()) {
-                url = "/api/admin/stocks/" + $('#hidden_id').val();
-                formData.append('_method', 'PUT');
+        let newRow = `
+            <tr class="new-stock-row">
+                <td>
+                    <select class="form-control select2 product-select">${productOptions}</select>
+                </td>
+                <td>
+                    <input type="number" class="form-control new-quantity" />
+                </td>
+                <td>
+                    <select class="form-control select2 supplier-select">${supplierOptions}</select>
+                </td>
+                <td>
+                    <button type="button" class="btn btn-success btn-sm save-new-stock">Save</button>
+                    <button type="button" class="btn btn-danger btn-sm cancel-new-stock">Cancel</button>
+                </td>
+            </tr>
+        `;
+
+        $('#stock_table tbody').prepend(newRow);
+        $('.select2').select2();
+
+        // Cancel new stock creation
+        $('.cancel-new-stock').on('click', function() {
+            $(this).closest('tr').remove();
+        });
+
+        // Save new stock
+        $('.save-new-stock').on('click', function() {
+            let $row = $(this).closest('tr');
+            let product_id = $row.find('.product-select').val();
+            let quantity = $row.find('.new-quantity').val();
+            let supplier_id = $row.find('.supplier-select').val();
+
+            if (!product_id || !quantity || !supplier_id) {
+                alert('All fields are required');
+                return;
             }
 
             $.ajax({
-                url: url,
-                type: type,
-                data: formData,
-                contentType: false,
-                processData: false,
+                url: "/api/admin/stocks",
+                type: 'POST',
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 },
+                data: {
+                    product_id: product_id,
+                    quantity: quantity,
+                    supplier_id: supplier_id
+                },
                 success: function(response) {
-                    console.log('Stock saved:', response);
-                    $('#stock_modal').modal('hide');
-                    alert('Stock has been successfully ' + ($('#hidden_id').val() ? 'updated!' : 'added!'));
-                    $('#stock_table').DataTable().ajax.reload();  // Reload the table data
+                    $('#stock_table').DataTable().ajax.reload();
+                    console.log('New stock saved:', response);
                 },
                 error: function(xhr, status, error) {
                     console.error('AJAX Error:', status, error);
                     console.error('Response Text:', xhr.responseText);
-                    alert('An error occurred. Please try again.');
+                    alert('Failed to save stock.');
                 }
             });
-        }
+        });
     });
 
-    // Edit Button Click
-    $(document).on('click', '.edit-stock', function() {
-        var id = $(this).data('id');
-        console.log('Editing stock with ID:', id);
-        $.ajax({
-            url: "/api/admin/stocks/" + id,
-            type: 'GET',
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            },
-            success: function(stock) {
-                console.log('Received stock data:', stock);
-                $('#quantity').val(stock.quantity || 0);
-                $('#supplier_id').val(stock.supplier_id || '');
-                $('#product_id').val(stock.product_id || '').prop('disabled', true); // Disable product selection
-                $('#product_name').val(stock.product_name || ''); // Set the product name
-                $('#hidden_id').val(stock.id || '');
-                $('#modal_title').text('Edit Stock');
-                $('#action_button').text('Update');
-                $('.text-danger').text('');
-                loadSuppliers().then(function() {
-                    $('#stock_modal').modal('show');
-                });
-            },
-            error: function(xhr, status, error) {
-                if (xhr.status === 419) {
-                    console.error('CSRF token mismatch:', xhr.responseText);
+    // Edit quantity on double-click
+    $(document).on('dblclick', '.editable.quantity', function() {
+        let $this = $(this);
+        let currentValue = $this.text().trim();
+        let id = $this.data('id');
+        $this.html(`<input type="number" class="form-control" value="${currentValue}" />`);
+        let $input = $this.find('input');
+
+        $input.focus().on('blur keydown', function(event) {
+            if (event.type === 'blur' || event.key === 'Enter') {
+                let newValue = $(this).val().trim();
+                if (newValue === '') {
+                    newValue = currentValue; // Revert to original value if left blank
                 }
-                console.error('AJAX Error:', error);
-                console.log('Response:', xhr.responseText);
-                showModalNotification('Failed to load stock details.', 'error');
+                if (newValue !== currentValue) {
+                    $.ajax({
+                        url: `/api/admin/stocks/${id}`,
+                        type: 'PUT',
+                        headers: {
+                            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                        },
+                        data: {
+                            quantity: newValue,
+                            supplier_id: $this.closest('tr').find('.editable.supplier').data('supplier-id')
+                        },
+                        success: function(response) {
+                            $this.text(newValue);
+                            console.log('Quantity updated:', response);
+                        },
+                        error: function(xhr, status, error) {
+                            console.error('AJAX Error:', status, error);
+                            console.error('Response Text:', xhr.responseText);
+                            alert('Failed to update quantity.');
+                            $this.text(currentValue); // Revert back to original value on error
+                        }
+                    });
+                } else {
+                    $this.text(currentValue); // Revert back to original value if unchanged
+                }
+            }
+        });
+    });
+
+    // Edit supplier on double-click
+    $(document).on('dblclick', '.editable.supplier', async function() {
+        let $this = $(this);
+        let currentSupplierId = $this.data('supplier-id');
+        let id = $this.data('id');
+        let supplierOptions = await loadSuppliers();
+        $this.html(`<select class="form-control select2">${supplierOptions}</select>`);
+        $this.find('select').val(currentSupplierId).select2().focus().on('select2:close blur', function() {
+            let newSupplierId = $(this).val();
+            if (newSupplierId !== currentSupplierId) {
+                $.ajax({
+                    url: `/api/admin/stocks/${id}`,
+                    type: 'PUT',
+                    headers: {
+                        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                    },
+                    data: {
+                        quantity: $this.closest('tr').find('.editable.quantity').text().trim(),
+                        supplier_id: newSupplierId
+                    },
+                    success: function(response) {
+                        $this.data('supplier-id', newSupplierId);
+                        $this.text($this.find('option:selected').text());
+                        console.log('Supplier updated:', response);
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('AJAX Error:', status, error);
+                        console.error('Response Text:', xhr.responseText);
+                        alert('Failed to update supplier.');
+                        $this.text($this.find('option[value="' + currentSupplierId + '"]').text()); // Revert back to original value on error
+                    }
+                });
+            } else {
+                $this.text($this.find('option[value="' + currentSupplierId + '"]').text()); // Revert back to original value if unchanged
             }
         });
     });
@@ -211,7 +275,7 @@ $(document).ready(function() {
         $('#confirm_button').off('click').on('click', function() {
             console.log('Deleting stock with ID:', id);
             $.ajax({
-                url: "/api/admin/stocks/" + id,
+                url: `/api/admin/stocks/${id}`,
                 type: 'DELETE',
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -248,35 +312,12 @@ $(document).ready(function() {
         XLSX.writeFile(wb, "stocks.xlsx");
     });
 
-    // Form validation
-    function validateForm() {
-        let isValid = true;
-        $('.text-danger').text('');
-
-        if ($('#quantity').val() === '') {
-            $('#quantity_error').text('Quantity is required');
-            isValid = false;
-        }
-
-        if ($('#product_id').val() === '') {
-            $('#product_id_error').text('Product is required');
-            isValid = false;
-        }
-
-        if ($('#supplier_id').val() === '') {
-            $('#supplier_id_error').text('Supplier is required');
-            isValid = false;
-        }
-
-        return isValid;
-    }
-
     // Listen for product creation event
     $(document).on('productCreated', function() {
         console.log('Product created event received');
         $('#stock_table').DataTable().ajax.reload();
     });
-
+    
     // Check for newly created product using localStorage
     if (localStorage.getItem('productCreated') === 'true') {
         console.log('New product detected, reloading stock table');

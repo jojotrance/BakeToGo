@@ -38,7 +38,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user-profile', [AuthController::class, 'getUserProfile'])->name('api.user-profile');
     Route::get('/user/profile', [UserController::class, 'profile']);
     Route::apiResource('stocks', StocksController::class);
-
 });
 
 // Public route
@@ -48,9 +47,9 @@ Route::get('/public-route', function () {
 
 // Admin routes
 Route::prefix('admin')->middleware(['auth:sanctum'])->group(function () {
+    
     // User Management Routes
-    Route::prefix('users')->group(function () 
-    {
+    Route::prefix('users')->group(function () {
         Route::post('/', [UserManagementController::class, 'store'])->name('api.admin.storeUser');
         Route::get('/', [UserManagementController::class, 'index'])->name('api.admin.fetchUsers');
         Route::get('/{user}', [UserManagementController::class, 'show'])->name('api.admin.showUser');
@@ -60,12 +59,11 @@ Route::prefix('admin')->middleware(['auth:sanctum'])->group(function () {
         Route::get('/export', [SpreadsheetController::class, 'exportUsers'])->name('api.admin.exportUsers');
     });
 
-    // Products Routes
     Route::prefix('products')->group(function () {
-        Route::post('/', [ProductController::class, 'store'])->name('api.admin.storeProduct');
         Route::get('/', [ProductController::class, 'index'])->name('api.admin.fetchProducts');
+        Route::post('/', [ProductController::class, 'store'])->name('api.admin.storeProduct');
         Route::get('/{product}', [ProductController::class, 'show'])->name('api.admin.showProduct');
-        Route::put('products/{product}', [ProductController::class, 'update']);
+        Route::put('/{product}', [ProductController::class, 'update'])->name('api.admin.updateProduct');
         Route::delete('/{product}', [ProductController::class, 'destroy'])->name('api.admin.deleteProduct');
     });
 
@@ -79,14 +77,14 @@ Route::prefix('admin')->middleware(['auth:sanctum'])->group(function () {
         Route::get('/check-existence', [SupplierController::class, 'checkSupplierExistence'])->name('api.admin.checkSupplierExistence');
     });
 
-    // Stocks Routes
-    Route::prefix('stocks')->group(function () {
-        Route::post('/', [StocksController::class, 'store'])->name('api.admin.storeStock');
+     // Stocks Routes
+     Route::prefix('stocks')->group(function () {
         Route::get('/', [StocksController::class, 'index'])->name('api.admin.fetchStocks');
+        Route::post('/', [StocksController::class, 'store'])->name('api.admin.storeStock');
         Route::get('/{stock}', [StocksController::class, 'show'])->name('api.admin.showStock');
         Route::put('/{stock}', [StocksController::class, 'update'])->name('api.admin.updateStock');
         Route::delete('/{stock}', [StocksController::class, 'destroy'])->name('api.admin.deleteStock');
-    }); 
+        });
 
     // Couriers Routes
     Route::prefix('couriers')->group(function () {
@@ -97,3 +95,9 @@ Route::prefix('admin')->middleware(['auth:sanctum'])->group(function () {
         Route::delete('/destroy/{courier}', [CourierController::class, 'destroyCourier'])->name('api.admin.destroyCourier');
     });
 });
+
+// Chart Routes
+Route::get('/charts/total-role', [ChartController::class, 'totalRole'])->name('api.charts.totalRole');
+Route::get('/charts/customer-per-address', [ChartController::class, 'customerPerAddress'])->name('api.charts.customerPerAddress');
+Route::get('/charts/customer-per-branch', [ChartController::class, 'customerPerBranch'])->name('api.charts.customerPerBranch');
+Route::get('/charts/totalSupplier', [ChartController::class, 'totalSupplier'])->name('api.charts.totalSupplier');

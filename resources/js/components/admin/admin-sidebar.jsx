@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import '@css/admin-sidebar.css'; // Use the alias for the CSS import
+import '@css/admin-sidebar.css'; // Ensure this path is correct
 import { SidebarData } from "../SidebarData";
 import IconButton from '@mui/material/IconButton';
 import ToggleOffRoundedIcon from '@mui/icons-material/ToggleOffRounded';
@@ -26,7 +26,7 @@ function Sidebar() {
                             className="row"
                             id={window.location.pathname === val.link ? "active" : ""}
                             onClick={() => {
-                                window.location.pathname = val.link; 
+                                window.location.pathname = val.link;
                             }}
                             data-tooltip={val.title} // Add tooltip text here
                         >

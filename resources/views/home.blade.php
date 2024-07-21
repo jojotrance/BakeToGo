@@ -14,7 +14,7 @@
     <link rel="icon" type="image/png" href="customer/images/favicon.png">
 
 <!--
-    
+
 TemplateMo 558 Klassy Cafe
 
 https://templatemo.com/tm-558-klassy-cafe
@@ -32,9 +32,9 @@ https://templatemo.com/tm-558-klassy-cafe
     <link rel="stylesheet" href="customer/css/lightbox.css">
 
     </head>
-    
+
     <body>
-    
+
     <!-- ***** Preloader Start ***** -->
     <div id="preloader">
         <div class="jumper">
@@ -42,10 +42,10 @@ https://templatemo.com/tm-558-klassy-cafe
             <div></div>
             <div></div>
         </div>
-    </div>  
+    </div>
     <!-- ***** Preloader End ***** -->
-    
-    
+
+
     <!-- ***** Header Area Start ***** -->
     <header class="header-area header-sticky">
         <div class="container">
@@ -61,8 +61,8 @@ https://templatemo.com/tm-558-klassy-cafe
                         <ul class="nav">
                             <li class="scroll-to-section"><a href="#top" class="active">Home</a></li>
                             <li class="scroll-to-section"><a href="#about">About</a></li>
-                           	
-                        <!-- 
+
+                        <!--
                             <li class="submenu">
                                 <a href="javascript:;">Drop Down</a>
                                 <ul>
@@ -73,19 +73,19 @@ https://templatemo.com/tm-558-klassy-cafe
                             </li>
                         -->
                             <li class="scroll-to-section"><a href="#menu">Menu</a></li>
-                            <li class="scroll-to-section"><a href="#chefs">Chefs</a></li> 
+                            <li class="scroll-to-section"><a href="#chefs">Chefs</a></li>
                             <li class="submenu">
                                 <a href="javascript:;">Account</a>
                                 <ul>
-                                   
+
                                     <li><a href="{{ route('login') }}">Login</a></li>
-                                   
+
                                     <li><a href="{{ route('signup') }}">Signup</a></li>
                                     </ul>
                             </li>
                             <!-- <li class=""><a rel="sponsored" href="https://templatemo.com" target="_blank">External URL</a></li> -->
-                            <li class="scroll-to-section"><a href="#reservation">Contact Us</a></li> 
-                        </ul>        
+                            {{-- <li class="scroll-to-section"><a href="#reservation">Contact Us</a></li> --}}
+                        </ul>
                         <a class='menu-trigger'>
                             <span>Menu</span>
                         </a>
@@ -188,7 +188,7 @@ https://templatemo.com/tm-558-klassy-cafe
                 <div class="col-lg-4">
                     <div class="section-heading">
                         <h6>Our Menu</h6>
-                        <h2>Our selection of cakes with quality taste</h2>
+                        <h2>Our selection of bakes with quality taste</h2>
                     </div>
                 </div>
             </div>
@@ -200,8 +200,8 @@ https://templatemo.com/tm-558-klassy-cafe
                         <div class='card card1'>
                             <div class="price"><h6>$14</h6></div>
                             <div class='info'>
-                              <h1 class='title'>Chocolate Cake</h1>
-                              <p class='description'>Indulge in our rich and moist chocolate cake, layered with decadent chocolate frosting for a truly luxurious treat.</p>
+                              <h1 class='title'>Pandesal</h1>
+                              <p class='description'>A classic Filipino breakfast bread, soft and fluffy on the inside and crispy on the outside.</p>
                               <div class="main-text-button">
                                   <div class="scroll-to-section"><a href="#reservation">Make Reservation <i class="fa fa-angle-down"></i></a></div>
                               </div>
@@ -212,8 +212,9 @@ https://templatemo.com/tm-558-klassy-cafe
                         <div class='card card2'>
                             <div class="price"><h6>$22</h6></div>
                             <div class='info'>
-                              <h1 class='title'>Klassy Pancake</h1>
-                              <p class='description'>Enjoy our fluffy and delicious Klassy Pancake, perfectly golden and served with a drizzle of maple syrup.</p>
+                              <h1 class='title'>Empanada</h1>
+                              <p class='description'>A pastry filled with meat or vegetables, often served as a snack or dessert.
+                            </p>
                               <div class="main-text-button">
                                   <div class="scroll-to-section"><a href="#reservation">Make Reservation <i class="fa fa-angle-down"></i></a></div>
                               </div>
@@ -224,8 +225,9 @@ https://templatemo.com/tm-558-klassy-cafe
                         <div class='card card3'>
                             <div class="price"><h6>$18</h6></div>
                             <div class='info'>
-                              <h1 class='title'>Tall Klassy Bread</h1>
-                              <p class='description'>Savor the towering delight of our Tall Klassy Pancake, stacked high and bursting with flavor in every bite.</p>
+                              <h1 class='title'>Buko Pie</h1>
+                              <p class='description'>A traditional Filipino pastry filled with young coconut meat and sweetened with condensed milk.
+                            </p>
                               <div class="main-text-button">
                                   <div class="scroll-to-section"><a href="#reservation">Make Reservation <i class="fa fa-angle-down"></i></a></div>
                               </div>
@@ -236,8 +238,9 @@ https://templatemo.com/tm-558-klassy-cafe
                         <div class='card card4'>
                             <div class="price"><h6>$10</h6></div>
                             <div class='info'>
-                              <h1 class='title'>Blueberry CheeseCake</h1>
-                              <p class='description'>Delight in our creamy blueberry cheesecake, featuring a smooth texture and a burst of fresh blueberries on a buttery crust.</p>
+                              <h1 class='title'>Monay</h1>
+                              <p class='description'>A heavy, fine, and solid bread that is easily recognized by its large size, round shape, and crease on the top.
+                            </p>
                               <div class="main-text-button">
                                   <div class="scroll-to-section"><a href="#reservation">Make Reservation <i class="fa fa-angle-down"></i></a></div>
                               </div>
@@ -248,8 +251,9 @@ https://templatemo.com/tm-558-klassy-cafe
                         <div class='card card5'>
                             <div class="price"><h6>$8.50</h6></div>
                             <div class='info'>
-                              <h1 class='title'>Klassy Cup Cake</h1>
-                              <p class='description'>Treat yourself to our charming Klassy Cup Cake, a perfect blend of moist cake and luscious frosting in a petite package.</p>
+                              <h1 class='title'>Siopao</h1>
+                              <p class='description'>A steamed bun filled with meat or vegetables, often served as a snack or dessert.
+                            </p>
                               <div class="main-text-button">
                                   <div class="scroll-to-section"><a href="#reservation">Make Reservation <i class="fa fa-angle-down"></i></a></div>
                               </div>
@@ -257,11 +261,60 @@ https://templatemo.com/tm-558-klassy-cafe
                         </div>
                     </div>
                     <div class="item">
+                        <div class='card card6'>
+                            <div class="price"><h6>$7.25</h6></div>
+                            <div class='info'>
+                              <h1 class='title'>Ensaymada</h1>
+                              <p class='description'>A sweet bread topped with butter, sugar, and grated cheese.</p>
+                              <div class="main-text-button">
+                                  <div class="scroll-to-section"><a href="#reservation">Make Reservation <i class="fa fa-angle-down"></i></a></div>
+                              </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="item">
+                        <div class='card card7'>
+                            <div class="price"><h6>$7.25</h6></div>
+                            <div class='info'>
+                              <h1 class='title'>Hopia</h1>
+                              <p class='description'>A flaky pastry filled with sweet or savory fillings, such as red bean paste or chicken.
+                            </p>
+                              <div class="main-text-button">
+                                  <div class="scroll-to-section"><a href="#reservation">Make Reservation <i class="fa fa-angle-down"></i></a></div>
+                              </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="item">
+                        <div class='card card8'>
+                            <div class="price"><h6>$7.25</h6></div>
+                            <div class='info'>
+                              <h1 class='title'>Maja Blanca</h1>
+                              <p class='description'>A coconut pudding dessert topped with toasted coconut flakes and a sprinkle of sugar.
+                            </p>
+                              <div class="main-text-button">
+                                  <div class="scroll-to-section"><a href="#reservation">Make Reservation <i class="fa fa-angle-down"></i></a></div>
+                              </div>
+                            </div>
+                        </div>
+                    </div> <div class="item">
+                        <div class='card card9'>
+                            <div class="price"><h6>$7.25</h6></div>
+                            <div class='info'>
+                              <h1 class='title'>Bibingka</h1>
+                              <p class='description'>A traditional Filipino rice cake topped with cheese, salted eggs, and coconut flakes.
+                            </p>
+                              <div class="main-text-button">
+                                  <div class="scroll-to-section"><a href="#reservation">Make Reservation <i class="fa fa-angle-down"></i></a></div>
+                              </div>
+                            </div>
+                        </div>
+                    </div> <div class="item">
                         <div class='card card3'>
                             <div class="price"><h6>$7.25</h6></div>
                             <div class='info'>
-                              <h1 class='title'>Klassic Cake</h1>
-                              <p class='description'>Relish the timeless elegance of our Klassic Cake, a simple yet exquisite creation that embodies the essence of traditional baking.</p>
+                              <h1 class='title'>Mango Cake</h1>
+                              <p class='description'>A moist and flavorful cake made with mango puree and often topped with a cream cheese frosting.</p>
                               <div class="main-text-button">
                                   <div class="scroll-to-section"><a href="#reservation">Make Reservation <i class="fa fa-angle-down"></i></a></div>
                               </div>
@@ -295,10 +348,10 @@ https://templatemo.com/tm-558-klassy-cafe
                                 <li><a href="#"><i class="fa fa-twitter"></i></a></li>
                                 <li><a href="#"><i class="fa fa-instagram"></i></a></li>
                             </ul>
-                            <img src="customer/images/chefs-01.jpg" alt="Chef #1">
+                            <img src="customer/images/lester.jpg" alt="Chef #1">
                         </div>
                         <div class="down-content">
-                            <h4>Randy Walker</h4>
+                            <h4>Lester Sible</h4>
                             <span>Pastry Chef</span>
                         </div>
                     </div>
@@ -312,10 +365,10 @@ https://templatemo.com/tm-558-klassy-cafe
                                 <li><a href="#"><i class="fa fa-twitter"></i></a></li>
                                 <li><a href="#"><i class="fa fa-behance"></i></a></li>
                             </ul>
-                            <img src="customer/images/chefs-02.jpg" alt="Chef #2">
+                            <img src="customer/images/joey.jpg" alt="Chef #2">
                         </div>
                         <div class="down-content">
-                            <h4>David Martin</h4>
+                            <h4>Joey Lavega</h4>
                             <span>Cookie Chef</span>
                         </div>
                     </div>
@@ -329,10 +382,10 @@ https://templatemo.com/tm-558-klassy-cafe
                                 <li><a href="#"><i class="fa fa-twitter"></i></a></li>
                                 <li><a href="#"><i class="fa fa-google"></i></a></li>
                             </ul>
-                            <img src="customer/images/chefs-03.jpg" alt="Chef #3">
+                            <img src="customer/images/marvin.jpg" alt="Chef #3">
                         </div>
                         <div class="down-content">
-                            <h4>Peter Perkson</h4>
+                            <h4>Marvin Gamo</h4>
                             <span>Pancake Chef</span>
                         </div>
                     </div>
@@ -342,381 +395,6 @@ https://templatemo.com/tm-558-klassy-cafe
     </section>
     <!-- ***** Chefs Area Ends ***** -->
 
-    <!-- ***** Reservation Us Area Starts ***** -->
-    <section class="section" id="reservation">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-6 align-self-center">
-                    <div class="left-text-content">
-                        <div class="section-heading">
-                            <h6>Contact Us</h6>
-                            <h2>Here You Can Make A Reservation Or Just walkin to our cafe</h2>
-                        </div>
-                        <p>Donec pretium est orci, non vulputate arcu hendrerit a. Fusce a eleifend riqsie, namei sollicitudin urna diam, sed commodo purus porta ut.</p>
-                        <div class="row">
-                            <div class="col-lg-6">
-                                <div class="phone">
-                                    <i class="fa fa-phone"></i>
-                                    <h4>Phone Numbers</h4>
-                                    <span><a href="#">080-090-0990</a><br><a href="#">080-090-0880</a></span>
-                                </div>
-                            </div>
-                            <div class="col-lg-6">
-                                <div class="message">
-                                    <i class="fa fa-envelope"></i>
-                                    <h4>Emails</h4>
-                                    <span><a href="#">hello@company.com</a><br><a href="#">info@company.com</a></span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-lg-6">
-                    <div class="contact-form">
-                        <form id="contact" action="" method="post">
-                          <div class="row">
-                            <div class="col-lg-12">
-                                <h4>Table Reservation</h4>
-                            </div>
-                            <div class="col-lg-6 col-sm-12">
-                              <fieldset>
-                                <input name="name" type="text" id="name" placeholder="Your Name*" required="">
-                              </fieldset>
-                            </div>
-                            <div class="col-lg-6 col-sm-12">
-                              <fieldset>
-                              <input name="email" type="text" id="email" pattern="[^ @]*@[^ @]*" placeholder="Your Email Address" required="">
-                            </fieldset>
-                            </div>
-                            <div class="col-lg-6 col-sm-12">
-                              <fieldset>
-                                <input name="phone" type="text" id="phone" placeholder="Phone Number*" required="">
-                              </fieldset>
-                            </div>
-                            <div class="col-md-6 col-sm-12">
-                              <fieldset>
-                                <select value="number-guests" name="number-guests" id="number-guests">
-                                    <option value="number-guests">Number Of Guests</option>
-                                    <option name="1" id="1">1</option>
-                                    <option name="2" id="2">2</option>
-                                    <option name="3" id="3">3</option>
-                                    <option name="4" id="4">4</option>
-                                    <option name="5" id="5">5</option>
-                                    <option name="6" id="6">6</option>
-                                    <option name="7" id="7">7</option>
-                                    <option name="8" id="8">8</option>
-                                    <option name="9" id="9">9</option>
-                                    <option name="10" id="10">10</option>
-                                    <option name="11" id="11">11</option>
-                                    <option name="12" id="12">12</option>
-                                </select>
-                              </fieldset>
-                            </div>
-                            <div class="col-lg-6">
-                                <div id="filterDate2">    
-                                  <div class="input-group date" data-date-format="dd/mm/yyyy">
-                                    <input  name="date" id="date" type="text" class="form-control" placeholder="dd/mm/yyyy">
-                                    <div class="input-group-addon" >
-                                      <span class="glyphicon glyphicon-th"></span>
-                                    </div>
-                                  </div>
-                                </div>   
-                            </div>
-                            <div class="col-md-6 col-sm-12">
-                              <fieldset>
-                                <select value="time" name="time" id="time">
-                                    <option value="time">Time</option>
-                                    <option name="Breakfast" id="Breakfast">Breakfast</option>
-                                    <option name="Lunch" id="Lunch">Lunch</option>
-                                    <option name="Dinner" id="Dinner">Dinner</option>
-                                </select>
-                              </fieldset>
-                            </div>
-                            <div class="col-lg-12">
-                              <fieldset>
-                                <textarea name="message" rows="6" id="message" placeholder="Message" required=""></textarea>
-                              </fieldset>
-                            </div>
-                            <div class="col-lg-12">
-                              <fieldset>
-                                <button type="submit" id="form-submit" class="main-button-icon">Make A Reservation</button>
-                              </fieldset>
-                            </div>
-                          </div>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-    <!-- ***** Reservation Area Ends ***** -->
-
-    <!-- ***** Menu Area Starts ***** -->
-    <section class="section" id="offers">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-4 offset-lg-4 text-center">
-                    <div class="section-heading">
-                        <h6>Klassy Week</h6>
-                        <h2>This Week’s Special Meal Offers</h2>
-                    </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-lg-12">
-                    <div class="row" id="tabs">
-                        <div class="col-lg-12">
-                            <div class="heading-tabs">
-                                <div class="row">
-                                    <div class="col-lg-6 offset-lg-3">
-                                        <ul>
-                                          <li><a href='#tabs-1'><img src="customer/images/tab-icon-01.png" alt="">Breakfast</a></li>
-                                          <li><a href='#tabs-2'><img src="customer/images/tab-icon-02.png" alt="">Lunch</a></a></li>
-                                          <li><a href='#tabs-3'><img src="customer/images/tab-icon-03.png" alt="">Dinner</a></a></li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-12">
-                            <section class='tabs-content'>
-                                <article id='tabs-1'>
-                                    <div class="row">
-                                        <div class="col-lg-6">
-                                            <div class="row">
-                                                <div class="left-list">
-                                                    <div class="col-lg-12">
-                                                        <div class="tab-item">
-                                                            <img src="customer/images/tab-item-01.png" alt="">
-                                                            <h4>Fresh Chicken Salad</h4>
-                                                            <p>Lorem ipsum dolor sit amet, consectetur koit adipiscing elit, sed do.</p>
-                                                            <div class="price">
-                                                                <h6>$10.50</h6>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-lg-12">
-                                                        <div class="tab-item">
-                                                            <img src="customer/images/tab-item-02.png" alt="">
-                                                            <h4>Orange Juice</h4>
-                                                            <p>Lorem ipsum dolor sit amet, consectetur koit adipiscing elit, sed do.</p>
-                                                            <div class="price">
-                                                                <h6>$8.50</h6>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-lg-12">
-                                                        <div class="tab-item">
-                                                            <img src="customer/images/tab-item-03.png" alt="">
-                                                            <h4>Fruit Salad</h4>
-                                                            <p>Lorem ipsum dolor sit amet, consectetur koit adipiscing elit, sed do.</p>
-                                                            <div class="price">
-                                                                <h6>$9.90</h6>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-lg-6">
-                                            <div class="row">
-                                                <div class="right-list">
-                                                    <div class="col-lg-12">
-                                                        <div class="tab-item">
-                                                            <img src="customer/images/tab-item-04.png" alt="">
-                                                            <h4>Eggs Omelette</h4>
-                                                            <p>Lorem ipsum dolor sit amet, consectetur koit adipiscing elit, sed do.</p>
-                                                            <div class="price">
-                                                                <h6>$6.50</h6>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-lg-12">
-                                                        <div class="tab-item">
-                                                            <img src="customer/images/tab-item-05.png" alt="">
-                                                            <h4>Dollma Pire</h4>
-                                                            <p>Lorem ipsum dolor sit amet, consectetur koit adipiscing elit, sed do.</p>
-                                                            <div class="price">
-                                                                <h6>$5.00</h6>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-lg-12">
-                                                        <div class="tab-item">
-                                                            <img src="customer/images/tab-item-06.png" alt="">
-                                                            <h4>Omelette & Cheese</h4>
-                                                            <p>Lorem ipsum dolor sit amet, consectetur koit adipiscing elit, sed do.</p>
-                                                            <div class="price">
-                                                                <h6>$4.10</h6>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </article>  
-                                <article id='tabs-2'>
-                                    <div class="row">
-                                        <div class="col-lg-6">
-                                            <div class="row">
-                                                <div class="left-list">
-                                                    <div class="col-lg-12">
-                                                        <div class="tab-item">
-                                                            <img src="customer/images/tab-item-04.png" alt="">
-                                                            <h4>Eggs Omelette</h4>
-                                                            <p>Lorem ipsum dolor sit amet, consectetur koit adipiscing elit, sed do.</p>
-                                                            <div class="price">
-                                                                <h6>$14</h6>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-lg-12">
-                                                        <div class="tab-item">
-                                                            <img src="customer/images/tab-item-05.png" alt="">
-                                                            <h4>Dollma Pire</h4>
-                                                            <p>Lorem ipsum dolor sit amet, consectetur koit adipiscing elit, sed do.</p>
-                                                            <div class="price">
-                                                                <h6>$18</h6>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-lg-12">
-                                                        <div class="tab-item">
-                                                            <img src="customer/images/tab-item-06.png" alt="">
-                                                            <h4>Omelette & Cheese</h4>
-                                                            <p>Lorem ipsum dolor sit amet, consectetur koit adipiscing elit, sed do.</p>
-                                                            <div class="price">
-                                                                <h6>$22</h6>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-lg-6">
-                                            <div class="row">
-                                                <div class="right-list">
-                                                    <div class="col-lg-12">
-                                                        <div class="tab-item">
-                                                            <img src="customer/images/tab-item-01.png" alt="">
-                                                            <h4>Fresh Chicken Salad</h4>
-                                                            <p>Lorem ipsum dolor sit amet, consectetur koit adipiscing elit, sed do.</p>
-                                                            <div class="price">
-                                                                <h6>$10</h6>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-lg-12">
-                                                        <div class="tab-item">
-                                                            <img src="customer/images/tab-item-02.png" alt="">
-                                                            <h4>Orange Juice</h4>
-                                                            <p>Lorem ipsum dolor sit amet, consectetur koit adipiscing elit, sed do.</p>
-                                                            <div class="price">
-                                                                <h6>$20</h6>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-lg-12">
-                                                        <div class="tab-item">
-                                                            <img src="customer/images/tab-item-03.png" alt="">
-                                                            <h4>Fruit Salad</h4>
-                                                            <p>Lorem ipsum dolor sit amet, consectetur koit adipiscing elit, sed do.</p>
-                                                            <div class="price">
-                                                                <h6>$30</h6>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </article>  
-                                <article id='tabs-3'>
-                                    <div class="row">
-                                        <div class="col-lg-6">
-                                            <div class="row">
-                                                <div class="left-list">
-                                                    <div class="col-lg-12">
-                                                        <div class="tab-item">
-                                                            <img src="customer/images/tab-item-05.png" alt="">
-                                                            <h4>Eggs Omelette</h4>
-                                                            <p>Lorem ipsum dolor sit amet, consectetur koit adipiscing elit, sed do.</p>
-                                                            <div class="price">
-                                                                <h6>$14</h6>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-lg-12">
-                                                        <div class="tab-item">
-                                                            <img src="customer/images/tab-item-03.png" alt="">
-                                                            <h4>Orange Juice</h4>
-                                                            <p>Lorem ipsum dolor sit amet, consectetur koit adipiscing elit, sed do.</p>
-                                                            <div class="price">
-                                                                <h6>$18</h6>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-lg-12">
-                                                        <div class="tab-item">
-                                                            <img src="customer/images/tab-item-02.png" alt="">
-                                                            <h4>Fruit Salad</h4>
-                                                            <p>Lorem ipsum dolor sit amet, consectetur koit adipiscing elit, sed do.</p>
-                                                            <div class="price">
-                                                                <h6>$10</h6>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-lg-6">
-                                            <div class="row">
-                                                <div class="right-list">
-                                                    <div class="col-lg-12">
-                                                        <div class="tab-item">
-                                                            <img src="customer/images/tab-item-06.png" alt="">
-                                                            <h4>Fresh Chicken Salad</h4>
-                                                            <p>Lorem ipsum dolor sit amet, consectetur koit adipiscing elit, sed do.</p>
-                                                            <div class="price">
-                                                                <h6>$8.50</h6>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-lg-12">
-                                                        <div class="tab-item">
-                                                            <img src="customer/images/tab-item-01.png" alt="">
-                                                            <h4>Dollma Pire</h4>
-                                                            <p>Lorem ipsum dolor sit amet, consectetur koit adipiscing elit, sed do.</p>
-                                                            <div class="price">
-                                                                <h6>$9</h6>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <div class="col-lg-12">
-                                                        <div class="tab-item">
-                                                            <img src="customer/images/tab-item-04.png" alt="">
-                                                            <h4>Omelette & Cheese</h4>
-                                                            <p>Lorem ipsum dolor sit amet, consectetur koit adipiscing elit, sed do.</p>
-                                                            <div class="price">
-                                                                <h6>$11</h6>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </article>   
-                            </section>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-    <!-- ***** Chefs Area Ends ***** --> 
-    
     <!-- ***** Footer Start ***** -->
     <footer>
         <div class="container">
@@ -732,20 +410,23 @@ https://templatemo.com/tm-558-klassy-cafe
                     </div>
                 </div>
                 <div class="col-lg-4">
-                    <div class="logo">
-                        <a href="index.html"><img src="customer/images/white-logo.png" alt=""></a>
-                    </div>
+                    {{-- <div class="logo">
+                        <a href="index.html"><img src="customer/images/bake-logo.jpg" alt=""></a>
+                    </div> --}}
                 </div>
                 <div class="col-lg-4 col-xs-12">
                     <div class="left-text-content">
-                        <p>© Copyright Klassy Cafe Co.
-                        
+                        <p>© Copyright Bake To Go.
+
                         <br>Design: TemplateMo</p>
                     </div>
                 </div>
             </div>
         </div>
     </footer>
+
+
+
 
     <!-- jQuery -->
     <script src="customer/js/jquery-2.1.0.min.js"></script>
@@ -761,11 +442,11 @@ https://templatemo.com/tm-558-klassy-cafe
     <script src="customer/js/scrollreveal.min.js"></script>
     <script src="customer/js/waypoints.min.js"></script>
     <script src="customer/js/jquery.counterup.min.js"></script>
-    <script src="customer/js/imgfix.min.js"></script> 
-    <script src="customer/js/slick.js"></script> 
-    <script src="customer/js/lightbox.js"></script> 
-    <script src="customer/js/isotope.js"></script> 
-    
+    <script src="customer/js/imgfix.min.js"></script>
+    <script src="customer/js/slick.js"></script>
+    <script src="customer/js/lightbox.js"></script>
+    <script src="customer/js/isotope.js"></script>
+
     <!-- Global Init -->
     <script src="customer/js/custom.js"></script>
     <script>
@@ -780,10 +461,11 @@ https://templatemo.com/tm-558-klassy-cafe
               $("."+selectedClass).fadeIn();
               $("#portfolio").fadeTo(50, 1);
             }, 500);
-                
+
             });
         });
 
     </script>
+
   </body>
 </html>

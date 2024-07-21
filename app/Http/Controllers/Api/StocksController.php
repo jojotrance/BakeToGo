@@ -40,10 +40,16 @@ class StocksController extends Controller
         ]);
 
         try {
-            $stock = Stock::updateOrCreate(
-                ['product_id' => $validatedData['product_id']],
-                $validatedData
-            );
+            $stock = Stock::where('product_id', $validatedData['product_id'])
+                          ->where('supplier_id', $validatedData['supplier_id'])
+                          ->first();
+
+            if ($stock) {
+                $stock->quantity += $validatedData['quantity'];
+                $stock->save();
+            } else {
+                $stock = Stock::create($validatedData);
+            }
 
             return response()->json(['success' => true, 'data' => new StockResource($stock)], 201);
         } catch (\Exception $e) {

@@ -53,7 +53,7 @@ $(document).ready(function() {
                     name: 'role',
                     width: '5%',
                     render: function(data, type, full, meta) {
-                        return data === 'admin' ? 'Admin' : 'Customer';
+                        return `<span class="editable role" data-id="${full.id}" data-role="${data}">${data === 'admin' ? 'Admin' : 'Customer'}</span>`;
                     }
                 },
                 {
@@ -61,15 +61,14 @@ $(document).ready(function() {
                     name: 'active_status',
                     width: '5%',
                     render: function(data, type, full, meta) {
-                        return '<span class="chip ' + (data ? 'chip-active' : 'chip-inactive') + '">' + (data ? 'Active' : 'Inactive') + '</span>';
+                        return `<span class="editable active_status" data-id="${full.id}" data-status="${data}"><span class="chip ${data ? 'chip-active' : 'chip-inactive'}">${data ? 'Active' : 'Inactive'}</span></span>`;
                     }
                 },
                 {
                     data: null,
                     width: '10%',
                     render: function(data, type, row) {
-                        return '<button class="btn btn-icon edit-user" data-id="' + row.id + '"><i class="fas fa-edit" style="color: green;"></i></button> ' +
-                               '<button type="button" class="delete-user btn btn-danger btn-sm" data-id="' + row.id + '">Delete</button>';
+                        return '<div class="action-buttons"><button type="button" class="delete-user btn btn-danger btn-sm" data-id="' + row.id + '">Delete</button></div>';
                     }
                 }
             ],
@@ -91,84 +90,118 @@ $(document).ready(function() {
         });
     }
 
-    // Handle Add/Edit modal actions
-    $('#sample_form').on('submit', function(event) {
-        event.preventDefault();
-        var action_url = "/api/admin/users";
+    var currentEdit = null;
 
-        if ($('#action').val() === 'Edit') {
-            action_url = "/api/admin/users/" + $('#id').val();
-        }
-
-        var formData = new FormData(this);
-
-        if ($('#action').val() === 'Edit') {
-            formData.append('_method', 'PUT');
-        }
+    // Function to handle save action
+    function saveChanges(id, field, value, $row) {
+        var data = { _method: 'PUT' };
+        data[field] = value;
 
         $.ajax({
-            url: action_url,
-            method: $('#action').val() === 'Edit' ? "POST" : "POST",
-            data: formData,
-            processData: false,
-            contentType: false,
+            url: `/api/admin/users/${id}`,
+            type: 'PUT',
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             },
-            success: function(data) {
-                if (data.errors) {
-                    $.each(data.errors, function(key, value) {
-                        $('#' + key + '_error').html(value);
-                    });
+            data: data,
+            success: function(response) {
+                if (dataTable && dataTable.ajax) {
+                    dataTable.ajax.reload(null, false);
                 }
-
-                if (data.success) {
-                    if (dataTable && dataTable.ajax) {
-                        dataTable.ajax.reload(null, false);
-                    }
-                    $('#action_modal').modal('hide');
-                    $('#sample_form')[0].reset();
-                    $('#message').html('<div class="alert alert-success">' + data.success + '</div>');
-                    setTimeout(function() {
-                        $('#message').html('');
-                    }, 5000);
-                }
+                currentEdit = null;
+                console.log('Changes saved:', response);
             },
             error: function(xhr, status, error) {
-                console.error('AJAX Error:', error);
-                console.log('Response:', xhr.responseText);
-                alert('An error occurred while processing your request. Please try again.');
+                console.error('AJAX Error:', status, error);
+                console.error('Response Text:', xhr.responseText);
+                alert('Failed to save changes.');
             }
+        });
+
+        // Restore the action buttons
+        $row.find('.action-buttons').html('<button type="button" class="delete-user btn btn-danger btn-sm" data-id="' + id + '">Delete</button>');
+    }
+
+    // Function to cancel the edit
+    function cancelEdit($row, originalContent) {
+        currentEdit.html(originalContent);
+        currentEdit = null;
+
+        // Restore the action buttons
+        $row.find('.action-buttons').html('<button type="button" class="delete-user btn btn-danger btn-sm" data-id="' + $row.find('.editable').data('id') + '">Delete</button>');
+    }
+
+    // Edit role on double-click
+    $(document).on('dblclick', '.editable.role', function() {
+        if (currentEdit) return; // Prevent editing multiple fields at the same time
+
+        let $this = $(this);
+        let currentRole = $this.data('role');
+        let id = $this.data('id');
+        let $row = $this.closest('tr');
+        let roleOptions = '<select class="form-control role-dropdown"><option value="customer" ' + (currentRole === 'customer' ? 'selected' : '') + '>Customer</option><option value="admin" ' + (currentRole === 'admin' ? 'selected' : '') + '>Admin</option></select>';
+        let originalContent = $this.html();
+
+        $this.html(roleOptions);
+        currentEdit = $this;
+
+        // Replace action buttons with Save and Cancel
+        $row.find('.action-buttons').html('<button type="button" class="btn btn-success btn-sm save-btn">Save</button><button type="button" class="btn btn-secondary btn-sm cancel-btn">Cancel</button>');
+
+        $this.find('select').focus();
+
+        // Handle Save and Cancel actions
+        $row.find('.save-btn').on('click', function() {
+            let newRole = $this.find('select').val();
+            if (newRole !== currentRole) {
+                saveChanges(id, 'role', newRole, $row);
+            } else {
+                $this.html(currentRole === 'admin' ? 'Admin' : 'Customer');
+                currentEdit = null;
+                // Restore the action buttons
+                $row.find('.action-buttons').html('<button type="button" class="delete-user btn btn-danger btn-sm" data-id="' + id + '">Delete</button>');
+            }
+        });
+
+        $row.find('.cancel-btn').on('click', function() {
+            cancelEdit($row, originalContent);
         });
     });
 
-    // Handle Edit action
-    $(document).on('click', '.edit-user', function() {
-        var id = $(this).data('id');
+    // Edit active status on double-click
+    $(document).on('dblclick', '.editable.active_status', function() {
+        if (currentEdit) return; // Prevent editing multiple fields at the same time
 
-        $('#sample_form').find('.text-danger').html('');
+        let $this = $(this);
+        let currentStatus = $this.data('status');
+        let id = $this.data('id');
+        let $row = $this.closest('tr');
+        let statusOptions = '<select class="form-control status-dropdown"><option value="1" ' + (currentStatus ? 'selected' : '') + '>Active</option><option value="0" ' + (!currentStatus ? 'selected' : '') + '>Inactive</option></select>';
+        let originalContent = $this.html();
 
-        $.ajax({
-            url: "/api/admin/users/" + id,
-            method: 'GET',
-            dataType: 'json',
-            success: function(data) {
-                console.log('Edit Data:', data);
-                $('#name').val(data.name).prop('disabled', true);
-                $('#role').val(data.role === 'admin' ? 'admin' : 'customer');
-                $('#active_status').val(data.active_status == 1 ? 1 : 0);
-                $('#id').val(id);
-                $('#dynamic_modal_title').text('Edit User');
-                $('#action_button').text('Edit');
-                $('#action').val('Edit');
-                $('#form_method').val('PUT');
-                $('#action_modal').modal('show');
-            },
-            error: function(xhr, status, error) {
-                console.error('AJAX Error:', error);
-                console.log('Response:', xhr.responseText);
-                alert('An error occurred while fetching user data. Please try again.');
+        $this.html(statusOptions);
+        currentEdit = $this;
+
+        // Replace action buttons with Save and Cancel
+        $row.find('.action-buttons').html('<button type="button" class="btn btn-success btn-sm save-btn">Save</button><button type="button" class="btn btn-secondary btn-sm cancel-btn">Cancel</button>');
+
+        $this.find('select').focus();
+
+        // Handle Save and Cancel actions
+        $row.find('.save-btn').on('click', function() {
+            let newStatus = $this.find('select').val();
+            if (newStatus != currentStatus) {
+                saveChanges(id, 'active_status', newStatus, $row);
+            } else {
+                $this.html('<span class="chip ' + (currentStatus ? 'chip-active' : 'chip-inactive') + '">' + (currentStatus ? 'Active' : 'Inactive') + '</span>');
+                currentEdit = null;
+                // Restore the action buttons
+                $row.find('.action-buttons').html('<button type="button" class="delete-user btn btn-danger btn-sm" data-id="' + id + '">Delete</button>');
             }
+        });
+
+        $row.find('.cancel-btn').on('click', function() {
+            cancelEdit($row, originalContent);
         });
     });
 
@@ -177,10 +210,11 @@ $(document).ready(function() {
         var id = $(this).data('id');
         if (confirm("Are you sure you want to delete this user?")) {
             $.ajax({
-                url: "/api/admin/users/" + id,
+                url: `/api/admin/users/${id}`,
                 method: 'DELETE',
-                data: { id: id },
-                dataType: 'json',
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
                 success: function(data) {
                     if (dataTable && dataTable.ajax) {
                         dataTable.ajax.reload(null, false);

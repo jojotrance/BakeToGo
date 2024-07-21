@@ -25,6 +25,20 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'is_admin']], functi
     Route::get('/courier', [AdminController::class, 'courier'])->name('courierindex');
     Route::get('/stock', [AdminController::class, 'stock'])->name('stock');  // Corrected typo
 
+    // Chart Routes
+Route::get('/pages/charts/total-role', function () {
+    return view('admin.pages.charts.totalRole');
+})->name('charts.totalRole');
+Route::get('/pages/charts/customer-per-address', function () {
+    return view('admin.pages.charts.customerPerAddress');
+})->name('charts.customerPerAddress');
+Route::get('/pages/charts/customer-per-branch', function () {
+    return view('admin.pages.charts.customerPerBranch');
+})->name('charts.customerPerBranch');
+Route::get('/pages/charts/toral-supplier', function () {
+    return view('admin.pages.charts.totalSupplier');
+})->name('charts.totalSupplier');
+
     Route::prefix('/users')->group(function () {
         Route::get('/', [AdminController::class, 'users'])->name('userindex');
     });

@@ -135,10 +135,12 @@ function Header({ user, hideComponents }) {
             />
             <span className="welcome-message">{getWelcomeMessage()}</span>
             <ul className={`profile-dropdown ${dropdownVisible ? 'visible' : ''}`}>
-              <li>
-                <PersonRoundedIcon className="dropdown-icon" />
-                <Link to="/manage-profile">Manage Profile</Link>
-              </li>
+              {user.role === 'customer' && ( // Only render the "Manage Profile" option if the user role is 'customer'
+                <li>
+                  <PersonRoundedIcon className="dropdown-icon" />
+                  <Link to="/manage-profile">Manage Profile</Link>
+                </li>
+              )}
               <li>
                 <ExitToAppRoundedIcon className="dropdown-icon" />
                 <button onClick={handleLogout} disabled={isLoggingOut}>
