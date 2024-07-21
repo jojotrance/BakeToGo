@@ -14,4 +14,9 @@ class CustomerController extends Controller
     public function cart(){
         return view('customer.cart');
     }
+
+    public function profile()
+    {
+        return view('customer.pages.profile.profile');
+    }
 }

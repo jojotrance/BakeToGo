@@ -21,7 +21,7 @@
     <!-- Custom CSS Files -->
     <link rel="stylesheet" href="{{ asset('css/orderindex.css') }}">
     <link rel="stylesheet" href="{{ asset('css/user-datatable.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/error403.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/profile.css') }}">
 
     <!-- React and Vite -->
     @viteReactRefresh
@@ -75,6 +75,8 @@
     <script src="{{ asset('js/admin/stock-datatable.js') }}"></script>
     <script src="{{ asset('js/admin/supplier-datatable.js') }}"></script>
 
+    <!--Customer JS-->
+    <script src="{{ asset('js/customer/profile.js') }}"></script>
     <!-- Include pushed scripts -->
     @stack('scripts')
 

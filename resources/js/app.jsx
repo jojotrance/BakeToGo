@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
-import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
 import Header from './components/builds/header';
 import Sidebar from './components/admin/admin-sidebar'; // Admin sidebar
 import CustomerSidebar from './components/customer/customer-sidebar'; // Customer sidebar
@@ -45,7 +45,7 @@ function App() {
         <Header user={{ ...user, role }} hideComponents={hideComponents} /> {/* Pass user and role to Header */}
         <div className="main-wrapper">
           {!hideComponents && role === 'admin' && <Sidebar />} {/* Render Admin Sidebar based on user role */}
-          {!hideComponents && role === 'customer' && <CustomerSidebar />} {/* Render Customer Sidebar based on user role */}
+          {!hideComponents && role === 'customer' && <ConditionalSidebar />} {/* Conditionally render Customer Sidebar */}
           <div className="content">
             <Routes>
               {role === 'customer' && (
@@ -53,6 +53,7 @@ function App() {
                   <Route path="/customer/products" element={<ProductMenu />} /> {/* Render ProductMenu for /customer/products route */}
                   <Route path="/customer/cart" element={<div>Cart Placeholder</div>} /> {/* Just a placeholder */}
                   <Route path="/customer/dashboard" element={<ProductMenu />} /> {/* Render ProductMenu for /customer/dashboard route */}
+                  <Route path="/customer/profile" element={<div>Profile Placeholder</div>} /> {/* Just a placeholder */}
                 </>
               )}
               {/* Add other routes here */}
@@ -62,6 +63,13 @@ function App() {
       </div>
     </Router>
   );
+}
+
+function ConditionalSidebar() {
+  const location = useLocation();
+  const shouldShowCustomerSidebar = location.pathname === '/customer/dashboard';
+
+  return shouldShowCustomerSidebar ? <CustomerSidebar /> : null;
 }
 
 document.addEventListener('DOMContentLoaded', () => {

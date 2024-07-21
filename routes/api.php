@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\SupplierController;
 use App\Http\Controllers\Api\UserManagementController;
 use App\Http\Controllers\Api\StocksController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\Api\ProfileController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -97,7 +98,14 @@ Route::prefix('admin')->middleware(['auth:sanctum'])->group(function () {
 });
 
 // Chart Routes
-Route::get('/charts/total-role', [ChartController::class, 'totalRole'])->name('api.charts.totalRole');
-Route::get('/charts/customer-per-address', [ChartController::class, 'customerPerAddress'])->name('api.charts.customerPerAddress');
-Route::get('/charts/customer-per-branch', [ChartController::class, 'customerPerBranch'])->name('api.charts.customerPerBranch');
-Route::get('/charts/totalSupplier', [ChartController::class, 'totalSupplier'])->name('api.charts.totalSupplier');
+//Route::get('/charts/total-role', [ChartController::class, 'totalRole'])->name('api.charts.totalRole');
+//Route::get('/charts/customer-per-address', [ChartController::class, 'customerPerAddress'])->name('api.charts.customerPerAddress');
+//Route::get('/charts/customer-per-branch', [ChartController::class, 'customerPerBranch'])->name('api.charts.customerPerBranch');
+//Route::get('/charts/totalSupplier', [ChartController::class, 'totalSupplier'])->name('api.charts.totalSupplier');
+
+Route::group(['middleware' => ['auth:sanctum', 'is_customer']], function () {
+    Route::get('/profile', [ProfileController::class, 'show'])->name('api.customer.profile.show');
+    Route::post('/profile', [ProfileController::class, 'update'])->name('api.customer.profile.update');
+    Route::post('/profile/deactivate', [ProfileController::class, 'deactivate'])->name('api.customer.profile.deactivate');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('api.customer.profile.destroy');
+});

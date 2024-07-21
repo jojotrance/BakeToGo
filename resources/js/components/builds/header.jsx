@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
+import { Link, useLocation } from 'react-router-dom'; // Import useLocation hook
 import axios from 'axios';
-import { Link } from 'react-router-dom';
 import SearchRoundedIcon from '@mui/icons-material/SearchRounded';
 import PersonRoundedIcon from '@mui/icons-material/PersonRounded';
 import ExitToAppRoundedIcon from '@mui/icons-material/ExitToAppRounded';
@@ -9,6 +9,8 @@ import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import '@css/header.css'; // Use the alias for the CSS import
 
 function Header({ user, hideComponents }) {
+  const location = useLocation(); // Use useLocation to get the current path
+
   if (hideComponents) return null; // Don't render anything if hideComponents is true
 
   const [dropdownVisible, setDropdownVisible] = useState(false);
@@ -70,7 +72,7 @@ function Header({ user, hideComponents }) {
             <img src="../logos/baketogo.jpg" alt="Logo" className="logo" />
           </Link>
         </div>
-        {user.role === 'customer' && (
+        {user.role === 'customer' && location.pathname !== '/customer/profile' && ( // Conditionally render the search bar
           <div className="search-bar">
             <div className="search-input-container">
               <input type="text" placeholder="Search..." className="search-input" />
@@ -138,7 +140,7 @@ function Header({ user, hideComponents }) {
               {user.role === 'customer' && ( // Only render the "Manage Profile" option if the user role is 'customer'
                 <li>
                   <PersonRoundedIcon className="dropdown-icon" />
-                  <Link to="/manage-profile">Manage Profile</Link>
+                  <Link to="/customer/profile">Manage Profile</Link>
                 </li>
               )}
               <li>
@@ -155,7 +157,7 @@ function Header({ user, hideComponents }) {
   );
 }
 
-Header.propTypes = {
+Header.propTypes = {  
   user: PropTypes.shape({
     name: PropTypes.string.isRequired,
     email: PropTypes.string.isRequired,
