@@ -47,7 +47,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'is_admin']], functi
 Route::group(['prefix' => 'customer', 'middleware' => ['auth', 'is_customer']], function () {
     Route::get('/dashboard', [CustomerController::class, 'showDashboard'])->name('customer.menu.dashboard');
     Route::get('/cart', [CartController::class, 'show'])->name('customer.cart.show');
-    
+
     // Profile routes
     Route::get('/profile', [CustomerController::class, 'profile'])->name('customer.profile.edit');
 });
@@ -56,5 +56,3 @@ Route::group(['prefix' => 'auth', 'middleware' => 'guest'], function () {
     Route::get('/login', [AuthController::class, 'login'])->name('login');
     Route::get('/signup', [AuthController::class, 'signup'])->name('signup');
 });
-
-

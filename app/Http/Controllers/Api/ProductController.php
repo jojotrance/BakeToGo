@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Http\Resources\ProductResource;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Log;
 
 class ProductController extends Controller
 {
@@ -29,7 +30,7 @@ class ProductController extends Controller
             'image' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048'
         ]);
 
-        $imageName = time().'.'.$request->image->extension();  
+        $imageName = time() . '.' . $request->image->extension();
         $request->image->storeAs('public/product_images', $imageName);
 
         $product = Product::create([
@@ -77,13 +78,13 @@ class ProductController extends Controller
 
         try {
             if ($request->hasFile('image')) {
-                $imageName = time().'.'.$request->image->extension();  
+                $imageName = time() . '.' . $request->image->extension();
                 $request->image->storeAs('public/product_images', $imageName);
                 $product->image = $imageName;
             }
 
             $product->update($request->only(['name', 'description', 'price', 'category', 'stock']));
-            
+
             // Update the stock
             $stock = Stock::where('product_id', $product->id)->first();
             if ($stock) {
@@ -95,17 +96,17 @@ class ProductController extends Controller
                     'supplier_id' => null // Adjust this according to your needs
                 ]);
             }
-            
+
             // Update product's stock field directly
             $product->stock = $request->stock;
             $product->save();
-            
+
             return response()->json([
                 'message' => 'Product updated',
                 'data' => new ProductResource($product->load('stocks')) // Load the stocks relationship
             ], 200);
         } catch (\Exception $e) {
-            \Log::error('Product update failed: ' . $e->getMessage());
+            Log::error('Product update failed: ' . $e->getMessage());
             return response()->json(['error' => 'Product update failed'], 500);
         }
     }
@@ -116,7 +117,7 @@ class ProductController extends Controller
             $product->delete();
             return response()->json(['message' => 'Product deleted'], 200);
         } catch (\Exception $e) {
-            \Log::error('Product deletion failed: ' . $e->getMessage());
+            Log::error('Product deletion failed: ' . $e->getMessage());
             return response()->json(['error' => 'Product deletion failed'], 500);
         }
     }
