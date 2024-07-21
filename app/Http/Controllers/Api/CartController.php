@@ -5,52 +5,47 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Cart;
 use Illuminate\Http\Request;
 
 class CartController extends Controller
 {
-    public function index()
-    {
-        // Logic to return the cart's contents (API)
-        return response()->json([
-            'cart' => auth()->user()->cart
-        ]);
-    }
     public function show()
     {
-        // Example data - Replace this with your actual cart data retrieval logic
-        $cartItems = [
-            ['id' => 1, 'name' => 'Product 1', 'price' => '₱1,799', 'image' => 'https://via.placeholder.com/40'],
-            ['id' => 2, 'name' => 'Product 2', 'price' => '₱1,749', 'image' => 'https://via.placeholder.com/40'],
-            ['id' => 3, 'name' => 'Product 3', 'price' => '₱1,249', 'image' => 'https://via.placeholder.com/40'],
-            ['id' => 4, 'name' => 'Product 4', 'price' => '₱1,499', 'image' => 'https://via.placeholder.com/40'],
-            ['id' => 5, 'name' => 'Product 5', 'price' => '₱1,099', 'image' => 'https://via.placeholder.com/40'],
-        ];
+        $user = auth()->user(); // Assuming you're using Laravel's authentication
 
-        return view('customer.pages.cart', compact('cartItems'));
+        $cartItems = Cart::where('user_id', $user->id)->get();
+
+        return response()->json(['data' => $cartItems]);
     }
 
-    public function store(Request $request)
+    public function addToCart(Request $request)
     {
-        // Logic to add an item to the cart (API)
-        $item = $request->input('item');
-        // Add item to cart logic here...
-        return response()->json([
-            'message' => 'Item added to cart',
+        $validated = $request->validate([
+            'product_id' => 'required|exists:products,id',
+            'quantity' => 'required|integer|min:1'
         ]);
+
+        $user = auth()->user(); // Assuming you're using Laravel's authentication
+
+        // Check if the product is already in the cart
+        $cartItem = Cart::where('user_id', $user->id)
+            ->where('product_id', $validated['product_id'])
+            ->first();
+
+        if ($cartItem) {
+            // If the item is already in the cart, update the quantity
+            $cartItem->quantity += $validated['quantity'];
+            $cartItem->save();
+        } else {
+            // If not, add a new item to the cart
+            Cart::create([
+                'user_id' => $user->id,
+                'product_id' => $validated['product_id'],
+                'quantity' => $validated['quantity']
+            ]);
+        }
+
+        return response()->json(['message' => 'Product added to cart successfully']);
     }
-
-    public function destroy($itemId)
-    {
-        // Logic to remove an item from the cart (API)
-        // Remove item from cart logic here...
-        return response()->json([
-            'message' => 'Item removed from cart',
-        ]);
-    }
-
-   
-
-
- 
 }

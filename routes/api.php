@@ -1,17 +1,19 @@
 <?php
 
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\CartController;
 use App\Http\Controllers\Api\CourierController;
 use App\Http\Controllers\Api\PaymentMethodController;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\SpreadsheetController;
+use App\Http\Controllers\Api\StocksController;
 use App\Http\Controllers\Api\SupplierController;
 use App\Http\Controllers\Api\UserManagementController;
-use App\Http\Controllers\Api\StocksController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\Api\ProfileController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+
 
 // API Resources
 Route::apiResource('products', ProductController::class);
@@ -19,7 +21,7 @@ Route::apiResource('suppliers', SupplierController::class);
 Route::apiResource('payment-methods', PaymentMethodController::class);
 Route::apiResource('admin/users', UserManagementController::class)->except(['create', 'edit']);
 Route::apiResource('couriers', CourierController::class);
-
+Route::post('/cart/add', [CartController::class, 'addToCart'])->middleware('auth:api');
 // Sanctum authenticated user route
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
@@ -48,7 +50,7 @@ Route::get('/public-route', function () {
 
 // Admin routes
 Route::prefix('admin')->middleware(['auth:sanctum'])->group(function () {
-    
+
     // User Management Routes
     Route::prefix('users')->group(function () {
         Route::post('/', [UserManagementController::class, 'store'])->name('api.admin.storeUser');
@@ -78,14 +80,14 @@ Route::prefix('admin')->middleware(['auth:sanctum'])->group(function () {
         Route::get('/check-existence', [SupplierController::class, 'checkSupplierExistence'])->name('api.admin.checkSupplierExistence');
     });
 
-     // Stocks Routes
-     Route::prefix('stocks')->group(function () {
+    // Stocks Routes
+    Route::prefix('stocks')->group(function () {
         Route::get('/', [StocksController::class, 'index'])->name('api.admin.fetchStocks');
         Route::post('/', [StocksController::class, 'store'])->name('api.admin.storeStock');
         Route::get('/{stock}', [StocksController::class, 'show'])->name('api.admin.showStock');
         Route::put('/{stock}', [StocksController::class, 'update'])->name('api.admin.updateStock');
         Route::delete('/{stock}', [StocksController::class, 'destroy'])->name('api.admin.deleteStock');
-        });
+    });
 
     // Couriers Routes
     Route::prefix('couriers')->group(function () {
