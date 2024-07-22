@@ -9,8 +9,7 @@ use App\Http\Controllers\Api\SpreadsheetController;
 use App\Http\Controllers\Api\StocksController;
 use App\Http\Controllers\Api\SupplierController;
 use App\Http\Controllers\Api\UserManagementController;
-use App\Http\Controllers\UserController;
-use App\Http\Controllers\Api\ProfileController;
+use App\Http\Controllers\UserProfileController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
