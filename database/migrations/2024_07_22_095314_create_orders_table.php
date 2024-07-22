@@ -15,12 +15,13 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('customer_id');
             $table->string('status');
-            $table->string('payment_method');
-            $table->string('courier');
+            $table->unsignedBigInteger('payment_id');
+            $table->unsignedBigInteger('courier_id');
             $table->timestamps();
 
-            //fk
             $table->foreign('customer_id')->references('id')->on('customers')->onDelete('cascade');
+            $table->foreign('payment_id')->references('id')->on('payment_methods')->onDelete('cascade');
+            $table->foreign('courier_id')->references('id')->on('couriers')->onDelete('cascade');
         });
     }
 

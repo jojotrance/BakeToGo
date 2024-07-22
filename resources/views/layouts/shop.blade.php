@@ -12,7 +12,6 @@
  </head>
  <body>
  @yield('body')
-
  </body>
  @include('layouts.script')
  </html>

@@ -8,11 +8,14 @@ use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Scout\Searchable;
 
+// use Laravel\Scout\Searchable;
+
 class Product extends Model
 {
-    use HasFactory, HasApiTokens, Notifiable, Searchable;
+    use HasFactory, HasApiTokens, Notifiable;
+    // use Searchable;
 
-    protected $table = 'products'; 
+    protected $table = 'products';
 
     protected $fillable = [
         'name',
@@ -45,15 +48,25 @@ class Product extends Model
         return $this->stocks->sum('quantity');
     }
 
-    public function toSearchableArray()
+    // public function toSearchableArray()
+    // {
+    //     return [
+    //         'name' => $this->name,
+    //         'description' => $this->description,
+    //         'price' => $this->price,
+    //         'category' => $this->category,
+    //         'stock' => $this->total_stock,
+    //         'supplier_names' => $this->suppliers->pluck('supplier_name')->implode(' '), // Include supplier names in the searchable array
+    //     ];
+    // }
+
+    public function orders()
     {
-        return [
-            'name' => $this->name,
-            'description' => $this->description,
-            'price' => $this->price,
-            'category' => $this->category,
-            'stock' => $this->total_stock,
-            'supplier_names' => $this->suppliers->pluck('supplier_name')->implode(' '), // Include supplier names in the searchable array
-        ];
+        return $this->belongsToMany(Order::class, 'order_product', 'product_id', 'order_id')->withPivot('quantity');
+    }
+
+    public function customers()
+    {
+        return $this->belongsToMany(Customer::class, 'carts', 'customer_id', 'product_id')->withPivot('quantity');
     }
 }

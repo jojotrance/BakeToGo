@@ -11,17 +11,15 @@ use App\Http\Controllers\Api\SpreadsheetController;
 use App\Http\Controllers\Api\StocksController;
 use App\Http\Controllers\Api\SupplierController;
 use App\Http\Controllers\Api\UserManagementController;
-<<<<<<< Updated upstream
 use App\Http\Controllers\Api\UserProfileController;
-=======
 use App\Http\Controllers\ShopController;
 use App\Http\Controllers\UserController;
->>>>>>> Stashed changes
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 
-
+Route::post('/addtoCart', [ShopController::class, 'addToCart']);
+Route::post('/checkout',[ShopController::class, 'checkout']);
 
 // API Resources
 Route::apiResource('products', ProductController::class);

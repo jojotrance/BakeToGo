@@ -15,27 +15,27 @@ class ProductController extends Controller
     public function index(Request $request)
     {
         $query = Product::with('stocks');
-    
+
         // Handle search functionality
         if ($request->has('search') && $request->input('search.value')) {
             $searchTerm = $request->input('search.value');
-            $query->where(function($q) use ($searchTerm) {
+            $query->where(function ($q) use ($searchTerm) {
                 $q->where('name', 'LIKE', "%{$searchTerm}%")
-                  ->orWhere('description', 'LIKE', "%{$searchTerm}%")
-                  ->orWhere('category', 'LIKE', "%{$searchTerm}%");
+                    ->orWhere('description', 'LIKE', "%{$searchTerm}%")
+                    ->orWhere('category', 'LIKE', "%{$searchTerm}%");
             });
         }
-    
+
         // Handle ordering
         if ($request->has('order')) {
             $orderColumnIndex = $request->input('order.0.column');
             $orderDir = $request->input('order.0.dir');
             $columns = $request->input('columns');
             $orderColumnName = $columns[$orderColumnIndex]['data'];
-    
+
             $query->orderBy($orderColumnName, $orderDir);
         }
-    
+
         // Handle pagination
         $totalRecords = $query->count();
         if ($request->has('length') && $request->input('length') != -1) {
@@ -43,10 +43,10 @@ class ProductController extends Controller
             $start = $request->input('start');
             $query->offset($start)->limit($length);
         }
-    
+
         $products = $query->get();
         $totalFilteredRecords = $query->count(); // Update total filtered records
-    
+
         return response()->json([
             'data' => ProductResource::collection($products),
             'recordsTotal' => $totalRecords,
@@ -72,7 +72,6 @@ class ProductController extends Controller
             'description' => $request->description,
             'price' => $request->price,
             'category' => $request->category,
-            'stock' => 0,
             'image' => $imageName
         ]);
 
@@ -83,8 +82,6 @@ class ProductController extends Controller
             'supplier_id' => null
         ]);
 
-        // Update product's stock field directly
-        $product->stock = 0;
         $product->save();
 
         return response()->json(['success' => 'Product created successfully', 'data' => new ProductResource($product)], 200);
@@ -173,5 +170,4 @@ class ProductController extends Controller
 
         return response()->json(['exists' => $exists]);
     }
-    
 }

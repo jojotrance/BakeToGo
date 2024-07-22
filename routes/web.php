@@ -2,12 +2,11 @@
 
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\CartController;
+use App\Http\Controllers\Api\CartController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\ShopController;
 use Illuminate\Support\Facades\Route;
-
-
 
 Route::get('/', function () {
     return view('home');
@@ -59,3 +58,5 @@ Route::group(['prefix' => 'auth', 'middleware' => 'guest'], function () {
 });
 
 Route::view('/shop', 'dashboard');
+Route::get('/mycarts', [ShopController::class, 'mycart'])->name('mycart');
+Route::get('/checkoutDetails', [ShopController::class, 'checkoutDetails'])->name('checkoutDetails');
