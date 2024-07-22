@@ -8,10 +8,11 @@ class CustomerController extends Controller
 {
     public function showDashboard()
     {
-        return view('customer.pages.dashboard');
+        return view('customer.pages.cust_dashboard');
     }
 
-    public function cart(){
+    public function cart()
+    {
         return view('customer.cart');
     }
 

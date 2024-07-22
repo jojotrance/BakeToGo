@@ -13,18 +13,14 @@
     <thead>
         <tr>
             <th>Name</th>
-            <th>Category</th>
             <th>Price</th>
             <th>Quantity</th>
-            <th>Shipping Fee </th>
-            <th>Total</th>
         </tr>
     </thead>
     <tbody>
         @foreach($mycarts as $cart)
             <tr>
                 <td>{{ $cart->name }}</td>
-                <td>{{ $cart->category }}</td>
                 <td>{{ $cart->price }}</td>
                 <td>{{ $cart->pivot_quantity }}</td>
             </tr>

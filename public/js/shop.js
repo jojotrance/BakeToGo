@@ -73,9 +73,28 @@ $(document).ready(function () {
 	});
 
     $('#checkout').click(function () {
+		console.log('checkout clicked');
+
+		itemCount = 0;
+		priceTotal = 0;
+	
+		let items = new Array();
+		$("#cartItems").find(".itemDetails").each(function (i, element) {
+			console.log('pumasok ako');
+			let itemid = 0;
+			let qty = 0;
+			qty = parseInt($(element).find($(".quantity")).val());
+			itemid = parseInt($(element).find($(".itemId")).html());
+			items.push(
+				{
+					"product_id": itemid,
+					"quantity": qty
+				}
+			);
+		});
 		var courierId = $('#courier').val();
         var paymentMethod = $('#paymentMethod').val();
-
+		console.log(JSON.stringify(items));
 		var data = {
 			items: items,
 			courier_id: courierId,
@@ -94,8 +113,10 @@ $(document).ready(function () {
 					alert(response.error);
 				}
 			},
-			error: function () {
-				alert('Error processing checkout.');
+			error: function (xhr, status, error) {
+				console.error('Error status:', status);
+				console.error('Error details:', error);
+				alert('Error processing checkout. Status: ' + status + '. Error: ' + error);
 			}
 		});
 	});;

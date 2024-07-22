@@ -1,4 +1,4 @@
-<?php
+<!-- 
 
 namespace App\Http\Controllers\Api;
 
@@ -101,4 +101,4 @@ class CartController extends Controller
     //         return response()->json(['error' => 'An error occured'], 500);
     //     }
     // }
-}
+} -->

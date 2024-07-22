@@ -57,6 +57,6 @@ Route::group(['prefix' => 'auth', 'middleware' => 'guest'], function () {
     Route::get('/signup', [AuthController::class, 'signup'])->name('signup');
 });
 
-Route::view('/shop', 'dashboard');
+Route::view('/shop', 'cust_dashboard');
 Route::get('/mycarts', [ShopController::class, 'mycart'])->name('mycart');
 Route::get('/checkoutDetails', [ShopController::class, 'checkoutDetails'])->name('checkoutDetails');
