@@ -2,16 +2,22 @@
 @extends('layouts.app')
 
 @section('content')
-<div id="product-content">
-    <div class="container">
+
+  
         <!-- Product Menu -->
         <div id="product_menu"></div>
         <!-- End of Product Menu -->
-    </div>
-</div>
+
 @endsection
 
 @push('scripts')
 <script src="{{ mix('js/product-menu.js') }}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // Set initial query and dispatch event
+        const initialQuery = '';
+        window.searchQuery = initialQuery;
+        window.dispatchEvent(new CustomEvent('search-query', { detail: initialQuery }));
+    });
+</script>
 @endpush
-

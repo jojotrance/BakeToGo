@@ -2,10 +2,10 @@ import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
 import Header from './components/builds/header';
-import Sidebar from './components/admin/admin-sidebar'; // Admin sidebar
-import CustomerSidebar from './components/customer/customer-sidebar'; // Customer sidebar
-import ProductMenu from './components/customer/product-menu'; // Customer product menu
-import Cart from './components/customer/cart'; // Correct path for the Cart component
+import Sidebar from './components/admin/admin-sidebar';
+import CustomerSidebar from './components/customer/customer-sidebar';
+import ProductMenu from './components/customer/product-menu'; // Correct import path
+import Cart from './components/customer/cart';
 import axios from 'axios';
 import '@css/app.css';
 
@@ -38,25 +38,24 @@ function App() {
     return <div>Loading...</div>; // Add a loading indicator or handle the loading state
   }
 
-  const role = user.role === 'admin' ? 'admin' : 'customer'; // Assuming user.role is properly set
+  const role = user.role === 'admin' ? 'admin' : 'customer';
 
   return (
     <Router>
       <div className="App">
-        <HeaderWrapper user={{ ...user, role }} hideComponents={hideComponents} /> {/* Wrapper to manage location */}
+        <HeaderWrapper user={{ ...user, role }} hideComponents={hideComponents} />
         <div className="main-wrapper">
-          {!hideComponents && role === 'admin' && <Sidebar />} {/* Render Admin Sidebar based on user role */}
-          {!hideComponents && role === 'customer' && <ConditionalCustomerSidebar />} {/* Render Conditional Customer Sidebar */}
+          {!hideComponents && role === 'admin' && <Sidebar />}
+          {!hideComponents && role === 'customer' && <ConditionalCustomerSidebar />}
           <div className="content">
             <Routes>
               {role === 'customer' && (
                 <>
-                  <Route path="/customer/cart" element={<Cart />} /> {/* Render Cart for /customer/cart route */}
-                  <Route path="/customer/dashboard" element={<ProductMenu />} /> {/* Render ProductMenu for /customer/dashboard route */}
-                  <Route path="/customer/profile" element={<Profile />} /> {/* Render Profile for /customer/profile route */}
+                  <Route path="/customer/cart" element={<Cart />} />
+                  <Route path="/customer/dashboard" element={<ProductMenu />} />
+                  <Route path="/customer/profile" element={<Profile />} />
                 </>
               )}
-              {/* Add other routes here */}
             </Routes>
           </div>
         </div>

@@ -1,29 +1,27 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { useNavigate } from 'react-router-dom'; // Import useNavigate hook
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import SearchRoundedIcon from '@mui/icons-material/SearchRounded';
 import PersonRoundedIcon from '@mui/icons-material/PersonRounded';
 import ExitToAppRoundedIcon from '@mui/icons-material/ExitToAppRounded';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
-import '@css/header.css'; // Use the alias for the CSS import
+import '@css/header.css'; 
 
 function Header({ user, hideComponents, hideSearchBar }) {
-  const navigate = useNavigate(); // Use useNavigate for navigation
-
-  if (hideComponents) return null; // Don't render anything if hideComponents is true
-
+  const navigate = useNavigate();
+  const [query, setQuery] = useState('');
   const [dropdownVisible, setDropdownVisible] = useState(false);
   const [cartHovered, setCartHovered] = useState(false);
   const [cartItems, setCartItems] = useState([
-    { id: 1, name: 'Product 1werererwrr', price: '₱1,799', image: 'https://via.placeholder.com/40' },
+    { id: 1, name: 'Product 1', price: '₱1,799', image: 'https://via.placeholder.com/40' },
     { id: 2, name: 'Product 2', price: '₱1,749', image: 'https://via.placeholder.com/40' },
     { id: 3, name: 'Product 3', price: '₱1,249', image: 'https://via.placeholder.com/40' },
     { id: 4, name: 'Product 4', price: '₱1,499', image: 'https://via.placeholder.com/40' },
     { id: 5, name: 'Product 5', price: '₱1,099', image: 'https://via.placeholder.com/40' },
   ]);
   const [imageError, setImageError] = useState(false);
-  const [isLoggingOut, setIsLoggingOut] = useState(false); // Define the missing variable
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
   const toggleDropdown = () => setDropdownVisible(!dropdownVisible);
 
@@ -33,7 +31,7 @@ function Header({ user, hideComponents, hideSearchBar }) {
     try {
       await axios.post('/api/logout');
       setTimeout(() => {
-        window.location.href = '/home'; // Redirect after logout
+        window.location.href = '/home';
       }, 100);
     } catch (error) {
       console.error('Error during logout:', error);
@@ -59,16 +57,22 @@ function Header({ user, hideComponents, hideSearchBar }) {
 
   const getImageSrc = () => {
     if (!user || !user.profile_image) {
-      return 'https://via.placeholder.com/40'; // Placeholder image URL
+      return 'https://via.placeholder.com/40';
     }
-    return `/storage/${user.profile_image}`; // Correct path to storage directory
+    return `/storage/${user.profile_image}`;
+  };
+
+  const handleSearchChange = (e) => {
+    const newQuery = e.target.value;
+    setQuery(newQuery);
+    window.dispatchEvent(new CustomEvent('search-query', { detail: newQuery }));
   };
 
   return (
     <header className="header">
       <div className="header-content">
         <div className="header-left">
-          {user.role !== 'admin' && ( // Conditionally render the logo button based on user role
+          {user.role !== 'admin' && (
             <button className="logo-button" onClick={() => navigate('/customer/dashboard')}>
               <img src="../logos/baketogo.jpg" alt="Logo" className="logo" />
             </button>
@@ -77,7 +81,13 @@ function Header({ user, hideComponents, hideSearchBar }) {
         {user.role === 'customer' && !hideSearchBar && (
           <div className="search-bar">
             <div className="search-input-container">
-              <input type="text" placeholder="Search..." className="search-input" />
+              <input
+                type="text"
+                placeholder="Search..."
+                className="search-input"
+                value={query}
+                onChange={handleSearchChange}
+              />
               <SearchRoundedIcon className="search-icon" />
             </div>
           </div>
@@ -143,8 +153,8 @@ function Header({ user, hideComponents, hideSearchBar }) {
                 <li>
                   <PersonRoundedIcon className="dropdown-icon" />
                   <button onClick={() => {
-                    navigate('/customer/profile'); // Use navigate to change route
-                    toggleDropdown(); // Close the dropdown after navigation
+                    navigate('/customer/profile');
+                    toggleDropdown();
                   }}>Manage Profile</button>
                 </li>
               )}
@@ -169,8 +179,8 @@ Header.propTypes = {
     role: PropTypes.string.isRequired,
     profile_image: PropTypes.string, // Assuming profile_image is optional
   }).isRequired,
-  hideComponents: PropTypes.bool.isRequired, // Add hideComponents prop type
-  hideSearchBar: PropTypes.bool.isRequired, // Add hideSearchBar prop type
+  hideComponents: PropTypes.bool.isRequired,
+  hideSearchBar: PropTypes.bool.isRequired,
 };
 
 export default Header;

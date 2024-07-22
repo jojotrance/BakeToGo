@@ -9,7 +9,7 @@ use App\Http\Controllers\Api\SpreadsheetController;
 use App\Http\Controllers\Api\StocksController;
 use App\Http\Controllers\Api\SupplierController;
 use App\Http\Controllers\Api\UserManagementController;
-use App\Http\Controllers\UserProfileController;
+use App\Http\Controllers\Api\UserProfileController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -67,6 +67,7 @@ Route::prefix('admin')->middleware(['auth:sanctum'])->group(function () {
         Route::get('/{product}', [ProductController::class, 'show'])->name('api.admin.showProduct');
         Route::put('/{product}', [ProductController::class, 'update'])->name('api.admin.updateProduct');
         Route::delete('/{product}', [ProductController::class, 'destroy'])->name('api.admin.deleteProduct');
+        Route::get('/check-duplicate-name', [ProductController::class, 'checkDuplicateName'])->name('api.admin.checkDuplicateName'); // Use GET method
     });
 
     // Suppliers Routes
@@ -76,7 +77,6 @@ Route::prefix('admin')->middleware(['auth:sanctum'])->group(function () {
         Route::get('/{supplier}', [SupplierController::class, 'show'])->name('api.admin.showSupplier');
         Route::put('/{supplier}', [SupplierController::class, 'update'])->name('api.admin.updateSupplier');
         Route::delete('/{supplier}', [SupplierController::class, 'destroy'])->name('api.admin.deleteSupplier');
-        Route::get('/check-existence', [SupplierController::class, 'checkSupplierExistence'])->name('api.admin.checkSupplierExistence');
     });
 
     // Stocks Routes

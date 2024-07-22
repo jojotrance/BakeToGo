@@ -6,10 +6,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Scout\Searchable;
 
 class Supplier extends Model
 {
-    use HasFactory, HasApiTokens, Notifiable;
+    use HasFactory, HasApiTokens, Notifiable, Searchable;
     protected $table = 'suppliers';
 
     protected $fillable = [
@@ -22,4 +23,12 @@ class Supplier extends Model
         return $this->hasMany(Stock::class);
     }
     
+
+    public function toSearchableArray()
+    {
+        return [
+            'supplier_name' => $this->supplier_name,
+        ];
+    }
+
 }

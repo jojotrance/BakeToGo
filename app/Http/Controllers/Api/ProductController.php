@@ -12,13 +12,46 @@ use Illuminate\Support\Facades\Log;
 
 class ProductController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $products = Product::with('stocks')->get(); // Ensure we load the stocks relationship
+        $query = Product::with('stocks');
+    
+        // Handle search functionality
+        if ($request->has('search') && $request->input('search.value')) {
+            $searchTerm = $request->input('search.value');
+            $query->where(function($q) use ($searchTerm) {
+                $q->where('name', 'LIKE', "%{$searchTerm}%")
+                  ->orWhere('description', 'LIKE', "%{$searchTerm}%")
+                  ->orWhere('category', 'LIKE', "%{$searchTerm}%");
+            });
+        }
+    
+        // Handle ordering
+        if ($request->has('order')) {
+            $orderColumnIndex = $request->input('order.0.column');
+            $orderDir = $request->input('order.0.dir');
+            $columns = $request->input('columns');
+            $orderColumnName = $columns[$orderColumnIndex]['data'];
+    
+            $query->orderBy($orderColumnName, $orderDir);
+        }
+    
+        // Handle pagination
+        $totalRecords = $query->count();
+        if ($request->has('length') && $request->input('length') != -1) {
+            $length = $request->input('length');
+            $start = $request->input('start');
+            $query->offset($start)->limit($length);
+        }
+    
+        $products = $query->get();
+        $totalFilteredRecords = $query->count(); // Update total filtered records
+    
         return response()->json([
-            'data' => ProductResource::collection($products)
+            'data' => ProductResource::collection($products),
+            'recordsTotal' => $totalRecords,
+            'recordsFiltered' => $totalFilteredRecords, // Use the updated count
         ]);
-        // return view('customer.pages.dashboard', compact('products'));
     }
 
     public function store(Request $request)
@@ -122,4 +155,23 @@ class ProductController extends Controller
             return response()->json(['error' => 'Product deletion failed'], 500);
         }
     }
+
+
+    public function checkDuplicateName(Request $request)
+    {
+        $name = $request->input('name');
+        $id = $request->input('id');
+
+        $query = Product::where('name', $name);
+
+        // Exclude the current product if updating
+        if ($id) {
+            $query->where('id', '!=', $id);
+        }
+
+        $exists = $query->exists();
+
+        return response()->json(['exists' => $exists]);
+    }
+    
 }

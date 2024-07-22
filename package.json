@@ -21,6 +21,7 @@
         "@emotion/styled": "^11.11.5",
         "@mui/icons-material": "^5.15.21",
         "@mui/material": "^5.15.21",
+        "algoliasearch": "^4.24.0",
         "bootstrap": "^5.3.3",
         "eract-dom": "^0.0.1-security",
         "jquery": "^3.7.1",

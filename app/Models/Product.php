@@ -6,10 +6,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Scout\Searchable;
 
 class Product extends Model
 {
-    use HasFactory, HasApiTokens, Notifiable;
+    use HasFactory, HasApiTokens, Notifiable, Searchable;
 
     protected $table = 'products'; 
 
@@ -17,7 +18,7 @@ class Product extends Model
         'name',
         'description',
         'price',
-        'category', // Keep this as 'category' since you do not have a Category model
+        'category',
         'stock',
         'image'
     ];
@@ -33,9 +34,26 @@ class Product extends Model
     {
         return $this->hasMany(Stock::class);
     }
-    
+
+    public function suppliers()
+    {
+        return $this->hasManyThrough(Supplier::class, Stock::class, 'product_id', 'id', 'id', 'supplier_id');
+    }
+
     public function getTotalStockAttribute()
     {
         return $this->stocks->sum('quantity');
+    }
+
+    public function toSearchableArray()
+    {
+        return [
+            'name' => $this->name,
+            'description' => $this->description,
+            'price' => $this->price,
+            'category' => $this->category,
+            'stock' => $this->total_stock,
+            'supplier_names' => $this->suppliers->pluck('supplier_name')->implode(' '), // Include supplier names in the searchable array
+        ];
     }
 }

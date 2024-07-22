@@ -6,10 +6,18 @@ $(document).ready(function() {
         processing: true,
         serverSide: true,
         ajax: {
-            url: "/api/products",
+            url: "/api/admin/products",
             type: "GET",
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            data: function(d) {
+                d.search = d.search.value; // DataTables sends search value as d.search.value
+                d.start = d.start;
+                d.length = d.length;
+                if (d.order.length > 0) {
+                    d.order = d.order;
+                }
             },
             dataSrc: function(json) {
                 if (!json || !json.data) {
@@ -50,17 +58,59 @@ $(document).ready(function() {
                     `;
                 }
             }
-        ]
+        ],
+        lengthMenu: [10, 25, 50, 100],
+        dom: 'Bfrtip',
+        buttons: [
+            {
+                extend: 'csvHtml5',
+                text: 'Export CSV',
+                className: 'btn btn-info',
+                titleAttr: 'Export to CSV'
+            },
+            {
+                extend: 'excelHtml5',
+                text: 'Export Excel',
+                className: 'btn btn-success',
+                titleAttr: 'Export to Excel'
+            }
+        ],
+        language: {
+            search: "Search:",
+            lengthMenu: "Show _MENU_ entries"
+        }
     });
 
     // Handle form submission for creating or updating a product
     $('#product_form').on('submit', function(event) {
         event.preventDefault();
+        $(".form-control").removeClass('is-invalid'); // Clear previous validation errors
+        $(".invalid-feedback").remove(); // Remove previous error messages
+
         var formData = new FormData(this);
         var id = $('#hidden_id').val();
-        var actionUrl = id ? `/api/products/${id}` : '/api/products';
-        var method = id ? 'POST' : 'POST'; // use POST initially
+        var name = $('#name').val();
 
+        // Manual check for duplicate name using existing DataTable data
+        var duplicate = false;
+        productDataTable.rows().every(function() {
+            var data = this.data();
+            if (data.name === name && data.id !== id) {
+                duplicate = true;
+                return false; // Exit the loop
+            }
+        });
+
+        if (duplicate) {
+            var errorMessage = $('<span class="invalid-feedback" style="display:block;color:red;">A product with the same name already exists.</span>');
+            $('#name').addClass('is-invalid').after(errorMessage);
+        } else {
+            submitProductForm(formData, id);
+        }
+    });
+
+    function submitProductForm(formData, id) {
+        var actionUrl = id ? `/api/admin/products/${id}` : '/api/admin/products';
         if (id) {
             formData.append('_method', 'PUT'); // Laravel spoofing PUT method
         }
@@ -77,11 +127,10 @@ $(document).ready(function() {
                     showSuccessMessage(response.message);
                     productDataTable.ajax.reload();
 
-                    // Trigger the productCreated event
                     $(document).trigger('productCreated');
                     localStorage.setItem('productCreated', 'true');
 
-                    if (!id) {
+                    if (!$('#hidden_id').val()) {
                         $('#product_form')[0].reset();
                     }
                 } else {
@@ -92,14 +141,13 @@ $(document).ready(function() {
                 showErrorMessage('An error occurred. Please try again.');
             }
         });
-    });
+    }
 
-    // Handle edit button click
     $(document).on('click', '.edit-btn', function() {
         var id = $(this).data('id');
         console.log("Edit button clicked for ID:", id);
         $.ajax({
-            url: `/api/products/${id}`,
+            url: `/api/admin/products/${id}`,
             method: 'GET',
             success: function(response) {
                 console.log("AJAX response:", response);
@@ -132,7 +180,7 @@ $(document).ready(function() {
     $('#confirm_button').on('click', function() {
         var id = $(this).data('id');
         $.ajax({
-            url: `/api/products/${id}`,
+            url: `/api/admin/products/${id}`,
             method: 'DELETE',
             success: function(response) {
                 if (response.success) {
@@ -171,7 +219,6 @@ $(document).ready(function() {
     // Handle export to Excel button click
     $('#export_excel').on('click', function() {
         console.log("Export to Excel clicked");
-        // Implement Excel export functionality here
         var data = productDataTable.rows().data().toArray();
         var ws = XLSX.utils.json_to_sheet(data);
         var wb = XLSX.utils.book_new();
@@ -182,8 +229,6 @@ $(document).ready(function() {
     // Listen for product creation event (for other parts of your application)
     $(document).on('productCreated', function() {
         console.log('Product created event received');
-        // You can add any additional logic here that should run when a product is created
-        // For example, updating other parts of the UI
     });
 
     // Check for newly created product using localStorage (on page load)
@@ -235,7 +280,7 @@ $(document).ready(function() {
     // Listen for stock update event
     $(document).on('stockUpdated', function() {
         console.log('Stock updated event received');
-        productDataTable.ajax.reload(); // Reload the product DataTable
+        productDataTable.ajax.reload();
     });
 
     // Check for stock update using localStorage (on page load)
