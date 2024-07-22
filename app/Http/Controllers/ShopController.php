@@ -8,10 +8,13 @@ use App\Models\Order;
 use App\Models\PaymentMethod;
 use App\Models\Product;
 use App\Models\Stock;
+use Barryvdh\Debugbar\Facades\Debugbar;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+
 
 class ShopController extends Controller
 {
@@ -94,6 +97,62 @@ class ShopController extends Controller
         return view('checkout', compact('mycarts', 'couriers', 'payments', 'customer'));
     }
 
+    // public function checkout(Request $request)
+    // {
+    //     $user = Auth::user();
+    //     $customerId = $user->customer->id;
+
+    //     try {
+    //         DB::beginTransaction();
+
+    //         $order = new Order();
+    //         $order->customer_id = $customerId;
+    //         $order->status = 'Processing';
+    //         $order->payment_id = $request->payment_method; // Assuming payment_method is correct
+    //         $order->courier_id = $request->courier_id;
+    //         $order->save();
+
+    //         $cartItems = DB::table('carts')
+    //             ->where('customer_id', $customerId)
+    //             ->get();
+
+    //         foreach ($cartItems as $cartItem) {
+    //             $product = Product::findOrFail($cartItem->product_id);
+
+    //             $stock = $product->stocks()->firstOrFail(); // Assuming you find the correct stock here
+    //             if ($stock->quantity < $cartItem->quantity) {
+    //                 throw new \Exception('Not enough stock for this product: ' . $product->id);
+    //             }
+
+    //             // Create order_product entry
+    //             $order->products()->attach($product->id, [
+    //                 'quantity' => $cartItem->quantity,
+    //                 'order_id' => $order->id,
+    //             ]);
+
+    //             // Update stock quantity
+    //             $stock->quantity -= $cartItem->quantity;
+    //             $stock->save();
+    //         }
+
+    //         DB::commit();
+
+    //         return response()->json([
+    //             'status' => 'Order Success',
+    //             'code' => 200,
+    //             'orderId' => $order->id,
+    //         ]);
+    //     } catch (\Exception $e) {
+    //         DB::rollback();
+    //         Log::error('Checkout error: ' . $e->getMessage());
+    //         return response()->json([
+    //             'status' => 'Order Failed',
+    //             'code' => 500,
+    //             'error' => $e->getMessage(),
+    //         ]);
+    //     }
+    // }
+
     public function checkout(Request $request)
     {
         $user = Auth::user();
@@ -105,7 +164,7 @@ class ShopController extends Controller
             $order = new Order();
             $order->customer_id = $customerId;
             $order->status = 'Processing';
-            $order->payment_id = $request->payment_id;
+            $order->payment_id = $request->payment_method; // Assuming payment_method is correct
             $order->courier_id = $request->courier_id;
             $order->save();
 
@@ -114,20 +173,31 @@ class ShopController extends Controller
                 ->get();
 
             foreach ($cartItems as $cartItem) {
-                $stock = Stock::where('product_id', $cartItem->product_id)->firstOrFail();
+                $product = Product::findOrFail($cartItem->product_id);
+
+                $stock = $product->stocks()->firstOrFail();
                 if ($stock->quantity < $cartItem->quantity) {
-                    throw new \Exception('Not enough stock for this product: ' . $cartItem->product_id);
+                    throw new \Exception('Not enough stock for this product: ' . $product->id);
                 }
 
-                $order->products()->attach($cartItem->product_id, [
+                // Create order_product entry
+                $order->products()->attach($product->id, [
                     'quantity' => $cartItem->quantity,
                     'order_id' => $order->id,
                 ]);
 
+                // Update stock quantity
                 $stock->quantity -= $cartItem->quantity;
                 $stock->save();
             }
+
+            // Clear cart items after successful order
+            DB::table('carts')
+                ->where('customer_id', $customerId)
+                ->delete();
+
             DB::commit();
+
             return response()->json([
                 'status' => 'Order Success',
                 'code' => 200,
@@ -135,13 +205,23 @@ class ShopController extends Controller
             ]);
         } catch (\Exception $e) {
             DB::rollback();
+            Log::error('Checkout error: ' . $e->getMessage());
             return response()->json([
-                'status' => 'Order failed',
-                'code' => 409,
+                'status' => 'Order Failed',
+                'code' => 500,
                 'error' => $e->getMessage(),
-            ], 409);
+            ]);
         }
     }
+
+
+
+
+    // return response()->json([
+    //     'status' => 'Order failed',
+    //     'code' => 409,
+    //     'error' => 'An error occurred during checkout. Please try again later.',
+    // ], 409);
 
     /**
      * Store a newly created resource in storage.

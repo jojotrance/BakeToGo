@@ -72,52 +72,50 @@ $(document).ready(function () {
 		$('#cartTotal').text("Total: php" + priceTotal);
 	});
 
-    $('#checkout').click(function () {
-		console.log('checkout clicked');
+	$('#checkout').click(function(e) {
+		e.preventDefault();
 
-		itemCount = 0;
-		priceTotal = 0;
-	
-		let items = new Array();
-		$("#cartItems").find(".itemDetails").each(function (i, element) {
-			console.log('pumasok ako');
-			let itemid = 0;
-			let qty = 0;
-			qty = parseInt($(element).find($(".quantity")).val());
-			itemid = parseInt($(element).find($(".itemId")).html());
-			items.push(
-				{
-					"product_id": itemid,
-					"quantity": qty
-				}
-			);
+		const csrfToken = $('meta[name="csrf-token"]').attr('content');
+
+		let items = [];
+		$(".itemDetails").each(function() {
+			let itemid = parseInt($(this).find(".itemId").html()); // Adjust as per your HTML structure
+			let qty = parseInt($(this).find(".qty").val()); // Adjust as per your HTML structure
+			items.push({
+				"item_id": itemid,
+				"quantity": qty
+			});
 		});
-		var courierId = $('#courier').val();
-        var paymentMethod = $('#paymentMethod').val();
-		console.log(JSON.stringify(items));
-		var data = {
-			items: items,
-			courier_id: courierId,
-			payment_method: paymentMethod
-		};
-	
+
+		let courierId = $('#courier').val();
+		let paymentMethod = $('#paymentMethod').val();
+
 		$.ajax({
 			type: "POST",
 			url: "/api/checkout",
-			data: JSON.stringify(data),
+			headers: {
+				'X-CSRF-TOKEN': csrfToken // Set CSRF token in the headers
+			},
+			data: JSON.stringify({
+				items: items,
+				courier_id: courierId,
+				payment_method: paymentMethod
+			}),
 			contentType: "application/json",
-			success: function (response) {
+			success: function(response) {
 				if (response.code === 200) {
-					window.location.href = '/checkout';
+					// Redirect to dashboard with success message
+					window.location.href = '/customer/dashboard';
+					alert('Successfully ordered!'); // Optionally show an alert
 				} else {
-					alert(response.error);
+					alert(response.error); 
 				}
 			},
-			error: function (xhr, status, error) {
+			error: function(xhr, status, error) {
 				console.error('Error status:', status);
 				console.error('Error details:', error);
 				alert('Error processing checkout. Status: ' + status + '. Error: ' + error);
 			}
-		});
-	});;
+		});	
+	});		
 });
