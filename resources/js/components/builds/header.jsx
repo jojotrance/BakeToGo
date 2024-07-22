@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { Link, useLocation } from 'react-router-dom'; // Import useLocation hook
+import { useNavigate } from 'react-router-dom'; // Import useNavigate hook
 import axios from 'axios';
 import SearchRoundedIcon from '@mui/icons-material/SearchRounded';
 import PersonRoundedIcon from '@mui/icons-material/PersonRounded';
@@ -8,8 +8,8 @@ import ExitToAppRoundedIcon from '@mui/icons-material/ExitToAppRounded';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import '@css/header.css'; // Use the alias for the CSS import
 
-function Header({ user, hideComponents }) {
-  const location = useLocation(); // Use useLocation to get the current path
+function Header({ user, hideComponents, hideSearchBar }) {
+  const navigate = useNavigate(); // Use useNavigate for navigation
 
   if (hideComponents) return null; // Don't render anything if hideComponents is true
 
@@ -68,11 +68,13 @@ function Header({ user, hideComponents }) {
     <header className="header">
       <div className="header-content">
         <div className="header-left">
-          <Link to="/customer/dashboard">
-            <img src="../logos/baketogo.jpg" alt="Logo" className="logo" />
-          </Link>
+          {user.role !== 'admin' && ( // Conditionally render the logo button based on user role
+            <button className="logo-button" onClick={() => navigate('/customer/dashboard')}>
+              <img src="../logos/baketogo.jpg" alt="Logo" className="logo" />
+            </button>
+          )}
         </div>
-        {user.role === 'customer' && location.pathname !== '/customer/profile' && ( // Conditionally render the search bar
+        {user.role === 'customer' && !hideSearchBar && (
           <div className="search-bar">
             <div className="search-input-container">
               <input type="text" placeholder="Search..." className="search-input" />
@@ -87,9 +89,9 @@ function Header({ user, hideComponents }) {
               onMouseEnter={() => setCartHovered(true)}
               onMouseLeave={() => setCartHovered(false)}
             >
-              <Link to="/customer/cart">
+              <button onClick={() => navigate('/customer/cart')}>
                 <ShoppingCartIcon className="cart-icon" />
-              </Link>
+              </button>
               {cartHovered && (
                 <div className="cart-popup">
                   <div className="cart-popup-content">
@@ -112,7 +114,7 @@ function Header({ user, hideComponents }) {
                             </li>
                           ))}
                         </ul>
-                        <Link to="/customer/cart" className="view-cart-button">View My Shopping Cart</Link>
+                        <button className="view-cart-button" onClick={() => navigate('/customer/cart')}>View My Shopping Cart</button>
                       </>
                     )}
                   </div>
@@ -137,10 +139,13 @@ function Header({ user, hideComponents }) {
             />
             <span className="welcome-message">{getWelcomeMessage()}</span>
             <ul className={`profile-dropdown ${dropdownVisible ? 'visible' : ''}`}>
-              {user.role === 'customer' && ( // Only render the "Manage Profile" option if the user role is 'customer'
+              {user.role === 'customer' && (
                 <li>
                   <PersonRoundedIcon className="dropdown-icon" />
-                  <Link to="/customer/profile">Manage Profile</Link>
+                  <button onClick={() => {
+                    navigate('/customer/profile'); // Use navigate to change route
+                    toggleDropdown(); // Close the dropdown after navigation
+                  }}>Manage Profile</button>
                 </li>
               )}
               <li>
@@ -165,6 +170,7 @@ Header.propTypes = {
     profile_image: PropTypes.string, // Assuming profile_image is optional
   }).isRequired,
   hideComponents: PropTypes.bool.isRequired, // Add hideComponents prop type
+  hideSearchBar: PropTypes.bool.isRequired, // Add hideSearchBar prop type
 };
 
 export default Header;

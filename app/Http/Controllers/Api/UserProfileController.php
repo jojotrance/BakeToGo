@@ -1,5 +1,6 @@
 <?php
-namespace App\Http\Controllers;
+
+namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -8,12 +9,8 @@ use Illuminate\Support\Facades\Validator;
 use App\Models\User;
 use App\Models\Customer;
 
-class ProfileController extends Controller
+class UserProfileController extends Controller
 {
-    // Method for displaying the profile page
-   
-
-    // Method for showing the profile data via API
     public function show()
     {
         $user = Auth::user();
@@ -25,7 +22,6 @@ class ProfileController extends Controller
         ]);
     }
 
-    // Method for updating the profile via API
     public function update(Request $request)
     {
         $user = Auth::user();
@@ -59,7 +55,6 @@ class ProfileController extends Controller
         return response()->json(['message' => 'Profile updated successfully']);
     }
 
-    // Method for deactivating the profile via API
     public function deactivate(Request $request)
     {
         $user = Auth::user();
@@ -68,7 +63,6 @@ class ProfileController extends Controller
         return response()->json(['message' => 'Account deactivated successfully']);
     }
 
-    // Method for deleting the profile via API
     public function destroy(Request $request)
     {
         $user = Auth::user();

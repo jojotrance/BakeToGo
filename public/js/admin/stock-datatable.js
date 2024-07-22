@@ -159,6 +159,11 @@ $(document).ready(function() {
                 return;
             }
 
+            if (!supplier_id && quantity > 0) {
+                alert('You must select a supplier if you add a quantity.');
+                return;
+            }
+
             $.ajax({
                 url: "/api/admin/stocks",
                 type: 'POST',
@@ -198,6 +203,12 @@ $(document).ready(function() {
                     newValue = currentValue; // Revert to original value if left blank
                 }
                 if (newValue !== currentValue) {
+                    let supplierId = $this.closest('tr').find('.editable.supplier').data('supplier-id');
+                    if (!supplierId && newValue > 0) {
+                        alert('You must select a supplier if you add a quantity.');
+                        $this.text(currentValue); // Revert back to original value
+                        return;
+                    }
                     $.ajax({
                         url: `/api/admin/stocks/${id}`,
                         type: 'PUT',
@@ -206,7 +217,7 @@ $(document).ready(function() {
                         },
                         data: {
                             quantity: newValue,
-                            supplier_id: $this.closest('tr').find('.editable.supplier').data('supplier-id')
+                            supplier_id: supplierId
                         },
                         success: function(response) {
                             $this.text(newValue);
@@ -236,6 +247,12 @@ $(document).ready(function() {
         $this.find('select').val(currentSupplierId).select2().focus().on('select2:close blur', function() {
             let newSupplierId = $(this).val();
             if (newSupplierId !== currentSupplierId) {
+                let quantity = $this.closest('tr').find('.editable.quantity').text().trim();
+                if (!newSupplierId && quantity > 0) {
+                    alert('You must select a supplier if you have a quantity greater than zero.');
+                    $this.html($this.find('option[value="' + currentSupplierId + '"]').text()); // Revert back to original value
+                    return;
+                }
                 $.ajax({
                     url: `/api/admin/stocks/${id}`,
                     type: 'PUT',
@@ -243,7 +260,7 @@ $(document).ready(function() {
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                     },
                     data: {
-                        quantity: $this.closest('tr').find('.editable.quantity').text().trim(),
+                        quantity: quantity,
                         supplier_id: newSupplierId
                     },
                     success: function(response) {

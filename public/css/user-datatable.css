@@ -190,3 +190,24 @@ body {
         transform: translate(-50%, -40%);
     }
 }
+
+/* Add this to your CSS file or within a <style> tag */
+.table-cell {
+    padding: 10px; /* Increase padding for better clickable area */
+    cursor: pointer; /* Change cursor to pointer to indicate it's clickable */
+}
+
+.table-cell input {
+    width: 100%; /* Ensure the input field takes up the full width of the cell */
+}
+
+
+button, a {
+    outline: none;
+  }
+  
+  /* Remove outline when elements are focused */
+  button:focus, a:focus, input:focus {
+    outline: none;
+    box-shadow: none;
+  }

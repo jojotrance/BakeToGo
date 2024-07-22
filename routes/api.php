@@ -9,7 +9,7 @@ use App\Http\Controllers\Api\SpreadsheetController;
 use App\Http\Controllers\Api\StocksController;
 use App\Http\Controllers\Api\SupplierController;
 use App\Http\Controllers\Api\UserManagementController;
-use App\Http\Controllers\UserController;
+use App\Http\Controllers\Api\UserProfileController;
 use App\Http\Controllers\Api\ProfileController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -39,7 +39,6 @@ Route::prefix('auth')->group(function () {
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('api.logout');
     Route::get('/user-profile', [AuthController::class, 'getUserProfile'])->name('api.user-profile');
-    Route::get('/user/profile', [UserController::class, 'profile']);
     Route::apiResource('stocks', StocksController::class);
 });
 
@@ -106,8 +105,8 @@ Route::prefix('admin')->middleware(['auth:sanctum'])->group(function () {
 //Route::get('/charts/totalSupplier', [ChartController::class, 'totalSupplier'])->name('api.charts.totalSupplier');
 
 Route::group(['middleware' => ['auth:sanctum', 'is_customer']], function () {
-    Route::get('/profile', [ProfileController::class, 'show'])->name('api.customer.profile.show');
-    Route::post('/profile', [ProfileController::class, 'update'])->name('api.customer.profile.update');
-    Route::post('/profile/deactivate', [ProfileController::class, 'deactivate'])->name('api.customer.profile.deactivate');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('api.customer.profile.destroy');
+    Route::get('/profile', [UserProfileController::class, 'show'])->name('api.customer.profile.show');
+    Route::post('/profile', [UserProfileController::class, 'update'])->name('api.customer.profile.update');
+    Route::post('/profile/deactivate', [UserProfileController::class, 'deactivate'])->name('api.customer.profile.deactivate');
+    Route::delete('/profile', [UserProfileController::class, 'destroy'])->name('api.customer.profile.destroy');
 });

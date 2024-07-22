@@ -61,11 +61,6 @@ export const SidebarData = [
                 link: "/admin/pages/charts/total-role"
             },
             {
-                title: "Chart 2",
-                icon: <PieChartIcon />,
-                link: "/admin/pages/charts/customer-per-address"
-            },
-            {
                 title: "Chart 3",
                 icon: <LineStyleIcon />,
                 link: "/admin/pages/charts/courier-per-branch"

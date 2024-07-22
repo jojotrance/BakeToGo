@@ -28,15 +28,22 @@ jQuery(document).ready(function($) {
         if (step == 1) {
             var firstName = $('#inputFirstName').val();
             var lastName = $('#inputLastName').val();
+            var namePattern = /^[a-zA-Z]+$/;
             if (!firstName) {
                 isValid = false;
                 $('#error-fname').text('First name is required.');
+            } else if (!namePattern.test(firstName)) {
+                isValid = false;
+                $('#error-fname').text('First name must contain only letters.');
             } else {
                 $('#error-fname').text('');
             }
             if (!lastName) {
                 isValid = false;
                 $('#error-lname').text('Last name is required.');
+            } else if (!namePattern.test(lastName)) {
+                isValid = false;
+                $('#error-lname').text('Last name must contain only letters.');
             } else {
                 $('#error-lname').text('');
             }
@@ -46,6 +53,17 @@ jQuery(document).ready(function($) {
             if (emailExists || usernameExists) {
                 isValid = false;
                 showPopupMessage('error', 'Please use a unique username and email.');
+            }
+            var contact = $('#inputContact').val();
+            var contactPattern = /^[0-9]{11}$/;
+            if (!contact) {
+                isValid = false;
+                $('#error-contact').text('Contact number is required.');
+            } else if (!contactPattern.test(contact)) {
+                isValid = false;
+                $('#error-contact').text('Contact number must be exactly 11 digits.');
+            } else {
+                $('#error-contact').text('');
             }
         }
 
@@ -67,7 +85,7 @@ jQuery(document).ready(function($) {
         }
 
         if (!isValid) {
-            showPopupMessage('error', 'Please fix the errors below');
+            showPopupMessage('error', 'Please fix the errors below.');
         }
 
         return isValid;
@@ -111,7 +129,7 @@ jQuery(document).ready(function($) {
                             window.location.href = loginUrl;
                         }, 2000);
                     } else {
-                        showPopupMessage('error', 'Please fix the errors below');
+                        showPopupMessage('error', 'Please fix the errors below.');
                     }
                 },
                 error: function(xhr) {
@@ -120,7 +138,7 @@ jQuery(document).ready(function($) {
                     for (var key in errors) {
                         $('#' + key).siblings('.error-text').text(errors[key][0]);
                     }
-                    showPopupMessage('error', 'Please fix the errors below');
+                    showPopupMessage('error', 'Please fix the errors below.');
                 }
             });
         }
@@ -137,6 +155,9 @@ jQuery(document).ready(function($) {
             $(this).find('i').removeClass('fa-eye-slash').addClass('fa-eye');
         }
     });
+
+    // Move the eye icon inside the input box
+    $('.password-input-wrapper').append($('.toggle-password'));
 
     // Profile image preview
     $('#inputProfileImage').change(function() {

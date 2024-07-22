@@ -39,10 +39,11 @@ jQuery(document).ready(function($) {
             $.ajax({
                 url: authenticateUrl,
                 type: "POST",
-                data: {
+                data: JSON.stringify({
                     name: name,
                     password: password
-                },
+                }),
+                contentType: 'application/json',
                 dataType: 'json',
                 success: function(response) {
                     hideLoadingOverlay();
