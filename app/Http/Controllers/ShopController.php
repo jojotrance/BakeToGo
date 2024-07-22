@@ -7,7 +7,6 @@ use App\Models\Customer;
 use App\Models\Order;
 use App\Models\PaymentMethod;
 use App\Models\Product;
-use App\Models\Stock;
 use Barryvdh\Debugbar\Facades\Debugbar;
 use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
