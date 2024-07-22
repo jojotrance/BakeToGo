@@ -2,10 +2,11 @@
 
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\Api\CartController;
+use App\Http\Controllers\CartController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\HomeController;
 use Illuminate\Support\Facades\Route;
+
 
 
 Route::get('/', function () {
@@ -46,8 +47,8 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'is_admin']], functi
 // Customer Routes
 Route::group(['prefix' => 'customer', 'middleware' => ['auth', 'is_customer']], function () {
     Route::get('/dashboard', [CustomerController::class, 'showDashboard'])->name('customer.menu.dashboard');
-    Route::get('/cart', [CartController::class, 'show'])->name('customer.cart.show');
-
+    //  Route::get('/cart', [CartController::class, 'show'])->name('customer.cart.show');
+    Route::post('/cart', [CartController::class, 'addToCart']);
     // Profile routes
     Route::get('/profile', [CustomerController::class, 'profile'])->name('customer.profile.edit');
 });
@@ -56,3 +57,5 @@ Route::group(['prefix' => 'auth', 'middleware' => 'guest'], function () {
     Route::get('/login', [AuthController::class, 'login'])->name('login');
     Route::get('/signup', [AuthController::class, 'signup'])->name('signup');
 });
+
+Route::view('/shop', 'dashboard');

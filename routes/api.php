@@ -2,16 +2,25 @@
 
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CartController;
+use App\Http\Controllers\Api\ChartController;
 use App\Http\Controllers\Api\CourierController;
 use App\Http\Controllers\Api\PaymentMethodController;
 use App\Http\Controllers\Api\ProductController;
+use App\Http\Controllers\Api\ProfileController;
 use App\Http\Controllers\Api\SpreadsheetController;
 use App\Http\Controllers\Api\StocksController;
 use App\Http\Controllers\Api\SupplierController;
 use App\Http\Controllers\Api\UserManagementController;
+<<<<<<< Updated upstream
 use App\Http\Controllers\Api\UserProfileController;
+=======
+use App\Http\Controllers\ShopController;
+use App\Http\Controllers\UserController;
+>>>>>>> Stashed changes
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+
+
 
 
 // API Resources
@@ -20,7 +29,10 @@ Route::apiResource('suppliers', SupplierController::class);
 Route::apiResource('payment-methods', PaymentMethodController::class);
 Route::apiResource('admin/users', UserManagementController::class)->except(['create', 'edit']);
 Route::apiResource('couriers', CourierController::class);
-Route::post('/cart/add', [CartController::class, 'addToCart'])->middleware('auth:api');
+Route::apiResource('carts', CartController::class);
+Route::apiResource('shop', ShopController::class);
+Route::post('/cart', [CartController::class, 'addToCart'])->name('api.cart.addToCart')->middleware('auth:sanctum');
+// Route::post('/cart/add', [CartController::class, 'addToCart'])->middleware('auth:api');
 
 // Sanctum authenticated user route
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
