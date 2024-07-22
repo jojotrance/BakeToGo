@@ -18,7 +18,7 @@ class ProductController extends Controller
         return response()->json([
             'data' => ProductResource::collection($products)
         ]);
-        return view('customer.menu.dashboard', compact('products'));
+        // return view('customer.pages.dashboard', compact('products'));
     }
 
     public function store(Request $request)
