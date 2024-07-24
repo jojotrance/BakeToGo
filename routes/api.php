@@ -23,18 +23,16 @@ use App\Http\Controllers\Api\ReviewController;
 
 Route::post('/addtoCart', [ShopController::class, 'addToCart']);
 Route::post('/checkout',[ShopController::class, 'checkout']);
-Route::post('/api/updatecart', [ShopController::class, 'updateCartQuantity']);
-Route::post('/removeFromCart', [ShopController::class, 'removeFromCart']);
+
 // API Resources
 Route::apiResource('products', ProductController::class);
 Route::apiResource('suppliers', SupplierController::class);
 Route::apiResource('payment-methods', PaymentMethodController::class);
 Route::apiResource('admin/users', UserManagementController::class)->except(['create', 'edit']);
 Route::apiResource('couriers', CourierController::class);
-//Route::apiResource('carts', CartController::class);
+Route::apiResource('carts', CartController::class);
 Route::apiResource('shop', ShopController::class);
-//Route::post('/cart', [CartController::class, 'addToCart'])->name('api.cart.addToCart')->middleware('auth:sanctum');
-
+Route::post('/cart', [CartController::class, 'addToCart'])->name('api.cart.addToCart')->middleware('auth:sanctum');
 // Route::post('/cart/add', [CartController::class, 'addToCart'])->middleware('auth:api');
 
 // Sanctum authenticated user route
