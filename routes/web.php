@@ -2,7 +2,7 @@
 
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\Api\CartController;
+
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ShopController;
@@ -41,15 +41,20 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'is_admin']], functi
     Route::prefix('/users')->group(function () {
         Route::get('/', [AdminController::class, 'users'])->name('userindex');
     });
+
+    Route::get('/payments', [AdminController::class, 'payments'])->name('payments'); 
 });
 
 // Customer Routes
 Route::group(['prefix' => 'customer', 'middleware' => ['auth', 'is_customer']], function () {
     Route::get('/dashboard', [CustomerController::class, 'showDashboard'])->name('customer.menu.dashboard');
     //  Route::get('/cart', [CartController::class, 'show'])->name('customer.cart.show');
-    Route::post('/cart', [CartController::class, 'addToCart']);
+    //Route::post('/cart', [CartController::class, 'addToCart']);
     // Profile routes
     Route::get('/profile', [CustomerController::class, 'profile'])->name('customer.profile.edit');
+    Route::get('/purchase',[CustomerController::class,'history'])->name('customer.history');
+    Route::get('/myreviews',[CustomerController::class,'myreviews'])->name('customer.myreviews');
+    Route::post('/order/update-status', [CustomerController::class, 'updateOrderStatus'])->name('orders.updateStatus');
 });
 // Auth Routes
 Route::group(['prefix' => 'auth', 'middleware' => 'guest'], function () {

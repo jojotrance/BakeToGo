@@ -16,4 +16,9 @@ class Courier extends Model
         'image',
         
     ];
+
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
+    }
 }

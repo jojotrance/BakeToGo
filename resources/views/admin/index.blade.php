@@ -5,6 +5,10 @@
     
 @endsection 
 
+@push('scripts')
+    <script src="{{ asset('js/components/builds/header.js') }}"></script>
+
+@endpush
 {{-- @extends('layouts.app')
 @section('body')
 <li class="nav-link">

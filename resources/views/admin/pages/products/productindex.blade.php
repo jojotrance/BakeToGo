@@ -139,3 +139,9 @@
     </div>
 </div>
 @endsection
+
+
+@push('scripts')
+    <script src="{{ asset('js/components/builds/header.js') }}"></script>
+
+@endpush

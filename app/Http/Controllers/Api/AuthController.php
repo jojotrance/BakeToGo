@@ -9,15 +9,10 @@ use Illuminate\Support\Facades\DB;
 use App\Models\User;
 use App\Models\Customer;
 use Validator;
+use Illuminate\Support\Facades\Log;
 
 class AuthController extends Controller
 {
-    /**
-     * Register a new user.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function registerUser(Request $request)
     {
         $validated = $request->validate([
@@ -47,7 +42,7 @@ class AuthController extends Controller
                 'email' => $validated['email'],
                 'password' => Hash::make($validated['password']),
                 'profile_image' => $profileImagePath,
-                'role' => 'customer',
+                'role' => User::ROLE_GUEST,
             ]);
 
             \Log::info('User created with ID: ' . $user->id . ' and profile image: ' . $user->profile_image);
@@ -62,7 +57,10 @@ class AuthController extends Controller
 
             DB::commit();
 
-            return response()->json(['success' => true, 'message' => 'You have successfully registered']);
+            return response()->json([
+                'success' => true,
+                'message' => 'Signup successful. Please wait for the admin to change your role or confirm your registration.'
+            ]);
 
         } catch (\Exception $e) {
             DB::rollBack();
@@ -72,95 +70,83 @@ class AuthController extends Controller
         }
     }
 
-    /**
-     * Authenticate user and return response with token on success.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\JsonResponse
-     */
-   // AuthController.php
-   public function authenticate(Request $request)
-{
-    $credentials = $request->only('name', 'password');
+    public function authenticate(Request $request)
+    {
+        $credentials = $request->only('name', 'password');
 
-    if (Auth::attempt($credentials)) {
-        $user = Auth::user();
-        if (!$user->active_status) {
-            Auth::logout();
-            return response()->json(['status' => 'inactive', 'message' => 'Your account is inactive. Please contact the administrator.'], 403);
+        if (Auth::attempt($credentials)) {
+            $user = Auth::user();
+            if ($user->role === User::ROLE_GUEST) {
+                Auth::logout();
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Your account is not yet confirmed. Please wait for the admin to confirm your registration.'
+                ], 403);
+            }
+
+            if (!$user->active_status) {
+                Auth::logout();
+                return response()->json(['status' => 'inactive', 'message' => 'Your account is inactive. Please contact the administrator.'], 403);
+            }
+
+            $token = $user->createToken('auth_token')->plainTextToken;
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Login successful',
+                'redirect' => $user->role === User::ROLE_ADMIN ? route('admin.index') : route('customer.menu.dashboard'),
+                'token' => $token,
+            ]);
         }
 
-        $token = $user->createToken('auth_token')->plainTextToken;
-
         return response()->json([
-            'success' => true,
-            'message' => 'Login successful',
-            'redirect' => $user->role === 'admin' ? route('admin.index') : route('customer.menu.dashboard'),
-            'token' => $token,
+            'success' => false,
+            'message' => 'The provided credentials do not match our records.',
+        ], 401);
+    }
+
+    public function updateRole(Request $request, User $user)
+    {
+        $this->authorize('update', $user);
+
+        $validated = $request->validate([
+            'role' => 'required|in:' . implode(',', [User::ROLE_ADMIN, User::ROLE_CUSTOMER, User::ROLE_GUEST]),
+        ]);
+
+        $user->role = $validated['role'];
+        $user->save();
+
+        return response()->json(['success' => true, 'message' => 'User role updated successfully']);
+    }
+
+    public function logout(Request $request)
+    {
+        try {
+            $request->user()->tokens()->delete();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+            Log::info('User logged out', ['user_id' => $request->user()->id, 'timestamp' => now()]);
+
+            return response()->json(['message' => 'Logged out successfully'], 200);
+        } catch (\Exception $e) {
+            Log::error('Logout failed', ['error' => $e->getMessage(), 'user_id' => $request->user()->id, 'timestamp' => now()]);
+
+            return response()->json(['message' => 'Logout failed. Please try again.'], 500);
+        }
+    }
+
+    public function getUserProfile(Request $request)
+    {
+        $user = $request->user();
+        
+        return response()->json([
+            'name' => $user->name,
+            'email' => $user->email,
+            'role' => $user->role,
+            'profile_image' => $user->profile_image,
         ]);
     }
 
-    return response()->json([
-        'success' => false,
-        'message' => 'The provided credentials do not match our records.',
-    ], 401);
-}
-
-
-
-    /**
-     * Log the user out (revoke the token).
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function logout(Request $request)
-    {
-        // Revoke the token that was used to authenticate the current request
-        $request->user()->tokens()->delete();
-    
-        // Invalidate the session
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
-    
-        return response()->json(['message' => 'Logged out successfully'], 200);
-    }
-
-    /**
-     * Get the authenticated user's profile information.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\JsonResponse
-     */
-   public function getUserProfile(Request $request)
-{
-    $user = $request->user();
-    
-    return response()->json([
-        'name' => $user->name,
-        'email' => $user->email,
-        'role' => $user->role,
-        'profile_image' => $user->profile_image, // Add profile_image to the response
-    ]);
-}
-
-
-    /**
-     * Show the registration form.
-     *
-     * @return \Illuminate\View\View
-     */
-    public function showRegistrationForm()
-    {
-        return view('auth.signup');
-    }
-
-    /**
-     * Check if the email already exists.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function checkEmail(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -175,12 +161,6 @@ class AuthController extends Controller
         return response()->json(['exists' => $emailExists]);
     }
 
-    /**
-     * Check if the username already exists.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function checkUsername(Request $request)
     {
         $validator = Validator::make($request->all(), [

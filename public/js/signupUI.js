@@ -29,6 +29,7 @@ jQuery(document).ready(function($) {
             var firstName = $('#inputFirstName').val();
             var lastName = $('#inputLastName').val();
             var namePattern = /^[a-zA-Z]+$/;
+
             if (!firstName) {
                 isValid = false;
                 $('#error-fname').text('First name is required.');
@@ -38,6 +39,7 @@ jQuery(document).ready(function($) {
             } else {
                 $('#error-fname').text('');
             }
+
             if (!lastName) {
                 isValid = false;
                 $('#error-lname').text('Last name is required.');
@@ -50,10 +52,6 @@ jQuery(document).ready(function($) {
         }
 
         if (step == 2) {
-            if (emailExists || usernameExists) {
-                isValid = false;
-                showPopupMessage('error', 'Please use a unique username and email.');
-            }
             var contact = $('#inputContact').val();
             var contactPattern = /^[0-9]{11}$/;
             if (!contact) {
@@ -64,6 +62,52 @@ jQuery(document).ready(function($) {
                 $('#error-contact').text('Contact number must be exactly 11 digits.');
             } else {
                 $('#error-contact').text('');
+            }
+
+            // Check email and username existence
+            var email = $('#exampleInputEmail1').val();
+            var username = $('#exampleInputUsername1').val();
+
+            if (username) {
+                $.ajax({
+                    url: checkUsernameUrl,
+                    type: 'POST',
+                    async: false, // Ensure synchronous check
+                    data: { name: username, _token: $('meta[name="csrf-token"]').attr('content') },
+                    success: function(response) {
+                        if (response.exists) {
+                            $('#error-name').text('Username already exists.');
+                            usernameExists = true;
+                            isValid = false;
+                        } else {
+                            $('#error-name').text('');
+                            usernameExists = false;
+                        }
+                    }
+                });
+            }
+
+            if (email) {
+                $.ajax({
+                    url: checkEmailUrl,
+                    type: 'POST',
+                    async: false, // Ensure synchronous check
+                    data: { email: email, _token: $('meta[name="csrf-token"]').attr('content') },
+                    success: function(response) {
+                        if (response.exists) {
+                            $('#error-email').text('Email already exists.');
+                            emailExists = true;
+                            isValid = false;
+                        } else {
+                            $('#error-email').text('');
+                            emailExists = false;
+                        }
+                    }
+                });
+            }
+
+            if (emailExists || usernameExists) {
+                showPopupMessage('error', 'Please use a unique username and email.');
             }
         }
 
@@ -116,15 +160,14 @@ jQuery(document).ready(function($) {
                 contentType: false,
                 processData: false,
                 headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                },
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
                 beforeSend: function() {
                     $('.loading-overlay').addClass('show');
                 },
                 success: function(response) {
                     $('.loading-overlay').removeClass('show');
                     if (response.success) {
-                        showPopupMessage('success', 'Registration successful. Redirecting...');
+                        showPopupMessage('warning', 'Signup successful. Please wait for the admin to change your role or confirm your registration.');
                         setTimeout(function() {
                             window.location.href = loginUrl;
                         }, 2000);
@@ -137,6 +180,9 @@ jQuery(document).ready(function($) {
                     var errors = xhr.responseJSON.errors;
                     for (var key in errors) {
                         $('#' + key).siblings('.error-text').text(errors[key][0]);
+                    }
+                    if (xhr.responseJSON.message) {
+                        showPopupMessage('error', xhr.responseJSON.message);
                     }
                     showPopupMessage('error', 'Please fix the errors below.');
                 }
@@ -169,7 +215,7 @@ jQuery(document).ready(function($) {
         reader.readAsDataURL(this.files[0]);
     });
 
-    // Check email and username uniqueness
+    // Check email and username uniqueness on blur
     $('#exampleInputUsername1').blur(function() {
         var username = $(this).val();
         if (username) {
@@ -208,4 +254,7 @@ jQuery(document).ready(function($) {
             popup.removeClass('show');
         }, 3000);
     }
+
+    // Hide all popup messages initially
+    $('.popup-message').removeClass('show');
 });

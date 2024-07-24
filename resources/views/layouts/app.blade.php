@@ -22,25 +22,20 @@
     <link rel="stylesheet" href="{{ asset('css/orderindex.css') }}">
     <link rel="stylesheet" href="{{ asset('css/user-datatable.css') }}">
     <link rel="stylesheet" href="{{ asset('css/profile.css') }}">
-
-    <!-- React and Vite -->
-    @viteReactRefresh
-    @vite('resources/js/app.jsx')
+    <link rel="stylesheet" href="{{ asset('css/header.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/admin-sidebar.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/product-table.css') }}">
 
     <!-- CSRF Token -->
     <meta name="csrf-token" content="{{ csrf_token() }}">
 </head>
 <body>
-    @php
-        $hideReactComponents = isset($hideReactComponents) && $hideReactComponents ? 'true' : 'false';
-    @endphp
-
-    <div id="hello-react" 
+    <div id="app-root" 
          data-user="{{ json_encode(Auth::user()) }}" 
          data-role="{{ Auth::user()->is_admin ? 'admin' : 'customer' }}"
-         data-hide-components="{{ $hideReactComponents }}">
+         data-hide-components="{{ isset($hideReactComponents) && $hideReactComponents ? 'true' : 'false' }}">
     </div>
-
+    <div id="header"></div>
     <div id="content">
         @yield('content')
     </div>
@@ -68,16 +63,23 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/js/select2.min.js"></script>
 
     <!-- Custom JS Files -->
+    <script src="{{ asset('js/header.js') }}"></script>
+    <script src="{{ asset('js/app.js') }}"></script>
+
+    <!-- Other custom JS files -->
     <script src="{{ asset('js/admin/user-datatable.js') }}"></script>
     <script src="{{ asset('js/admin/product-datatable.js') }}"></script>
     <script src="{{ asset('js/admin/courier-datatable.js') }}"></script>
     <script src="{{ asset('js/admin/order-datatable.js') }}"></script>
     <script src="{{ asset('js/admin/stock-datatable.js') }}"></script>
     <script src="{{ asset('js/admin/supplier-datatable.js') }}"></script>
-
-    <!--Customer JS-->
     <script src="{{ asset('js/customer/profile.js') }}"></script>
-    <!-- Include pushed scripts -->
+    <script src="{{ asset('js/admin/admin-sidebar.js') }}"></script>
+    <script src="{{ asset('js/admin/payment.js') }}"></script>
+    <script src="{{ asset('js/SidebarData.js') }}"></script>
+    
+
+
     @stack('scripts')
 
     <script>

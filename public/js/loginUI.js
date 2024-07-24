@@ -80,9 +80,9 @@ jQuery(document).ready(function($) {
     function showPopupMessage(type, message) {
         var popup = $('#' + type + '-popup');
         popup.find('span').text(message);
-        popup.fadeIn();
+        popup.addClass('show');
         setTimeout(function() {
-            popup.fadeOut();
+            popup.removeClass('show');
         }, 3000);
     }
 
@@ -93,4 +93,7 @@ jQuery(document).ready(function($) {
     function hideLoadingOverlay() {
         $('.loading-overlay').removeClass('show');
     }
+
+    // Hide all popup messages initially
+    $('.popup-message').removeClass('show');
 });

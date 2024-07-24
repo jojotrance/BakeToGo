@@ -55,6 +55,11 @@ body {
   position: relative; /* Ensure the form has a relative position for the loading strip */
 }
 
+/* Login form specific styles */
+.login-auth-form {
+  max-width: 600px; /* Increase the width for the login form */
+}
+
 /* Brand logo */
 .brand-logo img {
   max-width: 120px;
@@ -177,16 +182,18 @@ h6 {
   font-size: 14px;
   font-weight: bold;
   color: white;
-  display: none;
+  display: flex;
   align-items: center;
   opacity: 0;
   transition: opacity 0.3s, transform 0.3s;
   z-index: 1000;
+  visibility: hidden; /* Ensure the popup is hidden initially */
 }
 
 .popup-message.show {
   opacity: 1;
   transform: translate(-50%, 0);
+  visibility: visible; /* Ensure the popup is visible when shown */
 }
 
 .popup-message.success {
@@ -251,11 +258,6 @@ h6 {
 
 @media (min-width: 769px) {
   .auth-form-light {
-    max-width: 500px; /* Ensure the form width is consistent */
+    max-width: 600px; /* Ensure the form width is consistent */
   }
-}
-
-/* Login form specific styles */
-.login-auth-form {
-  max-width: 600px; /* Increase the width for the login form */
 }

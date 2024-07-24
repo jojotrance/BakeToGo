@@ -1,0 +1,99 @@
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    background-color: #f8f9fa;
+}
+
+.checkout-container {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    background-color: white;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    overflow-y: auto;
+    top: 8rem;
+}
+
+.card-header {
+    background-color: #007bff;
+    color: white;
+}
+
+.table thead th {
+    background-color: #007bff;
+    color: white;
+}
+
+.form-group label {
+    font-weight: bold;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    border: none;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+}
+
+.card {
+    width: 100%;
+    max-width: 800px;
+    margin-bottom: 20px;
+}
+
+.card-body p {
+    margin-bottom: 10px;
+}
+
+.table {
+    margin-top: 20px;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.table-borderless th,
+.table-borderless td {
+    border: none;
+}
+
+.table thead th {
+    border-bottom: 2px solid #007bff;
+}
+
+.table tbody tr {
+    border-bottom: 1px solid #dee2e6;
+}
+
+.table tbody tr:last-child {
+    border-bottom: none;
+}
+
+h2 {
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.btn-block {
+    display: block;
+    width: 100%;
+}
+
+.mt-4 {
+    margin-top: 1.5rem;
+}
+
+@media (min-width: 768px) {
+    .checkout-container {
+        padding: 40px;
+    }
+}

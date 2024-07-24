@@ -24,6 +24,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+
+        
         // Custom route model binding
         Route::model('user', User::class);
         Route::model('courier', Courier::class);

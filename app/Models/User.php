@@ -11,7 +11,11 @@ use Laravel\Sanctum\HasApiTokens;
 class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
+  
 
+    const ROLE_ADMIN = 'admin';
+    const ROLE_CUSTOMER = 'customer';
+    const ROLE_GUEST = 'guest';
     /**
      * The attributes that are mass assignable.
      *
@@ -22,6 +26,7 @@ class User extends Authenticatable
         'email',
         'password',
          'profile_image',
+         'role',
     ];
 
     /**
@@ -42,7 +47,6 @@ class User extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
-        'is_admin' => 'boolean',
         'active_status' => 'boolean',
     ];
     use HasApiTokens, Notifiable;

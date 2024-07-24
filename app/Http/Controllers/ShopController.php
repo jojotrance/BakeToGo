@@ -29,26 +29,25 @@ class ShopController extends Controller
 
     /**
      * Show the form for creating a new resource.
-     */
-    public function addToCart(Request $request)
-    {
-        $user = Auth::user();
+     */public function addToCart(Request $request)
+{
+    $user = Auth::user();
 
-        $customer = $user->customer;
+    $customer = $user->customer;
 
-        $product_id = $request->input('product_id');
-        $quantity = $request->input('quantity', 1);
+    $product_id = $request->input('product_id');
+    $quantity = $request->input('quantity', 1);
 
-        $cartItems = $customer->products()->where('product_id', $product_id)->first();
+    $cartItems = $customer->products()->where('product_id', $product_id)->first();
 
-        if ($cartItems) {
-            $customer->products()->updateExistingPivot($product_id, ['quantity' => $cartItems->pivot->quantity + $quantity]);
-        } else {
-            $customer->products()->attach($product_id, ['quantity' => $quantity]);
-        }
-        $updatedCartItem = $customer->products()->where('product_id', $product_id)->first();
-        return response()->json(['message' => 'Successfully added to cart!', 'cartItems' => $updatedCartItem]);
+    if ($cartItems) {
+        $customer->products()->updateExistingPivot($product_id, ['quantity' => $quantity]);
+    } else {
+        $customer->products()->attach($product_id, ['quantity' => $quantity]);
     }
+    $updatedCartItem = $customer->products()->where('product_id', $product_id)->first();
+    return response()->json(['message' => 'Successfully updated cart!', 'cartItems' => $updatedCartItem]);
+}
 
     public function mycart()
     {
@@ -97,6 +96,34 @@ class ShopController extends Controller
         return view('checkout', compact('mycarts', 'couriers', 'payments', 'customer'));
     }
 
+    public function updateCartQuantity(Request $request)
+    {
+        $user = Auth::user();
+        $customer = $user->customer;
+
+        $product_id = $request->input('product_id');
+        $quantity = $request->input('quantity');    
+
+        $cartItem = $customer->products()->where('product_id', $product_id)->first();
+
+        if ($cartItem) {
+            $customer->products()->updateExistingPivot($product_id, ['quantity' => $quantity]);
+            $updatedCartItem = $customer->products()->where('product_id', $product_id)->first();
+            return response()->json(['message' => 'Quantity updated successfully!', 'cartItems' => $updatedCartItem]);
+        }
+
+        return response()->json(['message' => 'Item not found in cart!'], 404);
+    }
+    public function removeFromCart(Request $request)
+    {
+        $user = Auth::user();
+        $customer = $user->customer;
+        $product_id = $request->input('product_id');
+
+        $customer->products()->detach($product_id);
+
+        return response()->json(['message' => 'Successfully removed from cart!']);
+    }
     // public function checkout(Request $request)
     // {
     //     $user = Auth::user();

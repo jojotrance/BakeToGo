@@ -12,13 +12,12 @@ class PaymentMethodResource extends JsonResource
      *
      * @return array<string, mixed>
      */
-    public function toArray(Request $request): array
+   public function toArray(Request $request): array
     {
-        //   return parent::toArray($request);
         return [
             'id' => $this->id,
             'payment_name' => $this->payment_name,
-            'image' => $this->image
+            'image' => $this->image ? asset('storage/' . $this->image) : null,
         ];
     }
 }

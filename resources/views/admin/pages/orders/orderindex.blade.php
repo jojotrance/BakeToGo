@@ -13,7 +13,6 @@
                 </div>
                 <div>
                     <button type="button" id="export_excel" class="btn btn-success btn-sm">Export to Excel</button>
-                    <button type="button" id="create_order" class="btn btn-primary btn-sm">Create Order</button>
                 </div>
             </div>
         </div>
@@ -64,21 +63,22 @@
                     <form method="post" id="order_form" enctype="multipart/form-data" novalidate>
                         @csrf
                         <div class="modal-header">
-                            <h5 class="modal-title" id="modal_title">Add New Order</h5>
+                            <h5 class="modal-title" id="modal_title">Edit Order</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
                             <div class="mb-3">
                                 <label class="form-label">Customer</label>
-                                <input type="text" name="customer_id" id="customer_id" class="form-control" required />
+                                <input type="text" name="customer_id" id="customer_id" class="form-control" readonly />
                                 <span id="customer_id_error" class="text-danger"></span>
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Status</label>
                                 <select name="status" id="status" class="form-control" required>
                                     <option value="">Select Status</option>
-                                    <option value="pending">Pending</option>
+                                    <option value="pending">Processing</option>
                                     <option value="shipped">Shipped</option>
+                                    <option value="shipped">To Receive</option>
                                     <option value="completed">Completed</option>
                                     <option value="failed">Failed</option>
                                     <option value="canceled">Canceled</option>
@@ -87,31 +87,17 @@
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Payment Method</label>
-                                <select name="payment_method" id="payment_method" class="form-control" required>
-                                    <option value="">Select Payment Method</option>
-                                    <option value="gcash">GCash</option>
-                                    <option value="cod">COD</option>
-                                    <option value="credit">Credit</option>
-                                    <option value="amazon pay">Amazon Pay</option>
-                                    <option value="applepay">ApplePay</option>
-                                </select>
-                                <span id="payment_method_error" class="text-danger"></span>
+                                <input type="text" name="payment_method" id="payment_method" class="form-control" readonly />
                             </div>
                             <div class="mb-3">
                                 <label class="form-label">Courier</label>
-                                <select name="courier" id="courier" class="form-control" required>
-                                    <option value="">Select Courier</option>
-                                    <option value="FedEx">FedEx</option>
-                                    <option value="DHL">DHL</option>
-                                    <option value="Amazon">Amazon</option>
-                                </select>
-                                <span id="courier_error" class="text-danger"></span>
+                                <input type="text" name="courier" id="courier" class="form-control" readonly />
                             </div>
                             <input type="hidden" name="hidden_id" id="hidden_id" />
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                            <button type="submit" class="btn btn-primary" id="action_button">Create</button>
+                            <button type="submit" class="btn btn-primary" id="action_button">Update</button>
                         </div>
                     </form>
                 </div>
@@ -143,3 +129,6 @@
 </div>
 @endsection
 
+@push('scripts')
+<script src="{{ asset('js/components/builds/header.js') }}"></script>
+@endpush

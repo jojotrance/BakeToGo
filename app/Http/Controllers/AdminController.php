@@ -42,4 +42,8 @@ class AdminController extends Controller
         return view('admin.pages.stock.stockindex');
     }
 
+    public function payments(){
+        return view('admin.pages.payment.payment');
+    }
+
 }

@@ -20,4 +20,12 @@ class CustomerController extends Controller
     {
         return view('customer.pages.profile.profile');
     }
+
+    public function myreviews(){
+        return view('customer.pages.myReviews.myreviews');
+    }
+
+    public function history(){
+        return view('customer.pages.history.history');
+    }
 }

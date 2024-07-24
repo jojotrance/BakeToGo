@@ -1,17 +1,21 @@
 $(document).ready(function() {
     console.log('Document is ready');
-
     var orderTable = $('#order_table').DataTable({
-        data: [
-            {id: 1, customer: {name: 'Customer A'}, status: 'Pending', payment_method: 'GCash', courier: 'FedEx'},
-            {id: 2, customer: {name: 'Customer B'}, status: 'Completed', payment_method: 'COD', courier: 'DHL'},
-            {id: 3, customer: {name: 'Customer C'}, status: 'Shipped', payment_method: 'Credit', courier: 'Amazon'},
-            {id: 4, customer: {name: 'Customer D'}, status: 'Cancelled', payment_method: 'Amazon Pay', courier: 'FedEx'},
-            {id: 5, customer: {name: 'Customer E'}, status: 'Pending', payment_method: 'ApplePay', courier: 'DHL'}
-        ],
+        processing: true,
+        serverSide: true,
+        ajax: {
+            url: "/api/admin/orders",
+            type: 'GET',
+            error: function (xhr, error, thrown) {
+                console.error('DataTables error: ', error);
+                console.error('Details: ', thrown);
+                console.error('Response: ', xhr.responseText);
+                alert('An error occurred while fetching data. Please check the console for more details.');
+            }
+        },
         columns: [
             { data: 'id', name: 'id' },
-            { data: 'customer.name', name: 'customer' },
+            { data: 'customer', name: 'customer' },
             { data: 'status', name: 'status' },
             { data: 'payment_method', name: 'payment_method' },
             { data: 'courier', name: 'courier' },
@@ -38,16 +42,12 @@ $(document).ready(function() {
         let isValid = true;
         $('.text-danger').text('');  // Clear previous error messages
 
-        if ($('#customer_id').val().trim() === '') {
-            $('#customer_id_error').text('Customer is required');
-            isValid = false;
-        }
         if ($('#status').val().trim() === '') {
             $('#status_error').text('Status is required');
             isValid = false;
         }
         if ($('#payment_method').val().trim() === '') {
-            $('#payment_method_error').text('Payment Method is required');
+            $('#payment_error').text('Payment method is required');
             isValid = false;
         }
         if ($('#courier').val().trim() === '') {
@@ -58,63 +58,96 @@ $(document).ready(function() {
         return isValid;
     }
 
-    $('#create_order').on('click', function() {
-        console.log('Create Order button clicked');
-        $('#order_form')[0].reset();
-        $('#modal_title').text('Add New Order');
-        $('#action_button').text('Create');
-        $('.text-danger').text('');
-        $('#order_modal').modal('show');
-    });
-
     $('#order_form').on('submit', function(e) {
         e.preventDefault();
         if (validateForm()) {
-            $('#confirm_message').text('Are you sure you want to ' + ($('#action_button').text() === 'Create' ? 'add this order?' : 'update this order?'));
-            $('#confirm_button').text($('#action_button').text() === 'Create' ? 'Add' : 'Update');
+            $('#confirm_message').text('Are you sure you want to update this order?');
+            $('#confirm_button').text('Update');
             $('#confirmModal').modal('show');
         }
     });
 
     $('#confirm_button').on('click', function() {
-        $('#confirmModal').modal('hide');
-        $('#order_modal').modal('hide');
-        showNotification('Order has been successfully ' + ($('#action_button').text() === 'Create' ? 'added!' : 'updated!'), 'success');
+        var formData = {
+            status: $('#status').val(),
+            payment_id: $('#payment_method').val(),
+            courier_id: $('#courier').val()
+        };
+
+        var url = "/api/admin/orders/" + $('#hidden_id').val() + "/status";
+        var method = "PUT";
+
+        $.ajax({
+            url: url,
+            method: method,
+            data: formData,
+            success: function(data) {
+                orderTable.ajax.reload();
+                $('#confirmModal').modal('hide');
+                $('#order_modal').modal('hide');
+                showNotification('Order has been successfully updated!', 'success');
+            },
+            error: function(xhr) {
+                showNotification('An error occurred: ' + xhr.responseJSON.error, 'error');
+            }
+        });
     });
 
     $(document).on('click', '.edit', function() {
         var id = $(this).data('id');
-        var order = orderTable.data().toArray().find(order => order.id == id);
-        $('#customer_id').val(order.customer.name);
-        $('#status').val(order.status.toLowerCase());
-        $('#payment_method').val(order.payment_method.toLowerCase().replace(' ', ''));
-        $('#courier').val(order.courier);
-        $('#hidden_id').val(order.id);
-        $('#modal_title').text('Edit Order');
-        $('#action_button').text('Update');
-        $('.text-danger').text('');
-        $('#order_modal').modal('show');
+        $.ajax({
+            url: "/api/admin/orders/" + id,
+            dataType: "json",
+            success: function(data) {
+                $('#customer_id').val(data.customer.fname + ' ' + data.customer.lname).prop('readonly', true);
+                $('#status').val(data.status);
+                $('#payment_method').val(data.payment_method.payment_name).prop('readonly', true);
+                $('#courier').val(data.courier.courier_name).prop('readonly', true);
+                $('#hidden_id').val(data.id);
+                $('#modal_title').text('Edit Order');
+                $('#action_button').text('Update');
+                $('.text-danger').text('');
+                $('#order_modal').modal('show');
+            },
+            error: function(xhr) {
+                showNotification('Error fetching order details: ' + xhr.responseJSON.error, 'error');
+            }
+        });
     });
 
     $(document).on('click', '.delete', function() {
         var id = $(this).data('id');
+        if (id === undefined) {
+            showNotification('Invalid order ID', 'error');
+            return;
+        }
         $('#confirm_message').text('Are you sure you want to delete this order?');
         $('#confirm_button').text('Delete');
         $('#confirmModal').modal('show');
 
         $('#confirm_button').off('click').on('click', function() {
-            $('#confirmModal').modal('hide');
-            showNotification('Order has been successfully deleted!', 'success');
+            $.ajax({
+                url: "/api/admin/orders/" + id,
+                method: "DELETE",
+                success: function(data) {
+                    orderTable.ajax.reload();
+                    $('#confirmModal').modal('hide');
+                    showNotification('Order has been successfully deleted!', 'success');
+                },
+                error: function(xhr) {
+                    showNotification('An error occurred: ' + xhr.responseJSON.error, 'error');
+                }
+            });
         });
     });
 
     $('#export_excel').on('click', function() {
         console.log('Export to Excel button clicked');
-        var data = orderTable.rows({ search: 'applied' }).data().toArray(); // Get all the data from the table
+        var data = orderTable.rows({ search: 'applied' }).data().toArray();
         var formattedData = data.map(function(order) {
             return {
                 ID: order.id,
-                Customer: order.customer.name,
+                Customer: order.customer,
                 Status: order.status,
                 Payment_Method: order.payment_method,
                 Courier: order.courier

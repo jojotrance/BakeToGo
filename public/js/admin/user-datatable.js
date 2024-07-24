@@ -1,4 +1,4 @@
-$(document).ready(function() {
+jQuery(document).ready(function($) {
     console.log('DataTable Initialization');
 
     var dataTable;
@@ -53,7 +53,7 @@ $(document).ready(function() {
                     name: 'role',
                     width: '5%',
                     render: function(data, type, full, meta) {
-                        return `<span class="editable role" data-id="${full.id}" data-role="${data}">${data === 'admin' ? 'Admin' : 'Customer'}</span>`;
+                        return `<span class="editable role" data-id="${full.id}" data-role="${data}">${data === 'admin' ? 'Admin' : data === 'customer' ? 'Customer' : 'Guest'}</span>`;
                     }
                 },
                 {
@@ -92,29 +92,53 @@ $(document).ready(function() {
 
     var currentEdit = null;
 
-    // Function to handle save action
-    function saveChanges(id, field, value, $row) {
-        var data = { _method: 'PUT' };
-        data[field] = value;
-
+    // Function to handle save action for role
+    function saveRole(id, value, $row) {
         $.ajax({
-            url: `/api/admin/users/${id}`,
+            url: `/api/admin/users/${id}/role`,
             type: 'PUT',
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             },
-            data: data,
+            data: { role: value },
             success: function(response) {
                 if (dataTable && dataTable.ajax) {
                     dataTable.ajax.reload(null, false);
                 }
                 currentEdit = null;
-                console.log('Changes saved:', response);
+                console.log('Role updated:', response);
             },
             error: function(xhr, status, error) {
                 console.error('AJAX Error:', status, error);
                 console.error('Response Text:', xhr.responseText);
-                alert('Failed to save changes.');
+                alert('Failed to update role.');
+            }
+        });
+
+        // Restore the action buttons
+        $row.find('.action-buttons').html('<button type="button" class="delete-user btn btn-danger btn-sm" data-id="' + id + '">Delete</button>');
+    }
+
+    // Function to handle save action for active status
+    function saveActiveStatus(id, value, $row) {
+        $.ajax({
+            url: `/api/admin/users/${id}/active-status`,
+            type: 'PUT',
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            data: { active_status: value },
+            success: function(response) {
+                if (dataTable && dataTable.ajax) {
+                    dataTable.ajax.reload(null, false);
+                }
+                currentEdit = null;
+                console.log('Active status updated:', response);
+            },
+            error: function(xhr, status, error) {
+                console.error('AJAX Error:', status, error);
+                console.error('Response Text:', xhr.responseText);
+                alert('Failed to update active status.');
             }
         });
 
@@ -139,7 +163,7 @@ $(document).ready(function() {
         let currentRole = $this.data('role');
         let id = $this.data('id');
         let $row = $this.closest('tr');
-        let roleOptions = '<select class="form-control role-dropdown"><option value="customer" ' + (currentRole === 'customer' ? 'selected' : '') + '>Customer</option><option value="admin" ' + (currentRole === 'admin' ? 'selected' : '') + '>Admin</option></select>';
+        let roleOptions = '<select class="form-control role-dropdown"><option value="customer" ' + (currentRole === 'customer' ? 'selected' : '') + '>Customer</option><option value="admin" ' + (currentRole === 'admin' ? 'selected' : '') + '>Admin</option><option value="guest" ' + (currentRole === 'guest' ? 'selected' : '') + '>Guest</option></select>';
         let originalContent = $this.html();
 
         $this.html(roleOptions);
@@ -154,9 +178,9 @@ $(document).ready(function() {
         $row.find('.save-btn').on('click', function() {
             let newRole = $this.find('select').val();
             if (newRole !== currentRole) {
-                saveChanges(id, 'role', newRole, $row);
+                saveRole(id, newRole, $row);
             } else {
-                $this.html(currentRole === 'admin' ? 'Admin' : 'Customer');
+                $this.html(currentRole === 'admin' ? 'Admin' : currentRole === 'customer' ? 'Customer' : 'Guest');
                 currentEdit = null;
                 // Restore the action buttons
                 $row.find('.action-buttons').html('<button type="button" class="delete-user btn btn-danger btn-sm" data-id="' + id + '">Delete</button>');
@@ -191,7 +215,7 @@ $(document).ready(function() {
         $row.find('.save-btn').on('click', function() {
             let newStatus = $this.find('select').val();
             if (newStatus != currentStatus) {
-                saveChanges(id, 'active_status', newStatus, $row);
+                saveActiveStatus(id, newStatus, $row);
             } else {
                 $this.html('<span class="chip ' + (currentStatus ? 'chip-active' : 'chip-inactive') + '">' + (currentStatus ? 'Active' : 'Inactive') + '</span>');
                 currentEdit = null;

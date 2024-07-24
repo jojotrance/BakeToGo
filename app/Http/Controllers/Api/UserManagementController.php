@@ -9,8 +9,6 @@ use Illuminate\Support\Facades\Hash;
 use App\Models\User;
 use App\Models\Customer;
 use App\Http\Resources\UserResource;
-use Illuminate\Validation\Rule;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Cache;
 
 class UserManagementController extends Controller
@@ -70,6 +68,7 @@ class UserManagementController extends Controller
             $user->email = $request->email;
             $user->password = Hash::make($request->password);
             $user->active_status = $request->active_status ? 1 : 0;
+            $user->role = User::ROLE_GUEST; // Default role set to guest
             if ($request->hasFile('profile_image')) {
                 $profileImage = $request->file('profile_image');
                 $profileImagePath = $profileImage->store('profile_images', 'public');
@@ -123,16 +122,25 @@ class UserManagementController extends Controller
     {
         \Log::info('Update User Data Request: ', $request->all());
 
-        $request->validate([
-            'active_status' => 'required|in:1,0',
-            'role' => 'required|in:admin,customer',
+        $validator = Validator::make($request->all(), [
+            'active_status' => 'sometimes|required|in:1,0',
+            'role' => 'sometimes|required|in:' . implode(',', [User::ROLE_ADMIN, User::ROLE_CUSTOMER, User::ROLE_GUEST]),
         ]);
+
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
 
         DB::beginTransaction();
 
         try {
-            $user->active_status = $request->active_status == 1 ? 1 : 0;
-            $user->role = $request->role;
+            if ($request->has('active_status')) {
+                $user->active_status = $request->active_status == 1 ? 1 : 0;
+            }
+
+            if ($request->has('role')) {
+                $user->role = $request->role;
+            }
 
             $user->save();
 
@@ -153,6 +161,38 @@ class UserManagementController extends Controller
                 ]
             ], 500);
         }
+    }
+
+    public function updateRole(Request $request, User $user)
+    {
+        $request->validate([
+            'role' => 'required|in:' . implode(',', [User::ROLE_ADMIN, User::ROLE_CUSTOMER, User::ROLE_GUEST]),
+        ]);
+
+        $user->role = $request->role;
+        $user->save();
+
+        Cache::forget("user-{$user->id}");
+
+        return response()->json([
+            'success' => 'User role updated successfully'
+        ]);
+    }
+
+    public function updateActiveStatus(Request $request, User $user)
+    {
+        $request->validate([
+            'active_status' => 'required|in:1,0',
+        ]);
+
+        $user->active_status = $request->active_status == 1 ? 1 : 0;
+        $user->save();
+
+        Cache::forget("user-{$user->id}");
+
+        return response()->json([
+            'success' => 'User active status updated successfully'
+        ]);
     }
 
     public function destroy(User $user)

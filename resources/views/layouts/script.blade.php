@@ -9,3 +9,4 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js"></script>
 <script src="{{ asset('vendor/datatables/buttons.server-side.js') }}"></script>
 <script src="{{ asset('js/shop.js') }}"></script>
+<script src="{{ asset('js/admin/payment.js') }}"></script>

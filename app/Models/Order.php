@@ -11,13 +11,7 @@ class Order extends Model
 
     protected $table = 'orders';
 
-    protected $fillable = [
-        'customer_id',
-        'status',
-        'payment_method',
-        'courier',
-    ];
-
+    protected $fillable = [   'customer_id', 'status', 'payment_id', 'courier_id']; // Add other fillable fields as needed
     public function products()
     {
         return $this->belongsToMany(Product::class, 'order_product', 'order_id', 'product_id')->withPivot('quantity');
@@ -32,4 +26,15 @@ class Order extends Model
     {
         return $this->belongsTo(Customer::class);
     }
+
+    public function courier()
+    {
+        return $this->belongsTo(Courier::class, 'courier_id');
+    }
+
+     // Relationship with PaymentMethod
+     public function paymentMethod()
+     {
+         return $this->belongsTo(PaymentMethod::class, 'payment_id');
+     }  
 }

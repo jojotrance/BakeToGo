@@ -8,7 +8,7 @@
 </head>
 <body>
     <header>
-        <nav class="navbar">
+        <nav class="navbar">    
             <div class="container">
                 <a href="#" class="navbar-brand"><img src="assets/images/logos/bake-logo.jpg" alt="Brand Logo"></a>
                 <div class="navbar-middle">
