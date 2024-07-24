@@ -49,7 +49,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'is_admin']], functi
 Route::group(['prefix' => 'customer', 'middleware' => ['auth', 'is_customer']], function () {
     Route::get('/dashboard', [CustomerController::class, 'showDashboard'])->name('customer.menu.dashboard');
     //  Route::get('/cart', [CartController::class, 'show'])->name('customer.cart.show');
-    Route::post('/cart', [CartController::class, 'addToCart']);
+   // Route::post('/cart', [CartController::class, 'addToCart']);
     // Profile routes
     Route::get('/profile', [CustomerController::class, 'profile'])->name('customer.profile.edit');
     Route::get('/purchase',[CustomerController::class,'history'])->name('customer.history');

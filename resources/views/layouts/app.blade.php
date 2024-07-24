@@ -77,6 +77,7 @@
     <script src="{{ asset('js/admin/admin-sidebar.js') }}"></script>
     <script src="{{ asset('js/admin/payment.js') }}"></script>
     <script src="{{ asset('js/SidebarData.js') }}"></script>
+<!--<script src="{{ asset('vendor/datatables/buttons.server-side.js') }}"></script>-->
     
 
 

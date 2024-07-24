@@ -23,6 +23,8 @@
         "@mui/material": "^5.15.21",
         "algoliasearch": "^4.24.0",
         "bootstrap": "^5.3.3",
+        "datatables.net-buttons": "^3.1.0",
+        "datatables.net-buttons-bs4": "^3.1.0",
         "eract-dom": "^0.0.1-security",
         "jquery": "^3.7.1",
         "react": "^18.3.1",

@@ -10,3 +10,4 @@
 <script src="{{ asset('vendor/datatables/buttons.server-side.js') }}"></script>
 <script src="{{ asset('js/shop.js') }}"></script>
 <script src="{{ asset('js/admin/payment.js') }}"></script>
+<!--<script src="{{ asset('vendor/datatables/buttons.server-side.js') }}"></script>-->
