@@ -4,11 +4,6 @@ window.renderHeader = function(user, hideComponents, role, myCartUrl) {
     let dropdownVisible = false;
     let cartHovered = false;
     const cartItems = [
-        { id: 1, name: 'Product 1', price: '₱1,799', image: 'https://via.placeholder.com/40' },
-        { id: 2, name: 'Product 2', price: '₱1,749', image: 'https://via.placeholder.com/40' },
-        { id: 3, name: 'Product 3', price: '₱1,249', image: 'https://via.placeholder.com/40' },
-        { id: 4, name: 'Product 4', price: '₱1,499', image: 'https://via.placeholder.com/40' },
-        { id: 5, name: 'Product 5', price: '₱1,099', image: 'https://via.placeholder.com/40' },
     ];
     let isLoggingOut = false;
 
@@ -82,28 +77,6 @@ window.renderHeader = function(user, hideComponents, role, myCartUrl) {
                                         <span class="text nav-text">Cart</span>
                                     </a>
                                 </li>
-                                <div class="cart-popup">
-                                    <div class="cart-popup-content">
-                                        <div class="cart-popup-header">Recently Added Products</div>
-                                        ${cartItems.length === 0 ? `
-                                            <img src="/path/to/no-products-icon.png" alt="No Products" class="no-products-icon" />
-                                            <p>No Products Yet</p>
-                                        ` : `
-                                            <ul>
-                                                ${cartItems.slice(0, 5).map(product => `
-                                                    <li key="${product.id}" class="cart-item">
-                                                        <img src="${product.image}" alt="${product.name}" class="cart-item-image" />
-                                                        <div class="cart-item-details">
-                                                            <span class="cart-item-name">${product.name}</span>
-                                                            <span class="cart-item-price">${product.price}</span>
-                                                        </div>
-                                                    </li>
-                                                `).join('')}
-                                            </ul>
-                                            <button class="view-cart-button" onclick="navigate('/customer/cart')">View My Shopping Cart</button>
-                                        `}
-                                    </div>
-                                </div>
                             </div>
                         ` : ''}
                         <div class="profile-section" onclick="toggleDropdown()" role="button" tabindex="0" aria-haspopup="true" aria-expanded="${dropdownVisible}">
