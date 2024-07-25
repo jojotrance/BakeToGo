@@ -21,8 +21,6 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\ReviewController;
 
 
-Route::post('/addtoCart', [ShopController::class, 'addToCart']);
-Route::post('/checkout',[ShopController::class, 'checkout']);
 
 // API Resources
 Route::apiResource('products', ProductController::class);
@@ -30,10 +28,7 @@ Route::apiResource('suppliers', SupplierController::class);
 Route::apiResource('payment-methods', PaymentMethodController::class);
 Route::apiResource('admin/users', UserManagementController::class)->except(['create', 'edit']);
 Route::apiResource('couriers', CourierController::class);
-//Route::apiResource('carts', CartController::class);
 Route::apiResource('shop', ShopController::class);
-//Route::post('/cart', [CartController::class, 'addToCart'])->name('api.cart.addToCart')->middleware('auth:sanctum');
-// Route::post('/cart/add', [CartController::class, 'addToCart'])->middleware('auth:api');
 
 // Sanctum authenticated user route
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
@@ -75,7 +70,7 @@ Route::prefix('admin')->middleware(['auth:sanctum'])->group(function () {
         Route::get('/export', [SpreadsheetController::class, 'exportUsers'])->name('api.admin.exportUsers');
     });
 
-
+    // Product Routes
     Route::prefix('products')->group(function () {
         Route::get('/', [ProductController::class, 'index'])->name('api.admin.fetchProducts');
         Route::post('/', [ProductController::class, 'store'])->name('api.admin.storeProduct');
@@ -111,6 +106,8 @@ Route::prefix('admin')->middleware(['auth:sanctum'])->group(function () {
         Route::put('/update/{courier}', [CourierController::class, 'updateCourier'])->name('api.admin.updateCourier');
         Route::delete('/destroy/{courier}', [CourierController::class, 'destroyCourier'])->name('api.admin.destroyCourier');
     });
+
+    // Payment Methods Routes
     Route::prefix('payment-methods')->group(function () {
         Route::get('/', [PaymentMethodController::class, 'listPaymentMethods'])->name('api.admin.listPaymentMethods');
         Route::post('/', [PaymentMethodController::class, 'createPaymentMethod'])->name('api.admin.createPaymentMethod');
@@ -118,7 +115,7 @@ Route::prefix('admin')->middleware(['auth:sanctum'])->group(function () {
         Route::put('/{paymentMethod}', [PaymentMethodController::class, 'updatePaymentMethod'])->name('api.admin.updatePaymentMethod');
         Route::delete('/{paymentMethod}', [PaymentMethodController::class, 'destroyPaymentMethod'])->name('api.admin.destroyPaymentMethod');
     });
-    
+
 
 
     Route::prefix('orders')->group(function () {

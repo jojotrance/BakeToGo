@@ -23,6 +23,7 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'is_admin']], functi
     Route::get('/suppliers', [AdminController::class, 'suppliersindex'])->name('suppliersindex');
     Route::get('/courier', [AdminController::class, 'courier'])->name('courierindex');
     Route::get('/stock', [AdminController::class, 'stock'])->name('stock');  // Corrected typo
+    Route::get('/payments', [AdminController::class, 'payments'])->name('payments');
 
     // Chart Routes
     Route::get('/pages/charts/total-role', function () {
@@ -41,19 +42,17 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'is_admin']], functi
     Route::prefix('/users')->group(function () {
         Route::get('/', [AdminController::class, 'users'])->name('userindex');
     });
-
-    Route::get('/payments', [AdminController::class, 'payments'])->name('payments'); 
 });
 
 // Customer Routes
 Route::group(['prefix' => 'customer', 'middleware' => ['auth', 'is_customer']], function () {
     Route::get('/dashboard', [CustomerController::class, 'showDashboard'])->name('customer.menu.dashboard');
     //  Route::get('/cart', [CartController::class, 'show'])->name('customer.cart.show');
-   // Route::post('/cart', [CartController::class, 'addToCart']);
+    // Route::post('/cart', [CartController::class, 'addToCart']);
     // Profile routes
     Route::get('/profile', [CustomerController::class, 'profile'])->name('customer.profile.edit');
-    Route::get('/purchase',[CustomerController::class,'history'])->name('customer.history');
-    Route::get('/myreviews',[CustomerController::class,'myreviews'])->name('customer.myreviews');
+    Route::get('/purchase', [CustomerController::class, 'history'])->name('customer.history');
+    Route::get('/myreviews', [CustomerController::class, 'myreviews'])->name('customer.myreviews');
     Route::post('/order/update-status', [CustomerController::class, 'updateOrderStatus'])->name('orders.updateStatus');
 });
 // Auth Routes

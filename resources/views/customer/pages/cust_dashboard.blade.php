@@ -24,11 +24,6 @@
 
 @extends('layouts.shop')
 @section('body')
-
-<div class="container container-fluid" id="items">
-</div>
-
-
+    <div class="container container-fluid" id="items">
+    </div>
 @endsection
-
-
