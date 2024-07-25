@@ -1,5 +1,5 @@
 import $ from 'jquery';
-import './components/builds/header';
+import './components/builds/header'; // Ensure header.js is loaded
 
 $(document).ready(function () {
     const appRoot = $('#app-root');

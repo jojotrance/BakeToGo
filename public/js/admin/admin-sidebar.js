@@ -1,5 +1,4 @@
 // File: /js/admin/admin-sidebar.js
-// File: /js/admin/admin-sidebar.js
 
 $(document).ready(function () {
     const user = JSON.parse($('#app-root').attr('data-user'));
@@ -36,8 +35,8 @@ $(document).ready(function () {
             </div>
             <ul class="SidebarList">
                 ${window.SidebarData.map((val, key) => `
-                    <li class="row ${val.submenu ? 'has-submenu' : ''}" id="${window.location.pathname === val.link ? 'active' : ''}" onclick="${val.submenu ? `handleSubmenuToggle(${key})` : `navigate('${val.link}')`}" data-tooltip="${val.title}">
-                        <div class="menu-item">
+                    <li class="row ${val.submenu ? 'has-submenu' : ''}" id="${window.location.pathname === val.link ? 'active' : ''}" data-tooltip="${val.title}">
+                        <div class="menu-item" onclick="${val.submenu ? `handleSubmenuToggle(${key})` : `navigate('${val.link}')`}">
                             <div id="icon">${val.icon}</div>
                             <div id="title">${val.title}</div>
                         </div>

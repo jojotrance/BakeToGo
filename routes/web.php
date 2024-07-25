@@ -51,6 +51,7 @@ Route::group(['prefix' => 'customer', 'middleware' => ['auth', 'is_customer']], 
     // Route::post('/cart', [CartController::class, 'addToCart']);
     // Profile routes
     Route::get('/profile', [CustomerController::class, 'profile'])->name('customer.profile.edit');
+    Route::post('/profile', [CustomerController::class, 'updateProfile'])->name('customer.profile.update');
     Route::get('/purchase', [CustomerController::class, 'history'])->name('customer.history');
     Route::get('/myreviews', [CustomerController::class, 'myreviews'])->name('customer.myreviews');
     Route::post('/order/update-status', [CustomerController::class, 'updateOrderStatus'])->name('orders.updateStatus');

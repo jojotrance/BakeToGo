@@ -17,10 +17,13 @@
                     <p class="profile-email">{{ Auth::user()->email }}</p>
                 </div>
             </div>
-            <button type="submit" form="profile-form" class="btn btn-primary">Save Changes</button>
+            <div class="button-group">
+                <button type="submit" form="profile-form" class="btn btn-primary">Save Changes</button>
+                <a href="{{ route('customer.menu.dashboard') }}" class="btn btn-secondary">Return to Home</a>
+            </div>
         </div>
         
-        <form method="POST" action="{{ route('customer.profile.edit') }}" enctype="multipart/form-data" id="profile-form">
+        <form method="POST" action="{{ route('api.customer.profile.update') }}" enctype="multipart/form-data" id="profile-form">
             @csrf
             <div id="error-messages" class="alert alert-danger" style="display:none;"></div>
             <div class="form-layout">
@@ -53,3 +56,8 @@
     </div>
 </div>
 @endsection
+
+@push('scripts')
+    <script src="{{ asset('js/components/builds/header.js') }}"></script>
+    <script src="{{ asset('js/profile.js') }}"></script>
+@endpush

@@ -1,3 +1,6 @@
+// public/js/customer/profile.js
+import $ from 'jquery';
+
 $(document).ready(function() {
     const form = $('#profile-form');
     const errorMessages = $('#error-messages');
@@ -6,7 +9,7 @@ $(document).ready(function() {
 
     form.on('submit', function(e) {
         e.preventDefault();
-        errorMessages.hide().empty();
+        errorMessages.empty().hide();
 
         const formData = new FormData(this);
         let valid = true;
@@ -44,6 +47,9 @@ $(document).ready(function() {
                 data: formData,
                 processData: false,
                 contentType: false,
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
                 success: function(response) {
                     alert('Profile updated successfully');
                     window.location.reload();
