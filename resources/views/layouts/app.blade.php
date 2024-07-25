@@ -78,7 +78,6 @@
     <script src="{{ asset('js/admin/payment-method-table.js') }}"></script>
     <script src="{{ asset('js/SidebarData.js') }}"></script>
     @include('layouts.script')
-    <script src="{{ asset('js/components/builds/header.js') }}" ></script>
 <script src="{{ asset('js/app.js') }}" defer></script>
 
 <!--<script src="{{ asset('vendor/datatables/buttons.server-side.js') }}"></script>-->
