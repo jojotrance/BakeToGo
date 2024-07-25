@@ -5,8 +5,6 @@ $(document).ready(function () {
     const appRoot = $('#app-root');
     let user = null;
     let hideComponents = false;
-    let isExpanded = true;
-    let openSubmenu = null;
     const myCartUrl = appRoot.data('cart-url');
 
     const fetchUserProfile = async () => {
@@ -104,7 +102,10 @@ $(document).ready(function () {
     };
 
     const renderCustomerProfile = () => {
-        $('#customer-profile').html('<h2>Profile Page</h2><p>This is your profile page.</p>');
+        $.get('/profile', function(data) {
+            $('#customer-profile').html(data);
+            setupProfileForm();
+        });
     };
 
     const renderCustomerPurchase = () => {
@@ -115,13 +116,87 @@ $(document).ready(function () {
         $('#customer-myreviews').html('<h2>My Reviews</h2><p>Your reviews will appear here.</p>');
     };
 
-    fetchUserProfile();
+    const setupProfileForm = () => {
+        const form = $('#profile-form');
+        const errorMessages = $('#error-messages');
+        const profilePicInput = $('#profile_image');
+        const profilePic = $('#profile-pic');
 
+        form.on('submit', function(e) {
+            e.preventDefault();
+            errorMessages.empty();
+
+            const formData = new FormData(this);
+            let valid = true;
+
+            // Validation
+            if (!$('#fname').val().trim()) {
+                valid = false;
+                errorMessages.append('<p>First name is required.</p>');
+            }
+
+            if (!$('#lname').val().trim()) {
+                valid = false;
+                errorMessages.append('<p>Last name is required.</p>');
+            }
+
+            if (!$('#email').val().trim()) {
+                valid = false;
+                errorMessages.append('<p>Email is required.</p>');
+            }
+
+            if (!$('#contact').val().trim()) {
+                valid = false;
+                errorMessages.append('<p>Contact is required.</p>');
+            }
+
+            if (!$('#address').val().trim()) {
+                valid = false;
+                errorMessages.append('<p>Address is required.</p>');
+            }
+
+            if (valid) {
+                $.ajax({
+                    url: form.attr('action'),
+                    method: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function(response) {
+                        alert('Profile updated successfully');
+                        window.location.reload();
+                    },
+                    error: function(xhr) {
+                        const errors = xhr.responseJSON.errors;
+                        for (let key in errors) {
+                            if (errors.hasOwnProperty(key)) {
+                                errorMessages.append('<p>' + errors[key][0] + '</p>');
+                            }
+                        }
+                    }
+                });
+            }
+        });
+
+        profilePicInput.on('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    profilePic.attr('src', e.target.result);
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+    };
+
+    fetchUserProfile();
+    
     // Add to cart functionality
     $('#hits').on('click', '.add', function () {
-        var item = $(this).closest('.menu-item');
-        var productId = item.find('.itemId').text();
-        var quantity = parseInt(item.find('.quantity').val());
+        const item = $(this).closest('.menu-item');
+        const productId = item.find('.itemId').text();
+        const quantity = parseInt(item.find('.quantity').val());
 
         $.ajax({
             type: "POST",
@@ -147,9 +222,9 @@ $(document).ready(function () {
     // Quantity change handlers
     function handleQuantityChange(selector) {
         $(selector).on('click', '.quantity-plus', function () {
-            var input = $(this).siblings('.quantity');
-            var max = input.attr('max') || 999;
-            var currentVal = parseInt(input.val()) || 0;
+            const input = $(this).siblings('.quantity');
+            const max = input.attr('max') || 999;
+            const currentVal = parseInt(input.val()) || 0;
             if (currentVal < max) {
                 input.val(currentVal + 1);
                 if (selector === '#cart-items') {
@@ -159,9 +234,9 @@ $(document).ready(function () {
         });
 
         $(selector).on('click', '.quantity-minus', function () {
-            var input = $(this).siblings('.quantity');
-            var min = input.attr('min') || 0;
-            var currentVal = parseInt(input.val()) || 0;
+            const input = $(this).siblings('.quantity');
+            const min = input.attr('min') || 0;
+            const currentVal = parseInt(input.val()) || 0;
             if (currentVal > min) {
                 input.val(currentVal - 1);
                 if (selector === '#cart-items') {
@@ -175,8 +250,8 @@ $(document).ready(function () {
     handleQuantityChange('#cart-items');
 
     function updateQuantityBackend(input, change) {
-        var productId = input.attr('id').split('-')[1];
-        var newQuantity = parseInt(input.val());
+        const productId = input.attr('id').split('-')[1];
+        const newQuantity = parseInt(input.val());
 
         $.ajax({
             type: "POST",
@@ -222,7 +297,7 @@ $(document).ready(function () {
     }
 
     $('#cart-items').on('click', '.btn-remove', function () {
-        var productId = $(this).data('id');
+        const productId = $(this).data('id');
         removeItem(productId);
     });
 

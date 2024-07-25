@@ -152,42 +152,42 @@ body {
 /* Success Notification Styles */
 #success-alert {
     position: fixed;
-    top: 50%;
+    top: 20px;
     left: 50%;
-    transform: translate(-50%, -50%);
+    transform: translateX(-50%);
     z-index: 1050;
     display: none;
-    animation: fadeInOut 4s ease-in-out;
+    animation: fadeInOut 5s ease-in-out;
 }
 
 /* Error Notification Styles */
 #error-alert {
     position: fixed;
-    top: 50%;
+    top: 20px;
     left: 50%;
-    transform: translate(-50%, -50%);
+    transform: translateX(-50%);
     z-index: 1050;
     display: none;
-    animation: fadeInOut 4s ease-in-out;
+    animation: fadeInOut 5s ease-in-out;
 }
 
 /* Animation for notification */
 @keyframes fadeInOut {
     0% {
         opacity: 0;
-        transform: translate(-50%, -60%);
+        transform: translate(-50%, 0);
     }
     10% {
         opacity: 1;
-        transform: translate(-50%, -50%);
+        transform: translate(-50%, 0);
     }
     90% {
         opacity: 1;
-        transform: translate(-50%, -50%);
+        transform: translate(-50%, 0);
     }
     100% {
         opacity: 0;
-        transform: translate(-50%, -40%);
+        transform: translate(-50%, -10px);
     }
 }
 
@@ -201,13 +201,12 @@ body {
     width: 100%; /* Ensure the input field takes up the full width of the cell */
 }
 
-
 button, a {
     outline: none;
-  }
-  
-  /* Remove outline when elements are focused */
-  button:focus, a:focus, input:focus {
+}
+
+/* Remove outline when elements are focused */
+button:focus, a:focus, input:focus {
     outline: none;
     box-shadow: none;
-  }
+}

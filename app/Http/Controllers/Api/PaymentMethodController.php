@@ -30,14 +30,6 @@ class PaymentMethodController extends Controller
             $start = $request->input('start', 0);
             $length = $request->input('length', 10);
     
-            // Log query and parameters
-            Log::info('List Payment Methods Query:', [
-                'query' => $query->toSql(),
-                'bindings' => $query->getBindings(),
-                'start' => $start,
-                'length' => $length,
-            ]);
-    
             $totalData = $query->count();
             $paymentMethods = $query->skip($start)->take($length)->get();
     
@@ -57,46 +49,47 @@ class PaymentMethodController extends Controller
     }
     
     public function createPaymentMethod(Request $request)
-    {
-        try {
-            Log::info('Request data:', $request->all());
+{
+    try {
+        Log::info('Request data:', $request->all());
 
-            $validator = Validator::make($request->all(), [
-                'payment_name' => 'required|string|max:255',
-                'image' => 'nullable|image|max:2048',
-            ]);
+        $validator = Validator::make($request->all(), [
+            'payment_name' => 'required|string|max:255',
+            'image' => 'nullable|image|max:2048',
+        ]);
 
-            if ($validator->fails()) {
-                Log::error('Validation errors:', ['errors' => $validator->errors()->toArray()]);
-                return response()->json(['error' => $validator->errors()], 401);
-            }
-
-            $paymentMethod = new PaymentMethod([
-                'payment_name' => $request->payment_name,
-            ]);
-
-            if ($request->hasFile('image')) {
-                $path = $request->file('image')->store('paymentmethods', 'public');
-                $paymentMethod->image = $path;
-            }
-
-            $paymentMethod->save();
-
-            Log::info('Payment method created:', ['paymentMethod' => $paymentMethod->toArray()]);
-
-            return response()->json([
-                'message' => 'Payment Method created',
-                'data' => new PaymentMethodResource($paymentMethod)
-            ], 200);
-        } catch (\Exception $e) {
-            Log::error('Payment Method creation error:', [
-                'message' => $e->getMessage(),
-                'exception' => $e,
-                'trace' => $e->getTraceAsString(),
-            ]);
-            return response()->json(['error' => 'An error occurred while creating the payment method.'], 500);
+        if ($validator->fails()) {
+            Log::error('Validation errors:', ['errors' => $validator->errors()->toArray()]);
+            return response()->json(['error' => $validator->errors()], 401);
         }
+
+        $paymentMethod = new PaymentMethod([
+            'payment_name' => $request->payment_name,
+        ]);
+
+        if ($request->hasFile('image')) {
+            $path = $request->file('image')->store('paymentmethods', 'public');
+            $paymentMethod->image = $path;
+        }
+
+        $paymentMethod->save();
+
+        Log::info('Payment method created:', ['paymentMethod' => $paymentMethod->toArray()]);
+
+        return response()->json([
+            'message' => 'Payment Method created',
+            'data' => new PaymentMethodResource($paymentMethod)
+        ], 200);
+    } catch (\Exception $e) {
+        Log::error('Payment Method creation error:', [
+            'message' => $e->getMessage(),
+            'exception' => $e,
+            'trace' => $e->getTraceAsString(),
+        ]);
+        return response()->json(['error' => 'An error occurred while creating the payment method.'], 500);
     }
+}
+
 
     public function viewPaymentMethod(PaymentMethod $paymentMethod)
     {

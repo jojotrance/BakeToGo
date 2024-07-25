@@ -78,7 +78,7 @@
                                     <option value="">Select Status</option>
                                     <option value="pending">Processing</option>
                                     <option value="shipped">Shipped</option>
-                                    <option value="shipped">To Receive</option>
+                                    <option value="to_receive">To Receive</option>
                                     <option value="completed">Completed</option>
                                     <option value="failed">Failed</option>
                                     <option value="canceled">Canceled</option>
@@ -124,7 +124,6 @@
             </div>
         </div>
         <!-- End of Confirm Modal -->
-
     </div>
 </div>
 @endsection

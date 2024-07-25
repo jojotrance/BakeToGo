@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers\Api;
 
 use App\Models\Product;
@@ -16,15 +15,22 @@ class ProductController extends Controller
     {
         $query = Product::with('stocks');
 
+        // Get the total number of records before applying filters
+        $totalRecords = $query->count();
+
         // Handle search functionality
         if ($request->has('search') && $request->input('search.value')) {
             $searchTerm = $request->input('search.value');
+            Log::info('Search term:', ['term' => $searchTerm]); // Log the search term
             $query->where(function ($q) use ($searchTerm) {
                 $q->where('name', 'LIKE', "%{$searchTerm}%")
                     ->orWhere('description', 'LIKE', "%{$searchTerm}%")
                     ->orWhere('category', 'LIKE', "%{$searchTerm}%");
             });
         }
+
+        // Get the total number of records after applying filters but before pagination
+        $totalFilteredRecords = $query->count();
 
         // Handle ordering
         if ($request->has('order')) {
@@ -37,7 +43,6 @@ class ProductController extends Controller
         }
 
         // Handle pagination
-        $totalRecords = $query->count();
         if ($request->has('length') && $request->input('length') != -1) {
             $length = $request->input('length');
             $start = $request->input('start');
@@ -45,12 +50,11 @@ class ProductController extends Controller
         }
 
         $products = $query->get();
-        $totalFilteredRecords = $query->count(); // Update total filtered records
 
         return response()->json([
             'data' => ProductResource::collection($products),
             'recordsTotal' => $totalRecords,
-            'recordsFiltered' => $totalFilteredRecords, // Use the updated count
+            'recordsFiltered' => $totalFilteredRecords,
         ]);
     }
 
@@ -75,14 +79,11 @@ class ProductController extends Controller
             'image' => $imageName
         ]);
 
-        // Create corresponding stock entry
         Stock::create([
             'product_id' => $product->id,
             'quantity' => 0,
             'supplier_id' => null
         ]);
-
-        $product->save();
 
         return response()->json(['success' => 'Product created successfully', 'data' => new ProductResource($product)], 200);
     }
@@ -99,7 +100,7 @@ class ProductController extends Controller
             'description' => 'required',
             'price' => 'required|integer',
             'category' => 'required',
-            'stock' => 'required|integer', // Validate the stock field
+            'stock' => 'required|integer',
             'image' => 'sometimes|image|mimes:jpeg,png,jpg,gif,svg|max:2048'
         ]);
 
@@ -114,9 +115,8 @@ class ProductController extends Controller
                 $product->image = $imageName;
             }
 
-            $product->update($request->only(['name', 'description', 'price', 'category', 'stock']));
+            $product->update($request->only(['name', 'description', 'price', 'category']));
 
-            // Update the stock
             $stock = Stock::where('product_id', $product->id)->first();
             if ($stock) {
                 $stock->update(['quantity' => $request->stock]);
@@ -124,17 +124,13 @@ class ProductController extends Controller
                 Stock::create([
                     'product_id' => $product->id,
                     'quantity' => $request->stock,
-                    'supplier_id' => null // Adjust this according to your needs
+                    'supplier_id' => null
                 ]);
             }
 
-            // Update product's stock field directly
-            $product->stock = $request->stock;
-            $product->save();
-
             return response()->json([
                 'message' => 'Product updated',
-                'data' => new ProductResource($product->load('stocks')) // Load the stocks relationship
+                'data' => new ProductResource($product->load('stocks'))
             ], 200);
         } catch (\Exception $e) {
             Log::error('Product update failed: ' . $e->getMessage());
@@ -153,7 +149,6 @@ class ProductController extends Controller
         }
     }
 
-
     public function checkDuplicateName(Request $request)
     {
         $name = $request->input('name');
@@ -161,7 +156,6 @@ class ProductController extends Controller
 
         $query = Product::where('name', $name);
 
-        // Exclude the current product if updating
         if ($id) {
             $query->where('id', '!=', $id);
         }

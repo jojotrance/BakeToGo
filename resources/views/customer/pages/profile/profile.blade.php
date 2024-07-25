@@ -22,7 +22,7 @@
         
         <form method="POST" action="{{ route('customer.profile.edit') }}" enctype="multipart/form-data" id="profile-form">
             @csrf
-            <div id="error-messages"></div>
+            <div id="error-messages" class="alert alert-danger" style="display:none;"></div>
             <div class="form-layout">
                 <div class="form-group">
                     <label for="fname" class="form-label">First Name</label>

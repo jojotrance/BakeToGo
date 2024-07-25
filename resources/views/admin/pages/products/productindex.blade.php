@@ -32,6 +32,9 @@
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
         <!-- End of Error Notification -->
+        <div id="loading-indicator" style="display: none;">
+    Processing... Please wait.
+</div>
 
         <!-- Product Table -->
         <div class="card">

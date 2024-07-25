@@ -1,7 +1,6 @@
 $(document).ready(function() {
     console.log('Document is ready');
 
-    // Initialize DataTable for products
     var productDataTable = $('#product_datatable').DataTable({
         processing: true,
         serverSide: true,
@@ -12,12 +11,12 @@ $(document).ready(function() {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             },
             data: function(d) {
-                d.search = d.search.value; // DataTables sends search value as d.search.value
-                d.start = d.start;
-                d.length = d.length;
-                if (d.order.length > 0) {
-                    d.order = d.order;
-                }
+                console.log('Sending search value:', d.search.value);
+                return $.extend({}, d, {
+                    search: {
+                        value: d.search.value
+                    }
+                });
             },
             dataSrc: function(json) {
                 if (!json || !json.data) {
@@ -81,23 +80,21 @@ $(document).ready(function() {
         }
     });
 
-    // Handle form submission for creating or updating a product
     $('#product_form').on('submit', function(event) {
         event.preventDefault();
-        $(".form-control").removeClass('is-invalid'); // Clear previous validation errors
-        $(".invalid-feedback").remove(); // Remove previous error messages
+        $(".form-control").removeClass('is-invalid');
+        $(".invalid-feedback").remove();
 
         var formData = new FormData(this);
         var id = $('#hidden_id').val();
         var name = $('#name').val();
 
-        // Manual check for duplicate name using existing DataTable data
         var duplicate = false;
         productDataTable.rows().every(function() {
             var data = this.data();
-            if (data.name === name && data.id !== id) {
+            if (data.name === name && data.id != id) {
                 duplicate = true;
-                return false; // Exit the loop
+                return false;
             }
         });
 
@@ -112,45 +109,50 @@ $(document).ready(function() {
     function submitProductForm(formData, id) {
         var actionUrl = id ? `/api/admin/products/${id}` : '/api/admin/products';
         if (id) {
-            formData.append('_method', 'PUT'); // Laravel spoofing PUT method
+            formData.append('_method', 'PUT');
         }
+
+        $('#loading-indicator').show();
 
         $.ajax({
             url: actionUrl,
-            method: 'POST', // always use POST for form submission
+            method: 'POST',
             data: formData,
             processData: false,
             contentType: false,
             success: function(response) {
+                console.log('Server response:', response);
+                $('#product_modal').modal('hide');
+                $('#product_form')[0].reset();
+                productDataTable.ajax.reload(null, false);
                 if (response.success) {
-                    $('#product_modal').modal('hide');
-                    showSuccessMessage(response.message);
-                    productDataTable.ajax.reload();
-
-                    $(document).trigger('productCreated');
-                    localStorage.setItem('productCreated', 'true');
-
-                    if (!$('#hidden_id').val()) {
-                        $('#product_form')[0].reset();
-                    }
+                    showSuccessMessage('Item ' + (id ? 'updated' : 'added') + ' successfully.');
                 } else {
-                    showErrorMessage(response.message);
+                    showErrorMessage(response.message || 'An error occurred. Please try again.');
                 }
             },
             error: function(xhr) {
-                showErrorMessage('An error occurred. Please try again.');
+                console.error('AJAX error:', xhr);
+                let errorMessage = 'An error occurred. Please try again.';
+                if (xhr.responseJSON && xhr.responseJSON.error) {
+                    errorMessage = xhr.responseJSON.error;
+                }
+                $('#product_modal').modal('hide');
+                showErrorMessage(errorMessage);
+                productDataTable.ajax.reload(null, false);
+            },
+            complete: function() {
+                $('#loading-indicator').hide();
             }
         });
     }
 
     $(document).on('click', '.edit-btn', function() {
         var id = $(this).data('id');
-        console.log("Edit button clicked for ID:", id);
         $.ajax({
             url: `/api/admin/products/${id}`,
             method: 'GET',
             success: function(response) {
-                console.log("AJAX response:", response);
                 var product = response.data;
                 $('#name').val(product.name);
                 $('#description').val(product.description);
@@ -168,7 +170,6 @@ $(document).ready(function() {
         });
     });
 
-    // Handle delete button click
     $(document).on('click', '.delete-btn', function() {
         var id = $(this).data('id');
         $('#confirm_message').text('Are you sure you want to delete this product?');
@@ -176,7 +177,6 @@ $(document).ready(function() {
         $('#confirmModal').modal('show');
     });
 
-    // Handle confirm delete button click
     $('#confirm_button').on('click', function() {
         var id = $(this).data('id');
         $.ajax({
@@ -197,17 +197,13 @@ $(document).ready(function() {
         });
     });
 
-    // Reset modal on close
     $('#product_modal').on('hidden.bs.modal', function() {
-        $('#success-alert').hide();
-        $('#error-alert').hide();
         $('#product_form')[0].reset();
         $('#hidden_id').val('');
         $('#modal_title').text('Add New Product');
         $('#action_button').text('Save');
     });
 
-    // Handle create product button click
     $('#create_product').on('click', function() {
         $('#product_form')[0].reset();
         $('#hidden_id').val('');
@@ -216,9 +212,7 @@ $(document).ready(function() {
         $('#product_modal').modal('show');
     });
 
-    // Handle export to Excel button click
     $('#export_excel').on('click', function() {
-        console.log("Export to Excel clicked");
         var data = productDataTable.rows().data().toArray();
         var ws = XLSX.utils.json_to_sheet(data);
         var wb = XLSX.utils.book_new();
@@ -226,31 +220,27 @@ $(document).ready(function() {
         XLSX.writeFile(wb, "products.xlsx");
     });
 
-    // Listen for product creation event (for other parts of your application)
     $(document).on('productCreated', function() {
         console.log('Product created event received');
     });
 
-    // Check for newly created product using localStorage (on page load)
     if (localStorage.getItem('productCreated') === 'true') {
-        console.log('New product detected, reloading product table');
         productDataTable.ajax.reload();
         localStorage.removeItem('productCreated');
     }
 
-    // Function to show success message
     function showSuccessMessage(message) {
         $('#success-message').text(message);
-        $('#success-alert').show().delay(3000).fadeOut();
+        $('#success-alert').removeClass('alert-danger').addClass('alert-success');
+        $('#success-alert').appendTo('body').show().delay(10000).fadeOut(); // Show for 10 seconds
     }
 
-    // Function to show error message
     function showErrorMessage(message) {
         $('#error-message').text(message);
-        $('#error-alert').show().delay(3000).fadeOut();
+        $('#error-alert').removeClass('alert-success').addClass('alert-danger');
+        $('#error-alert').appendTo('body').show().delay(10000).fadeOut(); // Show for 10 seconds
     }
 
-    // Function to validate form
     function validateForm() {
         var isValid = true;
         $('.form-control').each(function() {
@@ -264,7 +254,6 @@ $(document).ready(function() {
         return isValid;
     }
 
-    // Add form validation before submission
     $('#product_form').on('submit', function(e) {
         if (!validateForm()) {
             e.preventDefault();
@@ -272,20 +261,15 @@ $(document).ready(function() {
         }
     });
 
-    // Clear validation on input
     $('.form-control').on('input', function() {
         $(this).removeClass('is-invalid');
     });
 
-    // Listen for stock update event
     $(document).on('stockUpdated', function() {
-        console.log('Stock updated event received');
         productDataTable.ajax.reload();
     });
 
-    // Check for stock update using localStorage (on page load)
     if (localStorage.getItem('stockUpdated') === 'true') {
-        console.log('Stock updated detected, reloading product table');
         productDataTable.ajax.reload();
         localStorage.removeItem('stockUpdated');
     }

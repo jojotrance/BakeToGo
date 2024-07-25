@@ -41,7 +41,7 @@ $(document).ready(function() {
                 data: 'image',
                 name: 'image',
                 render: function(data) {
-                    return data ? '<img src="/storage/' + data + '" class="img-thumbnail" width="50" />' : 'No Image';
+                    return data ? '<img src="' + data + '" class="img-thumbnail" width="50" />' : 'No Image';
                 }
             },
             {
@@ -164,7 +164,7 @@ $(document).ready(function() {
                     $('#payment_method_name').val(paymentMethod.payment_name || '');
                     $('#hidden_id_payment_method').val(paymentMethod.id || '');
                     if (paymentMethod.image) {
-                        $('#image_preview').attr('src', '/storage/' + paymentMethod.image).show();
+                        $('#image_preview').attr('src', paymentMethod.image).show();
                     } else {
                         $('#image_preview').hide();
                     }
@@ -214,6 +214,7 @@ $(document).ready(function() {
 
     // Export payment methods to Excel
     $('#export_excel_payment_methods').on('click', function() {
+        console.log('Export to Excel button clicked');
         var data = paymentMethodTable.rows({ search: 'applied' }).data().toArray();
         var formattedData = data.map(function(paymentMethod) {
             return {
@@ -253,12 +254,13 @@ $(document).ready(function() {
         let isValid = true;
         $('.text-danger').text('');
 
-        if ($('#payment_method_name').val().trim() === '') {
+        var paymentMethodNameElement = $('#payment_method_name');
+        if (!paymentMethodNameElement.val()) {
             $('#payment_method_name_error').text('Name is required');
             isValid = false;
         }
 
-        var paymentMethodName = $('#payment_method_name').val().trim().toLowerCase();
+        var paymentMethodName = paymentMethodNameElement.val().trim().toLowerCase();
         var exists = paymentMethods.some(function(paymentMethod) {
             return paymentMethod.payment_name.toLowerCase() === paymentMethodName;
         });
@@ -268,7 +270,7 @@ $(document).ready(function() {
             isValid = false;
         }
 
-        if ($('#action_button_payment_method').text() === 'Create' && $('#payment_method_image').val().trim() === '') {
+        if ($('#action_button_payment_method').text() === 'Create' && !$('#payment_method_image').val().trim()) {
             $('#payment_method_image_error').text('Image is required');
             isValid = false;
         }

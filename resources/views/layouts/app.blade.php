@@ -75,7 +75,7 @@
     <script src="{{ asset('js/admin/supplier-datatable.js') }}"></script>
     <script src="{{ asset('js/customer/profile.js') }}"></script>
     <script src="{{ asset('js/admin/admin-sidebar.js') }}"></script>
-    <script src="{{ asset('js/admin/payment.js') }}"></script>
+    <script src="{{ asset('js/admin/payment-method-table.js') }}"></script>
     <script src="{{ asset('js/SidebarData.js') }}"></script>
     @include('layouts.script')
 

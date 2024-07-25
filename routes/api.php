@@ -117,7 +117,6 @@ Route::prefix('admin')->middleware(['auth:sanctum'])->group(function () {
     });
 
 
-
     Route::prefix('orders')->group(function () {
         Route::get('/', [OrderController::class, 'index'])->name('api.admin.fetchOrders');
         Route::get('/{id}', [OrderController::class, 'show'])->name('api.admin.showOrder');

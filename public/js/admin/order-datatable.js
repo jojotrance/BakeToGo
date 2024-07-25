@@ -1,12 +1,13 @@
 $(document).ready(function() {
     console.log('Document is ready');
+    
     var orderTable = $('#order_table').DataTable({
         processing: true,
         serverSide: true,
         ajax: {
             url: "/api/admin/orders",
             type: 'GET',
-            error: function (xhr, error, thrown) {
+            error: function(xhr, error, thrown) {
                 console.error('DataTables error: ', error);
                 console.error('Details: ', thrown);
                 console.error('Response: ', xhr.responseText);
@@ -35,7 +36,7 @@ $(document).ready(function() {
         language: {
             searchPlaceholder: "Search orders",
             search: ""
-        },
+        }
     });
 
     function validateForm() {
@@ -44,14 +45,6 @@ $(document).ready(function() {
 
         if ($('#status').val().trim() === '') {
             $('#status_error').text('Status is required');
-            isValid = false;
-        }
-        if ($('#payment_method').val().trim() === '') {
-            $('#payment_error').text('Payment method is required');
-            isValid = false;
-        }
-        if ($('#courier').val().trim() === '') {
-            $('#courier_error').text('Courier is required');
             isValid = false;
         }
 
@@ -63,15 +56,14 @@ $(document).ready(function() {
         if (validateForm()) {
             $('#confirm_message').text('Are you sure you want to update this order?');
             $('#confirm_button').text('Update');
+            $('#confirm_button').off('click').on('click', handleUpdate); // Ensure the correct event handler is bound
             $('#confirmModal').modal('show');
         }
     });
 
-    $('#confirm_button').on('click', function() {
+    function handleUpdate() {
         var formData = {
-            status: $('#status').val(),
-            payment_id: $('#payment_method').val(),
-            courier_id: $('#courier').val()
+            status: $('#status').val()
         };
 
         var url = "/api/admin/orders/" + $('#hidden_id').val() + "/status";
@@ -82,16 +74,22 @@ $(document).ready(function() {
             method: method,
             data: formData,
             success: function(data) {
-                orderTable.ajax.reload();
                 $('#confirmModal').modal('hide');
                 $('#order_modal').modal('hide');
+                orderTable.ajax.reload();
                 showNotification('Order has been successfully updated!', 'success');
             },
             error: function(xhr) {
-                showNotification('An error occurred: ' + xhr.responseJSON.error, 'error');
+                $('#confirmModal').modal('hide');
+                $('#order_modal').modal('hide');
+                if (xhr.responseJSON && xhr.responseJSON.error) {
+                    showNotification('An error occurred: ' + xhr.responseJSON.error, 'error');
+                } else {
+                    showNotification('An error occurred.', 'error');
+                }
             }
         });
-    });
+    }
 
     $(document).on('click', '.edit', function() {
         var id = $(this).data('id');
@@ -110,36 +108,46 @@ $(document).ready(function() {
                 $('#order_modal').modal('show');
             },
             error: function(xhr) {
-                showNotification('Error fetching order details: ' + xhr.responseJSON.error, 'error');
+                if (xhr.responseJSON && xhr.responseJSON.error) {
+                    showNotification('Error fetching order details: ' + xhr.responseJSON.error, 'error');
+                } else {
+                    showNotification('Error fetching order details.', 'error');
+                }
             }
         });
     });
 
     $(document).on('click', '.delete', function() {
         var id = $(this).data('id');
-        if (id === undefined) {
+        if (!id) {
             showNotification('Invalid order ID', 'error');
             return;
         }
         $('#confirm_message').text('Are you sure you want to delete this order?');
         $('#confirm_button').text('Delete');
+        $('#confirm_button').off('click').on('click', function() { handleDelete(id); }); // Bind the delete handler with the id
         $('#confirmModal').modal('show');
-
-        $('#confirm_button').off('click').on('click', function() {
-            $.ajax({
-                url: "/api/admin/orders/" + id,
-                method: "DELETE",
-                success: function(data) {
-                    orderTable.ajax.reload();
-                    $('#confirmModal').modal('hide');
-                    showNotification('Order has been successfully deleted!', 'success');
-                },
-                error: function(xhr) {
-                    showNotification('An error occurred: ' + xhr.responseJSON.error, 'error');
-                }
-            });
-        });
     });
+
+    function handleDelete(id) {
+        $.ajax({
+            url: "/api/admin/orders/" + id,
+            method: "DELETE",
+            success: function(data) {
+                $('#confirmModal').modal('hide');
+                orderTable.ajax.reload();
+                showNotification('Order has been successfully deleted!', 'success');
+            },
+            error: function(xhr) {
+                $('#confirmModal').modal('hide');
+                if (xhr.responseJSON && xhr.responseJSON.error) {
+                    showNotification('An error occurred: ' + xhr.responseJSON.error, 'error');
+                } else {
+                    showNotification('An error occurred.', 'error');
+                }
+            }
+        });
+    }
 
     $('#export_excel').on('click', function() {
         console.log('Export to Excel button clicked');
@@ -168,6 +176,6 @@ $(document).ready(function() {
 
         setTimeout(function() {
             alertDiv.fadeOut();
-        }, 4000);
+        }, 10000);
     }
 });
