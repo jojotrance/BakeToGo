@@ -12,7 +12,7 @@ use Laravel\Scout\Searchable;
 
 class Product extends Model
 {
-    use HasFactory, HasApiTokens, Notifiable;
+    use HasFactory, HasApiTokens, Notifiable, Searchable;
     // use Searchable;
 
     protected $table = 'products';
@@ -47,18 +47,17 @@ class Product extends Model
         return $this->stocks->sum('quantity');
     }
 
-    // public function toSearchableArray()
-    // {
-    //     return [
-    //         'name' => $this->name,
-    //         'description' => $this->description,
-    //         'price' => $this->price,
-    //         'category' => $this->category,
-    //         'stock' => $this->total_stock,
-    //         'supplier_names' => $this->suppliers->pluck('supplier_name')->implode(' '), // Include supplier names in the searchable array
-    //     ];
-    // }
-
+    public function toSearchableArray()
+    {
+        return [
+            'name' => $this->name,
+            'description' => $this->description,
+            'price' => $this->price,
+            'category' => $this->category,
+            'stock' => $this->total_stock,
+            'supplier_names' => $this->suppliers->pluck('supplier_name')->implode(' '),
+        ];
+    }
     public function orders()
     {
         return $this->belongsToMany(Order::class, 'order_product', 'product_id', 'order_id')->withPivot('quantity');

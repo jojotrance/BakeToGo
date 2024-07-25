@@ -111,11 +111,11 @@ return [
     | in your application ID and admin API key to get started searching.
     |
     */
-'algolia' => [
-    'id' => env('ALGOLIA_APP_ID'),
-    'secret' => env('ALGOLIA_API_KEY'),
-],
 
+    'algolia' => [
+        'id' => env('ALGOLIA_APP_ID'),
+        'secret' => env('ALGOLIA_API_KEY'),
+    ],
     /*
     |--------------------------------------------------------------------------
     | Meilisearch Configuration

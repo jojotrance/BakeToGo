@@ -1,16 +1,26 @@
+import $ from 'jquery';
+import algoliasearch from 'algoliasearch/lite';
+
+function toggleDropdown() {
+    const dropdownVisible = !$('.profile-dropdown').hasClass('visible');
+    $('.profile-dropdown').toggleClass('visible', dropdownVisible);
+}
+
+window.toggleDropdown = toggleDropdown;
+
+function navigate(path) {
+    window.location.href = path;
+}
+
+window.navigate = navigate;
+
 window.renderHeader = function(user, hideComponents, role, myCartUrl) {
     const hideSearchBar = window.location.pathname === '/customer/profile';
     let query = ''; 
     let dropdownVisible = false;
     let cartHovered = false;
-    const cartItems = [
-    ];
+    const cartItems = [];
     let isLoggingOut = false;
-
-    const toggleDropdown = () => {
-        dropdownVisible = !dropdownVisible;
-        $('.profile-dropdown').toggleClass('visible', dropdownVisible);
-    };
 
     window.handleLogout = async () => {
         if (isLoggingOut) return;
@@ -37,7 +47,7 @@ window.renderHeader = function(user, hideComponents, role, myCartUrl) {
         return `Welcome ${roleMessage}, ${user.name}`;
     };
 
-    const handleSearchChange = (e) => {
+    window.handleSearchChange = (e) => {
         query = e.target.value;
         window.dispatchEvent(new CustomEvent('search-query', { detail: query }));
     };
@@ -63,7 +73,7 @@ window.renderHeader = function(user, hideComponents, role, myCartUrl) {
                     ${role === 'customer' && !hideSearchBar ? `
                         <div class="search-bar">
                             <div class="search-input-container">
-                                <input type="text" placeholder="Search..." class="search-input" value="${query}" />
+                                <input type="text" placeholder="Search for products" class="search-input" oninput="handleSearchChange(event)" />
                                 <i class="search-icon fas fa-search"></i>
                             </div>
                         </div>
@@ -113,23 +123,130 @@ window.renderHeader = function(user, hideComponents, role, myCartUrl) {
 
     renderHeader();
 
-    // Event listeners
-    $(document).on('change', '.search-input', handleSearchChange);
-    $(document).on('mouseenter', '.cart-icon-container', () => {
-        cartHovered = true;
-        $('.cart-popup').show();
+    // Algolia search client
+    const searchClient = algoliasearch('SKGEMY1IVJ', '90477025cfd3896f776e79b8d0625bca');
+
+    // Load initial products (simplified)
+    function loadProducts() {
+        $.ajax({
+            type: "GET",
+            url: "/api/shop",
+            dataType: 'json',
+            success: function (data) {
+                $('#items').empty(); // Clear previous items
+                $.each(data, function (key, value) {
+                    var imageUrl = value.image ? `/storage/product_images/${value.image}` : '/storage/product_images/default-placeholder.png';
+                    var stock = value.stock !== undefined ? value.stock : 'Unavailable';
+
+                    var item = `
+                        <div class='menu-item'>
+                            <div class='item-image'>
+                                <img src='${imageUrl}' alt='${value.name}' />
+                            </div>
+                            <div class='item-details'>
+                                <h5 class='item-name'>${value.name}</h5>
+                                <p>Category: ${value.category}</p>
+                                <p class='item-price'>Price: Php <span class='price'>${value.price}</span></p>
+                                <p class='item-description'>${value.description}</p>
+                                <p>Stock: ${stock}</p>
+                                <div class='quantity-container'>
+                                    <button class='quantity-minus'>-</button>
+                                    <input type='text' class='quantity' value='0' readonly>
+                                    <button class='quantity-plus'>+</button>
+                                </div>
+                                <p class='itemId' hidden>${value.id}</p>
+                            </div>
+                            <button type='button' class='btn btn-buy-now add'>Add to cart</button>
+                        </div>`;
+                    $("#items").append(item);
+                });
+
+                // Add event listeners for the new items
+                addEventListenersToItems();
+            },
+            error: function () {
+                console.log('AJAX load did not work');
+                alert("Error loading data.");
+            }
+        });
+    }
+
+    function addEventListenersToItems() {
+        $('.add').click(function () {
+            var item = $(this).closest('.menu-item');
+            var productId = item.find('.itemId').text();
+            var quantity = parseInt(item.find('.quantity').val());
+
+            $.ajax({
+                type: "POST",
+                url: "/api/addtoCart",
+                data: JSON.stringify({
+                    product_id: productId,
+                    quantity: quantity
+                }),
+                contentType: "application/json",
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function (response) {
+                    alert('Item added to cart successfully!');
+                },
+                error: function (xhr, status, error) {
+                    console.error("Error adding item to cart:", status, error);
+                    alert('Error adding item to cart.');
+                }
+            });
+        });
+    }
+
+    // Listen for search-query event
+    window.addEventListener('search-query', function (e) {
+        const query = e.detail;
+        if (query) {
+            performSearch(query);
+        } else {
+            loadProducts(); // Load initial products if search query is empty
+        }
     });
-    $(document).on('mouseleave', '.cart-icon-container', () => {
-        cartHovered = false;
-        $('.cart-popup').hide();
-    });
+
+    function performSearch(query) {
+        // Search with Algolia
+        searchClient.initIndex('products').search(query).then(({ hits }) => {
+            $('#items').empty(); // Clear previous items
+            hits.forEach(hit => {
+                var imageUrl = hit.image ? `/storage/product_images/${hit.image}` : '/storage/product_images/default-placeholder.png';
+                var stock = hit.stock !== undefined ? hit.stock : 'Unavailable';
+
+                var item = `
+                    <div class='menu-item'>
+                        <div class='item-image'>
+                            <img src='${imageUrl}' alt='${hit.name}' />
+                        </div>
+                        <div class='item-details'>
+                            <h5 class='item-name'>${hit.name}</h5>
+                            <p>Category: ${hit.category}</p>
+                            <p class='item-price'>Price: Php <span class='price'>${hit.price}</span></p>
+                            <p class='item-description'>${hit.description}</p>
+                            <p>Stock: ${stock}</p>
+                            <div class='quantity-container'>
+                                <button class='quantity-minus'>-</button>
+                                <input type='text' class='quantity' value='0' readonly>
+                                <button class='quantity-plus'>+</button>
+                            </div>
+                            <p class='itemId' hidden>${hit.id}</p>
+                        </div>
+                        <button type='button' class='btn btn-buy-now add'>Add to cart</button>
+                    </div>`;
+                $("#items").append(item);
+            });
+
+            // Add event listeners for the new items
+            addEventListenersToItems();
+        }).catch(err => {
+            console.error(err);
+        });
+    }
+
+    // Initial load of products
+    loadProducts();
 };
-
-function navigate(path) {
-    window.location.href = path;
-}
-
-function toggleDropdown() {
-    const dropdownVisible = !$('.profile-dropdown').hasClass('visible');
-    $('.profile-dropdown').toggleClass('visible', dropdownVisible);
-}

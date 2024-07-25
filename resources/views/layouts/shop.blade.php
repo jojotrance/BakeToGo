@@ -8,6 +8,7 @@
  <link href="https://use.fontawesome.com/releases/v5.0.6/css/all.css" rel="stylesheet">
  <script src="https://code.jquery.com/jquery-3.6.4.min.js"
         integrity="sha256-oP6HI9z1XaZNBrJURtCoUT5SUnxFr8s3BzRl+cbzUq8=" crossorigin="anonymous"></script>
+        @vite(['resources/css/app.css', 'resources/js/app.js'])
             <link rel="stylesheet" href="{{ asset('css/header.css') }}">
             <link rel="stylesheet" href="{{ asset('css/shop.css') }}">
             <link rel="stylesheet" href="{{ asset('css/cart.css') }}">
@@ -16,6 +17,7 @@
             <link rel="stylesheet" href="{{ asset('css/my-reviews.css') }}">
             <link rel="stylesheet" href="{{ asset('css/order-history.css') }}">
     <title>Shop</title>
+    @vite(['resources/css/app.css', 'public/js/app.js'])
 </head>
 <body>
     <div id="app-root" data-hide-components="false" data-cart-url="{{ route('mycart') }}">

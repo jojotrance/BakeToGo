@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bake To Go</title>
 
-    <!-- Bootstrap CSS -->
+    @vite(['resources/css/app.css', 'public/js/app.js'])    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <!-- DataTables CSS -->
@@ -77,6 +77,8 @@
     <script src="{{ asset('js/admin/admin-sidebar.js') }}"></script>
     <script src="{{ asset('js/admin/payment.js') }}"></script>
     <script src="{{ asset('js/SidebarData.js') }}"></script>
+    @include('layouts.script')
+
 <!--<script src="{{ asset('vendor/datatables/buttons.server-side.js') }}"></script>-->
     
 

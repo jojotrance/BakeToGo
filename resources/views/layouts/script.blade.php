@@ -8,6 +8,11 @@
 <script src="https://cdn.datatables.net/buttons/2.3.5/js/buttons.html5.min.js" ></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js"></script>
 <script src="{{ asset('vendor/datatables/buttons.server-side.js') }}"></script>
+<script src="https://cdn.jsdelivr.net/npm/algoliasearch@4.10.5/dist/algoliasearch-lite.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/instantsearch.js@4.38.1"></script>
+<script type="module" src="/js/app.js"></script> <!-- Ensure this line is present -->
+<script type="module" src="/js/components/builds/header.js"></script>
 <script src="{{ asset('js/shop.js') }}"></script>
 <script src="{{ asset('js/admin/payment.js') }}"></script>
 <!--<script src="{{ asset('vendor/datatables/buttons.server-side.js') }}"></script>-->
+@vite(['resources/css/app.css', 'public/js/app.js'])

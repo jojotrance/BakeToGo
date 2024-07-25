@@ -30,6 +30,12 @@ class ShopController extends Controller
      * Show the form for creating a new resource.
      */public function addToCart(Request $request)
 {
+
+    $request->validate([
+        'product_id' => 'required|integer|exists:products,id',
+        'quantity' => 'required|integer|min:1'
+    ]);
+    
     $user = Auth::user();
 
     $customer = $user->customer;
