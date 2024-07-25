@@ -12,10 +12,22 @@ use Illuminate\Validation\Rule;
 
 class SupplierController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $suppliers = Supplier::all();
-        return SupplierResource::collection($suppliers);
+        $query = Supplier::query();
+
+        if ($request->has('search') && $request->search['value']) {
+            $searchTerm = $request->search['value'];
+            $query->where('supplier_name', 'like', "%{$searchTerm}%");
+        }
+
+        $suppliers = $query->paginate($request->get('length', 10), ['*'], 'page', $request->get('start', 0) / $request->get('length', 10) + 1);
+        
+        return response()->json([
+            'data' => SupplierResource::collection($suppliers),
+            'recordsTotal' => $suppliers->total(),
+            'recordsFiltered' => $suppliers->total()
+        ]);
     }
 
     public function store(Request $request)

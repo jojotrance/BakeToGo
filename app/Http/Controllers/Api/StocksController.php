@@ -11,11 +11,32 @@ use Illuminate\Support\Facades\Log;
 
 class StocksController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         try {
-            $stocks = Stock::with(['product', 'supplier'])->get();
-            return StockResource::collection($stocks);
+            $query = Stock::with(['product', 'supplier']);
+
+            if ($request->has('search') && $request->search['value']) {
+                $searchTerm = $request->search['value'];
+                $query->whereHas('product', function($q) use ($searchTerm) {
+                    $q->where('name', 'like', "%{$searchTerm}%");
+                })->orWhereHas('supplier', function($q) use ($searchTerm) {
+                    $q->where('supplier_name', 'like', "%{$searchTerm}%");
+                });
+            }
+
+            $stocks = $query->paginate(
+                $request->get('length', 10), 
+                ['*'], 
+                'page', 
+                $request->get('start', 0) / $request->get('length', 10) + 1
+            );
+
+            return response()->json([
+                'data' => StockResource::collection($stocks),
+                'recordsTotal' => $stocks->total(),
+                'recordsFiltered' => $stocks->total()
+            ]);
         } catch (\Exception $e) {
             Log::error('Failed to fetch stocks: ' . $e->getMessage());
             return response()->json(['error' => 'Failed to fetch stocks'], 500);
