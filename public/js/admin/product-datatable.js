@@ -106,6 +106,8 @@ $(document).ready(function() {
         }
     });
 
+
+
     function submitProductForm(formData, id) {
         var actionUrl = id ? `/api/admin/products/${id}` : '/api/admin/products';
         if (id) {
@@ -169,33 +171,72 @@ $(document).ready(function() {
             }
         });
     });
-
     $(document).on('click', '.delete-btn', function() {
         var id = $(this).data('id');
         $('#confirm_message').text('Are you sure you want to delete this product?');
         $('#confirm_button').data('id', id);
         $('#confirmModal').modal('show');
     });
-
+    
     $('#confirm_button').on('click', function() {
         var id = $(this).data('id');
         $.ajax({
             url: `/api/admin/products/${id}`,
             method: 'DELETE',
             success: function(response) {
+                $('#confirmModal').modal('hide');
                 if (response.success) {
-                    $('#confirmModal').modal('hide');
-                    showSuccessMessage(response.message);
-                    productDataTable.ajax.reload();
+                    showSuccessMessage(response.message || 'Product deleted successfully.');
+                    productDataTable.ajax.reload(null, false);  // Reload without resetting pagination
                 } else {
-                    showErrorMessage(response.message);
+                    showErrorMessage(response.message || 'An error occurred while deleting the product.');
                 }
             },
             error: function(xhr) {
+                $('#confirmModal').modal('hide');
                 showErrorMessage('An error occurred. Please try again.');
+            },
+            complete: function() {
+                // Ensure the DataTable refreshes even if there's an error
+                productDataTable.ajax.reload(null, false);
             }
         });
     });
+    
+    function showSuccessMessage(message) {
+        $('#success-message').text(message);
+        $('#success-alert').removeClass('alert-danger').addClass('alert-success').show();
+        setTimeout(function() {
+            $('#success-alert').fadeOut('slow');
+        }, 5000);
+    }
+    
+    function showErrorMessage(message) {
+        $('#error-message').text(message);
+        $('#error-alert').removeClass('alert-success').addClass('alert-danger').show();
+        setTimeout(function() {
+            $('#error-alert').fadeOut('slow');
+        }, 5000);
+    }
+    
+
+
+
+    function showSuccessMessage(message) {
+        $('#success-message').text(message);
+        $('#success-alert').removeClass('alert-danger').addClass('alert-success').show();
+        setTimeout(function() {
+            $('#success-alert').fadeOut('slow');
+        }, 5000);
+    }
+    
+    function showErrorMessage(message) {
+        $('#error-message').text(message);
+        $('#error-alert').removeClass('alert-success').addClass('alert-danger').show();
+        setTimeout(function() {
+            $('#error-alert').fadeOut('slow');
+        }, 5000);
+    }
 
     $('#product_modal').on('hidden.bs.modal', function() {
         $('#product_form')[0].reset();

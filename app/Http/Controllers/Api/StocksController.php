@@ -62,25 +62,25 @@ class StocksController extends Controller
         }
     }
 
-    // public function update(Request $request, Stock $stock)
-    // {
-    //     $validatedData = $request->validate([
-    //         'quantity' => 'required|integer|min:0',
-    //         'supplier_id' => 'nullable|exists:suppliers,id',
-    //     ]);
+     public function update(Request $request, Stock $stock)
+     {
+         $validatedData = $request->validate([
+             'quantity' => 'required|integer|min:0',
+             'supplier_id' => 'nullable|exists:suppliers,id',
+         ]);
 
-    //     try {
-    //         $stock->update($validatedData);
+         try {
+             $stock->update($validatedData);
 
-    //         // Trigger the stock updated event
-    //         event(new StockUpdated($stock->product));
+             // Trigger the stock updated event
+             event(new StockUpdated($stock->product));
 
-    //         return response()->json(['success' => true, 'data' => new StockResource($stock)]);
-    //     } catch (\Exception $e) {
-    //         Log::error('Failed to update stock: ' . $e->getMessage());
-    //         return response()->json(['error' => 'Failed to update stock'], 500);
-    //     }
-    // }
+             return response()->json(['success' => true, 'data' => new StockResource($stock)]);
+         } catch (\Exception $e) {
+             Log::error('Failed to update stock: ' . $e->getMessage());
+             return response()->json(['error' => 'Failed to update stock'], 500);
+       }
+ }
 
     public function destroy(Stock $stock)
     {
