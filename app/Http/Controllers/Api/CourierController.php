@@ -93,5 +93,14 @@ class CourierController extends Controller
 
         return response()->json(['message' => 'Courier deleted successfully']);
     }
+
+    public function getCourierPerBranch()
+    {
+        $courierData = Courier::select('branch', \DB::raw('count(*) as total'))
+                              ->groupBy('branch')
+                              ->get();
+
+        return response()->json($courierData);
+    }
 }
 

@@ -10,6 +10,7 @@ use App\Models\User;
 use App\Models\Customer;
 use App\Http\Resources\UserResource;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Validator;
 
 class UserManagementController extends Controller
 {
@@ -219,4 +220,35 @@ class UserManagementController extends Controller
             ], 500);
         }
     }
+
+    // In App/Http/Controllers/Api/UserManagementController.php
+
+// In App/Http/Controllers/Api/UserManagementController.php
+
+public function getTotalRoles()
+{
+    $roles = User::select('role', \DB::raw('count(*) as total'))
+                 ->groupBy('role')
+                 ->get();
+
+    // Ensure all roles are present, even if they have zero count
+    $roleCounts = [
+        'admin' => 0,
+        'customer' => 0,
+        'guest' => 0,
+    ];
+
+    foreach ($roles as $role) {
+        $roleCounts[$role->role] = $role->total;
+    }
+
+    // Convert the array to a collection to return a consistent structure
+    $roleData = collect($roleCounts)->map(function ($total, $role) {
+        return ['role' => $role, 'total' => $total];
+    })->values();
+
+    return response()->json($roleData);
+}
+
+
 }

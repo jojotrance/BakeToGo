@@ -43,22 +43,27 @@ window.SidebarData = [
     {
         title: "Charts",
         icon: '<i class="fas fa-chart-pie"></i>',
-        link: "/admin/charts",
+        link: "#",
         submenu: [
             {
-                title: "Chart 1",
+                title: "Total Role",
                 icon: '<i class="fas fa-chart-bar"></i>',
-                link: "/admin/pages/charts/total-role"
+                link: "/admin/charts/total-role"
             },
             {
-                title: "Chart 3",
+                title: "Customer Per Address",
                 icon: '<i class="fas fa-chart-line"></i>',
-                link: "/admin/pages/charts/courier-per-branch"
+                link: "/admin/charts/customer-per-address"
             },
             {
-                title: "Chart 4",
+                title: "Courier Per Branch",
                 icon: '<i class="fas fa-chart-line"></i>',
-                link: "/admin/pages/charts/total-supplier"
+                link: "/admin/charts/courier-per-branch"
+            },
+            {
+                title: "Total Supplier",
+                icon: '<i class="fas fa-chart-line"></i>',
+                link: "/admin/charts/total-supplier"
             }
         ]
     }

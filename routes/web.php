@@ -2,7 +2,7 @@
 
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
-
+use App\Http\Controllers\Api\AdminChartsController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ShopController;
@@ -25,22 +25,21 @@ Route::group(['prefix' => 'admin', 'middleware' => ['auth', 'is_admin']], functi
     Route::get('/stock', [AdminController::class, 'stock'])->name('stock');  // Corrected typo
     Route::get('/payments', [AdminController::class, 'payments'])->name('payments');
 
-    // Chart Routes
-    Route::get('/pages/charts/total-role', function () {
-        return view('admin.pages.charts.totalRole');
-    })->name('charts.totalRole');
-    Route::get('/pages/charts/customer-per-address', function () {
-        return view('admin.pages.charts.customerPerAddress');
-    })->name('charts.customerPerAddress');
-    Route::get('/pages/charts/customer-per-branch', function () {
-        return view('admin.pages.charts.customerPerBranch');
-    })->name('charts.customerPerBranch');
-    Route::get('/pages/charts/toral-supplier', function () {
-        return view('admin.pages.charts.totalSupplier');
-    })->name('charts.totalSupplier');
-
+  
     Route::prefix('/users')->group(function () {
         Route::get('/', [AdminController::class, 'users'])->name('userindex');
+    });
+
+
+    Route::prefix('charts')->group(function () {
+      
+        // Other routes...
+    
+        // Chart Routes
+        Route::get('/total-role', [AdminChartsController::class, 'totalRole'])->name('charts.totalRole');
+        Route::get('/customer-per-address', [AdminChartsController::class, 'customerPerAddress'])->name('charts.customerPerAddress');
+        Route::get('/courier-per-branch', [AdminChartsController::class, 'courierPerBranch'])->name('charts.courierPerBranch');
+        Route::get('/total-supplier', [AdminChartsController::class, 'totalSupplier'])->name('charts.totalSupplier');
     });
 });
 

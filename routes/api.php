@@ -16,6 +16,7 @@ use App\Http\Controllers\Api\UserManagementController;
 use App\Http\Controllers\Api\UserProfileController;
 use App\Http\Controllers\ShopController;
 use App\Http\Controllers\UserController;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\ReviewController;
@@ -124,12 +125,22 @@ Route::prefix('admin')->middleware(['auth:sanctum'])->group(function () {
         Route::put('/{orderId}/status', [OrderController::class, 'updateStatus'])->name('api.admin.updateOrderStatus');
         Route::delete('/{id}', [OrderController::class, 'destroy'])->name('api.admin.deleteOrder');
     });
-});
+
+
+
+     // Chart Routes
+    
+
+        Route::get('/charts/total-supplier', [SupplierController::class, 'getTotalSuppliers']);
+          Route::get('/charts/get-courier-per-branch', [CourierController::class, 'getCourierPerBranch'])->name('charts.GetcourierPerBranch');
+          Route::get('/charts/total-role', [UserManagementController::class, 'getTotalRoles']);
+    });
+
+ 
+
 
 // Chart Routes
-//Route::get('/charts/total-role', [ChartController::class, 'totalRole'])->name('api.charts.totalRole');
 //Route::get('/charts/customer-per-address', [ChartController::class, 'customerPerAddress'])->name('api.charts.customerPerAddress');
-//Route::get('/charts/customer-per-branch', [ChartController::class, 'customerPerBranch'])->name('api.charts.customerPerBranch');
 //Route::get('/charts/totalSupplier', [ChartController::class, 'totalSupplier'])->name('api.charts.totalSupplier');
 
 Route::group(['middleware' => ['auth:sanctum', 'is_customer']], function () {
