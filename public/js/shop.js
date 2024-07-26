@@ -1,4 +1,8 @@
 $(document).ready(function () {
+    let currentPage = 1;
+    let lastPage = 1;
+    let loading = false;
+
     // Custom Notification Function
     function showCustomNotification(message, type = 'success', buttonText = null, buttonCallback = null) {
         const notificationsContainer = document.getElementById('custom-notifications');
@@ -43,47 +47,71 @@ $(document).ready(function () {
         setTimeout(() => notification.remove(), 5000);
     }
 
-    // Load products
-    $.ajax({
-        type: "GET",
-        url: "/api/shop",
-        dataType: 'json',
-        success: function (data) {
-            console.log(data); // Debug: Log the data received from the API
-            $.each(data, function (key, value) {
-                console.log(value); // Debug: Log each product's data
-                var imageUrl = value.image ? `/storage/product_images/${value.image}` : '/storage/product_images/default-placeholder.png';
-                var stock = value.stock !== undefined ? value.stock : 'Unavailable';
-                console.log('Stock:', stock); // Debug: Log the stock value
+    function loadProducts(page) {
+        if (loading) return;
+        loading = true;
 
-                var item = `
-                    <div class='menu-item'>
-                        <div class='item-image'>
-                            <img src='${imageUrl}' alt='${value.name}' />
-                        </div>
-                        <div class='item-details'>
-                            <h5 class='item-name'>${value.name}</h5>
-                            <p>Category: ${value.category}</p>
-                            <p class='item-price'>Price: Php <span class='price'>${value.price}</span></p>
-                            <p class='item-description'>${value.description}</p>
-                            <p class='item-stock'>Stock: ${stock}</p>
-                            <div class='quantity-container'>
-                                <button class='quantity-minus' disabled>-</button>
-                                <input type='text' class='quantity' value='0' readonly>
-                                <button class='quantity-plus'>+</button>
+        $.ajax({
+            type: "GET",
+            url: `/api/shop?page=${page}`,
+            dataType: 'json',
+            success: function (data) {
+                console.log(data); // Debug: Log the data received from the API
+                lastPage = data.last_page;
+
+                $.each(data.data, function (key, value) {
+                    console.log(value); // Debug: Log each product's data
+                    var imageUrl = value.image ? `/storage/product_images/${value.image}` : '/storage/product_images/default-placeholder.png';
+                    var stock = value.stock !== undefined ? value.stock : 'Unavailable';
+                    console.log('Stock:', stock); // Debug: Log the stock value
+
+                    var item = `
+                        <div class='menu-item'>
+                            <div class='item-image'>
+                                <img src='${imageUrl}' alt='${value.name}' />
                             </div>
-                            <p class='itemId' hidden>${value.id}</p>
-                        </div>
-                        <button type='button' class='btn btn-buy-now add'>Add to cart</button>
-                    </div>`;
-                $("#items").append(item);
-            });
-        },
-        error: function () {
-            console.log('AJAX load did not work');
-            showCustomNotification("Error loading data.", "error");
-        }
-    });
+                            <div class='item-details'>
+                                <h5 class='item-name'>${value.name}</h5>
+                                <p>Category: ${value.category}</p>
+                                <p class='item-price'>Price: Php <span class='price'>${value.price}</span></p>
+                                <p class='item-description'>${value.description}</p>
+                                <p class='item-stock'>Stock: ${stock}</p>
+                                <div class='quantity-container'>
+                                    <button class='quantity-minus' disabled>-</button>
+                                    <input type='text' class='quantity' value='0' readonly>
+                                    <button class='quantity-plus'>+</button>
+                                </div>
+                                <p class='itemId' hidden>${value.id}</p>
+                            </div>
+                            <button type='button' class='btn btn-buy-now add'>Add to cart</button>
+                        </div>`;
+                    $("#items").append(item);
+                });
+                
+                loading = false;
+            },
+            error: function () {
+                console.log('AJAX load did not work');
+                showCustomNotification("Error loading data.", "error");
+                loading = false;
+            }
+        });
+    }
+
+    function initPagination() {
+        $(window).scroll(function () {
+            if ($(window).scrollTop() + $(window).height() >= $(document).height() - 100) {
+                if (currentPage < lastPage) {
+                    currentPage++;
+                    loadProducts(currentPage);
+                }
+            }
+        });
+    }
+
+    // Initial load
+    loadProducts(currentPage);
+    initPagination();
 
     // Add to cart functionality
     $("#items").on('click', '.add', function () {

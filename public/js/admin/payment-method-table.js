@@ -50,7 +50,7 @@ $(document).ready(function() {
                 searchable: false,
                 render: function(data, type, row) {
                     return '<button type="button" class="edit-payment-method btn btn-primary btn-sm" data-id="' + row.id + '">Edit</button> ' +
-                           '<button type="button" class="delete-payment-method btn btn-danger btn-sm" data-id="' + row.id + '">Delete</button>';
+                        '<button type="button" class="delete-payment-method btn btn-danger btn-sm" data-id="' + row.id + '">Delete</button>';
                 }
             }
         ],
@@ -89,6 +89,7 @@ $(document).ready(function() {
         $('#action_button_payment_method').text('Create');
         $('#payment_method_image').attr('required', true);
         $('.text-danger').text('');
+        $('#image_preview').hide();
         $('#payment_method_modal').modal('show');
     });
 
@@ -120,7 +121,6 @@ $(document).ready(function() {
                 if (response.data) {
                     $('#payment_method_modal').modal('hide');
                     paymentMethodTable.ajax.reload(null, false);
-                    updatePaymentMethods();
                     showNotification('Payment method has been successfully ' + ($('#action_button_payment_method').text() === 'Update' ? 'updated' : 'created') + '!', 'success');
                     $('#payment_method_form')[0].reset();
                     paymentMethods.push(response.data);
@@ -186,7 +186,7 @@ $(document).ready(function() {
     $(document).on('click', '.delete-payment-method', function() {
         var id = $(this).data('id');
         if (!id) {
-            showModalNotification('Invalid payment method ID. Please try again.', 'error');
+            showNotification('Invalid payment method ID. Please try again.', 'error');
             return;
         }
         $('#confirm_message_payment_method').text('Are you sure you want to delete this payment method?');
@@ -230,8 +230,8 @@ $(document).ready(function() {
     });
 
     function showNotification(message, type) {
-        var alertDiv = type === 'success' ? $('#success_alert_payment_method') : $('#error_alert_payment_method');
-        var messageSpan = type === 'success' ? $('#success_message_payment_method') : $('#error_message_payment_method');
+        var alertDiv = type === 'success' ? $('#success-alert') : $('#error-alert');
+        var messageSpan = type === 'success' ? $('#success-message') : $('#error-message');
         messageSpan.text(message);
         alertDiv.fadeIn();
 

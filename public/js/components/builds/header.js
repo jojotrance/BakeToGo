@@ -1,12 +1,10 @@
 import $ from 'jquery';
 import algoliasearch from 'algoliasearch/lite';
 
-function toggleDropdown() {
-    const dropdownVisible = !$('.profile-dropdown').hasClass('visible');
-    $('.profile-dropdown').toggleClass('visible', dropdownVisible);
-}
-
-window.toggleDropdown = toggleDropdown;
+// Define the toggleDropdown function and attach it to the window object
+window.toggleDropdown = function() {
+    $('.profile-dropdown').toggleClass('visible');
+};
 
 function navigate(path) {
     window.location.href = path;
@@ -17,7 +15,6 @@ window.navigate = navigate;
 window.renderHeader = function(user, hideComponents, role, myCartUrl) {
     const hideSearchBar = window.location.pathname === '/customer/profile';
     let query = ''; 
-    let dropdownVisible = false;
     let cartHovered = false;
     const cartItems = [];
     let isLoggingOut = false;
@@ -83,15 +80,15 @@ window.renderHeader = function(user, hideComponents, role, myCartUrl) {
                             <div class="cart-icon-container">
                                 <li class="nav-link">
                                     <a href="${myCartUrl}" class="nav-link-item">
-                                        <i class="fas fa-shopping-cart"></i>
+                                        <i class="fas fa-shopping-cart cart-icon"></i>
                                     </a>
                                 </li>
                             </div>
                         ` : ''}
-                        <div class="profile-section" onclick="toggleDropdown()" role="button" tabindex="0" aria-haspopup="true" aria-expanded="${dropdownVisible}">
+                        <div class="profile-section" onclick="toggleDropdown()" role="button" tabindex="0" aria-haspopup="true">
                             <img src="${getImageSrc()}" alt="Profile" class="profile-pic" />
                             <span class="welcome-message">${getWelcomeMessage()}</span>
-                            <ul class="profile-dropdown ${dropdownVisible ? 'visible' : ''}">
+                            <ul class="profile-dropdown">
                                 ${role === 'customer' ? `
                                     <li>
                                         <i class="dropdown-icon fas fa-user"></i>

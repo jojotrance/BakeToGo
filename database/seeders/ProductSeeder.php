@@ -8,28 +8,32 @@ use Faker\Factory as Faker;
 
 class ProductSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run()
     {
         $faker = Faker::create();
 
-        // Define an array of image paths
-        $images = [
-            'product_images/laravel.png',
-            // Add more images if you have multiple sample images
-            'product_images/1721624266.jpg'
+        // Define categories and product names
+        $categories = ['Bread', 'Pastry', 'Cake', 'Cookie', 'Pie'];
+        $productNames = [
+            'Sourdough Bread', 'Whole Wheat Bread', 'Baguette', 'Ciabatta',
+            'Croissant', 'Danish Pastry', 'Eclair', 'Cinnamon Roll',
+            'Chocolate Cake', 'Cheesecake', 'Red Velvet Cake', 'Carrot Cake',
+            'Chocolate Chip Cookie', 'Oatmeal Raisin Cookie', 'Macaron',
+            'Apple Pie', 'Blueberry Muffin', 'Bagel', 'Focaccia',
+            'Puff Pastry', 'Brioche', 'Pretzel', 'Scone', 'Doughnut'
         ];
 
-        for ($i = 1; $i <= 100; $i++) {
+        for ($i = 0; $i < 100; $i++) {
+            // Generate a random color for the image
+            $color = substr(md5(rand()), 0, 6);
+            $imageUrl = "https://via.placeholder.com/640x480/{$color}/ffffff?text=Product";
+
             Product::create([
-                'name' => 'Product ' . $i,
-                'description' => $faker->sentence,
-                'price' => $faker->randomFloat(2, 10, 1000),
-                'category' => 'Category ' . $faker->numberBetween(1, 10),
-                'stock' => $faker->numberBetween(1, 100),
-                'image' => $faker->randomElement($images)
+                'name' => $faker->randomElement($productNames) . ' ' . $faker->word(),
+                'description' => $faker->sentence(10),
+                'price' => $faker->randomFloat(2, 2, 50), // Price between $2 and $50
+                'category' => $faker->randomElement($categories),
+                'image' => $imageUrl
             ]);
         }
     }

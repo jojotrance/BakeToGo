@@ -13,9 +13,9 @@ class ProductResource extends JsonResource
             'name' => $this->name,
             'description' => $this->description,
             'price' => $this->price,
-            'category' => $this->category, // Directly using the category field from the products table
-            'stock' => $this->total_stock, // Using the new total_stock attribute
-            'image_url' => $this->image_url // Using the image_url attribute
+            'category' => $this->category,
+            'image' => $this->image, // Ensure this field is included
+            'stock' => $this->stocks->first() ? $this->stocks->first()->quantity : 0, // Include the stock quantity
         ];
     }
 }

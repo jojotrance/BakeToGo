@@ -21,9 +21,9 @@ $(document).ready(function() {
                     return json.data;
                 },
                 error: function(xhr, status, error) {
+                    showNotification('Failed to load stocks. Please try again.', 'error');
                     console.error('AJAX Error:', status, error);
                     console.error('Response Text:', xhr.responseText);
-                    alert('Failed to load stocks. Please try again.');
                 }
             },
             columns: [
@@ -87,9 +87,9 @@ $(document).ready(function() {
                 return options;
             }
         }).catch(function(xhr, status, error) {
+            showNotification('Failed to load suppliers. Please try again.', 'error');
             console.error('AJAX Error:', status, error);
             console.error('Response Text:', xhr.responseText);
-            alert('Failed to load suppliers. Please try again.');
         });
     }
 
@@ -110,9 +110,9 @@ $(document).ready(function() {
                 return options;
             }
         }).catch(function(xhr, status, error) {
+            showNotification('Failed to load products. Please try again.', 'error');
             console.error('AJAX Error:', status, error);
             console.error('Response Text:', xhr.responseText);
-            alert('Failed to load products. Please try again.');
         });
     }
 
@@ -155,12 +155,18 @@ $(document).ready(function() {
             let supplier_id = $row.find('.supplier-select').val();
 
             if (!product_id || !quantity || !supplier_id) {
-                alert('All fields are required');
+                showNotification('All fields are required', 'error');
                 return;
             }
 
             if (!supplier_id && quantity > 0) {
-                alert('You must select a supplier if you add a quantity.');
+                showNotification('You must select a supplier if you add a quantity.', 'error');
+                return;
+            }
+
+            // Validate if the same supplier is already assigned to the same product
+            if (isSupplierProductExist(product_id, supplier_id)) {
+                showNotification('The same supplier cannot be assigned to the same product.', 'error');
                 return;
             }
 
@@ -177,12 +183,13 @@ $(document).ready(function() {
                 },
                 success: function(response) {
                     $('#stock_table').DataTable().ajax.reload();
+                    showNotification('Stock has been successfully created!', 'success');
                     console.log('New stock saved:', response);
                 },
                 error: function(xhr, status, error) {
+                    showNotification('Failed to save stock. Please try again.', 'error');
                     console.error('AJAX Error:', status, error);
                     console.error('Response Text:', xhr.responseText);
-                    alert('Failed to save stock.');
                 }
             });
         });
@@ -205,7 +212,7 @@ $(document).ready(function() {
                 if (newValue !== currentValue) {
                     let supplierId = $this.closest('tr').find('.editable.supplier').data('supplier-id');
                     if (!supplierId && newValue > 0) {
-                        alert('You must select a supplier if you add a quantity.');
+                        showNotification('You must select a supplier if you add a quantity.', 'error');
                         $this.text(currentValue); // Revert back to original value
                         return;
                     }
@@ -221,12 +228,13 @@ $(document).ready(function() {
                         },
                         success: function(response) {
                             $this.text(newValue);
+                            showNotification('Quantity updated successfully!', 'success');
                             console.log('Quantity updated:', response);
                         },
                         error: function(xhr, status, error) {
+                            showNotification('Failed to update quantity. Please try again.', 'error');
                             console.error('AJAX Error:', status, error);
                             console.error('Response Text:', xhr.responseText);
-                            alert('Failed to update quantity.');
                             $this.text(currentValue); // Revert back to original value on error
                         }
                     });
@@ -249,7 +257,12 @@ $(document).ready(function() {
             if (newSupplierId !== currentSupplierId) {
                 let quantity = $this.closest('tr').find('.editable.quantity').text().trim();
                 if (!newSupplierId && quantity > 0) {
-                    alert('You must select a supplier if you have a quantity greater than zero.');
+                    showNotification('You must select a supplier if you have a quantity greater than zero.', 'error');
+                    $this.html($this.find('option[value="' + currentSupplierId + '"]').text()); // Revert back to original value
+                    return;
+                }
+                if (isSupplierProductExist($this.closest('tr').find('.editable.product').data('id'), newSupplierId)) {
+                    showNotification('The same supplier cannot be assigned to the same product.', 'error');
                     $this.html($this.find('option[value="' + currentSupplierId + '"]').text()); // Revert back to original value
                     return;
                 }
@@ -266,12 +279,13 @@ $(document).ready(function() {
                     success: function(response) {
                         $this.data('supplier-id', newSupplierId);
                         $this.text($this.find('option:selected').text());
+                        showNotification('Supplier updated successfully!', 'success');
                         console.log('Supplier updated:', response);
                     },
                     error: function(xhr, status, error) {
+                        showNotification('Failed to update supplier. Please try again.', 'error');
                         console.error('AJAX Error:', status, error);
                         console.error('Response Text:', xhr.responseText);
-                        alert('Failed to update supplier.');
                         $this.text($this.find('option[value="' + currentSupplierId + '"]').text()); // Revert back to original value on error
                     }
                 });
@@ -298,15 +312,15 @@ $(document).ready(function() {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 },
                 success: function(response) {
-                    console.log('Delete response:', response);
                     $('#confirmModal').modal('hide');
-                    alert('Stock has been successfully deleted!');
+                    showNotification('Stock has been successfully deleted!', 'success');
                     $('#stock_table').DataTable().ajax.reload();  // Reload the table data
+                    console.log('Delete response:', response);
                 },
                 error: function(xhr, status, error) {
+                    showNotification('Failed to delete stock. Please try again.', 'error');
                     console.error('AJAX Error:', status, error);
                     console.error('Response Text:', xhr.responseText);
-                    alert('Failed to delete stock.');
                 }
             });
         });
@@ -329,12 +343,37 @@ $(document).ready(function() {
         XLSX.writeFile(wb, "stocks.xlsx");
     });
 
+    // Check if supplier-product combination already exists
+    function isSupplierProductExist(productId, supplierId) {
+        let isExist = false;
+        $('#stock_table').DataTable().rows().every(function(rowIdx, tableLoop, rowLoop) {
+            let data = this.data();
+            if (data.product_id == productId && data.supplier_id == supplierId) {
+                isExist = true;
+                return false; // Break the loop
+            }
+        });
+        return isExist;
+    }
+
+    // Utility function to show notification
+    function showNotification(message, type) {
+        var alertDiv = type === 'success' ? $('#success_alert') : $('#error_alert');
+        var messageSpan = type === 'success' ? $('#success_message') : $('#error_message');
+        messageSpan.text(message);
+        alertDiv.fadeIn();
+
+        setTimeout(function() {
+            alertDiv.fadeOut();
+        }, 4000);
+    }
+
     // Listen for product creation event
     $(document).on('productCreated', function() {
         console.log('Product created event received');
         $('#stock_table').DataTable().ajax.reload();
     });
-    
+
     // Check for newly created product using localStorage
     if (localStorage.getItem('productCreated') === 'true') {
         console.log('New product detected, reloading stock table');

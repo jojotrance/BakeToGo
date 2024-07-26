@@ -8,6 +8,7 @@
         "php": "^8.1",
         "algolia/algoliasearch-client-php": "^3.4",
         "guzzlehttp/guzzle": "^7.2",
+        "intervention/image": "^3.7",
         "laravel/framework": "^10.0",
         "laravel/sanctum": "^3.3",
         "laravel/scout": "^10.10",
@@ -18,7 +19,7 @@
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "^3.13",
-        "fakerphp/faker": "^1.9.1",
+        "fakerphp/faker": "^1.23",
         "laravel/pint": "^1.0",
         "laravel/sail": "^1.18",
         "mockery/mockery": "^1.4.4",

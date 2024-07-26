@@ -27,6 +27,7 @@ $(document).ready(function() {
             },
             error: function(xhr) {
                 console.error("Error in fetching data: ", xhr.responseText);
+                showNotification('Failed to load products. Please try again.', 'error');
             }
         },
         columns: [
@@ -37,12 +38,13 @@ $(document).ready(function() {
             { data: 'category', name: 'category', width: '10%' },
             { data: 'stock', name: 'stock', width: '10%' },
             {
-                data: 'image_url',
-                name: 'image_url',
+                data: 'image',
+                name: 'image',
                 width: '10%',
                 render: function(data, type, full, meta) {
                     if (type === 'display') {
-                        return '<img src="' + (data ? data : '/storage/product_images/default-placeholder.png') + '" alt="Product Image" class="img-thumbnail" width="30" height="30">';
+                        var imageUrl = data ? `/storage/product_images/${data}` : '/storage/product_images/default-placeholder.png';
+                        return '<img src="' + imageUrl + '" alt="Product Image" class="img-thumbnail" width="30" height="30">';
                     }
                     return data;
                 }
@@ -52,8 +54,8 @@ $(document).ready(function() {
                 width: '15%',
                 render: function(data, type, row) {
                     return `
-                        <button type="button" class="btn btn-warning btn-sm edit-btn" data-id="${row.id}">Edit</button>
-                        <button type="button" class="btn btn-danger btn-sm delete-btn" data-id="${row.id}">Delete</button>
+                        <button type="button" class="btn btn-warning btn-sm product-edit-btn" data-id="${row.id}">Edit</button>
+                        <button type="button" class="btn btn-danger btn-sm product-delete-btn" data-id="${row.id}">Delete</button>
                     `;
                 }
             }
@@ -80,238 +82,151 @@ $(document).ready(function() {
         }
     });
 
-    $('#product_form').on('submit', function(event) {
-        event.preventDefault();
-        $(".form-control").removeClass('is-invalid');
-        $(".invalid-feedback").remove();
-
-        var formData = new FormData(this);
-        var id = $('#hidden_id').val();
-        var name = $('#name').val();
-
-        var duplicate = false;
-        productDataTable.rows().every(function() {
-            var data = this.data();
-            if (data.name === name && data.id != id) {
-                duplicate = true;
-                return false;
-            }
-        });
-
-        if (duplicate) {
-            var errorMessage = $('<span class="invalid-feedback" style="display:block;color:red;">A product with the same name already exists.</span>');
-            $('#name').addClass('is-invalid').after(errorMessage);
-        } else {
-            submitProductForm(formData, id);
-        }
+    // Event listener for the create product button
+    $('#create_product').on('click', function() {
+        $('#product_modal').modal('show');
+        $('#product_form')[0].reset();
+        $('#modal_title').text('Add New Product');
+        $('#action_button').text('Save');
+        $('#hidden_id').val('');
+        clearErrors();
     });
 
+    // Submit handler for the product form
+    $('#product_form').on('submit', function(event) {
+        event.preventDefault();
+        var actionUrl = $('#hidden_id').val() ? `/api/admin/products/${$('#hidden_id').val()}` : "/api/admin/products";
+        var method = $('#hidden_id').val() ? 'POST' : 'POST';  // Always POST, but include _method for PUT
 
-
-    function submitProductForm(formData, id) {
-        var actionUrl = id ? `/api/admin/products/${id}` : '/api/admin/products';
-        if (id) {
+        console.log("Submitting form to URL:", actionUrl, "with method:", method);
+        var formData = new FormData(this);
+        if ($('#hidden_id').val()) {
             formData.append('_method', 'PUT');
         }
 
-        $('#loading-indicator').show();
+        formData.forEach((value, key) => {
+            console.log(key + ": " + value);
+        });
 
         $.ajax({
             url: actionUrl,
-            method: 'POST',
+            method: 'POST',  // Always POST, but include _method for PUT
             data: formData,
-            processData: false,
             contentType: false,
-            success: function(response) {
-                console.log('Server response:', response);
+            processData: false,
+            beforeSend: function() {
+                $('#action_button').attr('disabled', 'disabled');
+                $('#action_button').text('Processing...');
+            },
+            success: function(data) {
+                console.log("Form submission successful:", data);
+                $('#action_button').attr('disabled', false);
+                $('#action_button').text('Save');
                 $('#product_modal').modal('hide');
-                $('#product_form')[0].reset();
-                productDataTable.ajax.reload(null, false);
-                if (response.success) {
-                    showSuccessMessage('Item ' + (id ? 'updated' : 'added') + ' successfully.');
-                } else {
-                    showErrorMessage(response.message || 'An error occurred. Please try again.');
-                }
+                productDataTable.ajax.reload();
+                showNotification($('#hidden_id').val() ? 'Product updated successfully.' : 'Product created successfully.', 'success');
             },
             error: function(xhr) {
-                console.error('AJAX error:', xhr);
-                let errorMessage = 'An error occurred. Please try again.';
-                if (xhr.responseJSON && xhr.responseJSON.error) {
-                    errorMessage = xhr.responseJSON.error;
-                }
-                $('#product_modal').modal('hide');
-                showErrorMessage(errorMessage);
-                productDataTable.ajax.reload(null, false);
-            },
-            complete: function() {
-                $('#loading-indicator').hide();
+                console.error("Form submission failed:", xhr.responseText);
+                $('#action_button').attr('disabled', false);
+                $('#action_button').text('Save');
+                var errors = xhr.responseJSON.errors;
+                displayErrors(errors);
+                showNotification('Failed to save product. Please check the form for errors.', 'error');
             }
         });
-    }
+    });
 
-    $(document).on('click', '.edit-btn', function() {
-        var id = $(this).data('id');
+    // Event listener for the edit product button
+    $('#product_datatable').on('click', '.product-edit-btn', function() {
+        var productId = $(this).data('id');
         $.ajax({
-            url: `/api/admin/products/${id}`,
+            url: `/api/admin/products/${productId}`,
             method: 'GET',
             success: function(response) {
-                var product = response.data;
-                $('#name').val(product.name);
-                $('#description').val(product.description);
-                $('#price').val(product.price);
-                $('#category').val(product.category);
-                $('#stock').val(product.stock);
-                $('#hidden_id').val(product.id);
+                console.log("Product data fetched for edit:", response);
+                var data = response.data;
+                $('#product_modal').modal('show');
                 $('#modal_title').text('Edit Product');
                 $('#action_button').text('Update');
-                $('#product_modal').modal('show');
+                $('#name').val(data.name);
+                $('#description').val(data.description);
+                $('#price').val(data.price);
+                $('#category').val(data.category);
+                $('#stock').val(data.stock);
+                $('#hidden_id').val(data.id);
+                clearErrors();
             },
             error: function(xhr) {
-                console.error("Error:", xhr.responseText);
+                showNotification('Failed to fetch product details. Please try again.', 'error');
             }
         });
     });
-    $(document).on('click', '.delete-btn', function() {
-        var id = $(this).data('id');
-        $('#confirm_message').text('Are you sure you want to delete this product?');
-        $('#confirm_button').data('id', id);
+
+    // Event listener for the delete product button
+    $('#product_datatable').on('click', '.product-delete-btn', function() {
+        var productId = $(this).data('id');
         $('#confirmModal').modal('show');
-    });
-    
-    $('#confirm_button').on('click', function() {
-        var id = $(this).data('id');
-        $.ajax({
-            url: `/api/admin/products/${id}`,
-            method: 'DELETE',
-            success: function(response) {
-                $('#confirmModal').modal('hide');
-                if (response.success) {
-                    showSuccessMessage(response.message || 'Product deleted successfully.');
-                    productDataTable.ajax.reload(null, false);  // Reload without resetting pagination
-                } else {
-                    showErrorMessage(response.message || 'An error occurred while deleting the product.');
+        $('#confirm_message').text('Are you sure you want to delete this product?');
+        $('#confirm_button').off('click').on('click', function() {
+            $.ajax({
+                url: `/api/admin/products/${productId}`,
+                method: 'DELETE',
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                success: function(data) {
+                    $('#confirmModal').modal('hide');
+                    productDataTable.ajax.reload();
+                    showNotification(data.message, 'success');
+                },
+                error: function(xhr) {
+                    showNotification('Failed to delete product. Please try again.', 'error');
                 }
-            },
-            error: function(xhr) {
-                $('#confirmModal').modal('hide');
-                showErrorMessage('An error occurred. Please try again.');
-            },
-            complete: function() {
-                // Ensure the DataTable refreshes even if there's an error
-                productDataTable.ajax.reload(null, false);
-            }
+            });
         });
     });
-    
-    function showSuccessMessage(message) {
-        $('#success-message').text(message);
-        $('#success-alert').removeClass('alert-danger').addClass('alert-success').show();
-        setTimeout(function() {
-            $('#success-alert').fadeOut('slow');
-        }, 5000);
-    }
-    
-    function showErrorMessage(message) {
-        $('#error-message').text(message);
-        $('#error-alert').removeClass('alert-success').addClass('alert-danger').show();
-        setTimeout(function() {
-            $('#error-alert').fadeOut('slow');
-        }, 5000);
-    }
-    
 
-
-
-    function showSuccessMessage(message) {
-        $('#success-message').text(message);
-        $('#success-alert').removeClass('alert-danger').addClass('alert-success').show();
-        setTimeout(function() {
-            $('#success-alert').fadeOut('slow');
-        }, 5000);
-    }
-    
-    function showErrorMessage(message) {
-        $('#error-message').text(message);
-        $('#error-alert').removeClass('alert-success').addClass('alert-danger').show();
-        setTimeout(function() {
-            $('#error-alert').fadeOut('slow');
-        }, 5000);
+    function clearErrors() {
+        $('#name_error').text('');
+        $('#description_error').text('');
+        $('#price_error').text('');
+        $('#category_error').text('');
+        $('#stock_error').text('');
+        $('#image_error').text('');
     }
 
-    $('#product_modal').on('hidden.bs.modal', function() {
-        $('#product_form')[0].reset();
-        $('#hidden_id').val('');
-        $('#modal_title').text('Add New Product');
-        $('#action_button').text('Save');
-    });
-
-    $('#create_product').on('click', function() {
-        $('#product_form')[0].reset();
-        $('#hidden_id').val('');
-        $('#modal_title').text('Add New Product');
-        $('#action_button').text('Save');
-        $('#product_modal').modal('show');
-    });
-
-    $('#export_excel').on('click', function() {
-        var data = productDataTable.rows().data().toArray();
-        var ws = XLSX.utils.json_to_sheet(data);
-        var wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "Products");
-        XLSX.writeFile(wb, "products.xlsx");
-    });
-
-    $(document).on('productCreated', function() {
-        console.log('Product created event received');
-    });
-
-    if (localStorage.getItem('productCreated') === 'true') {
-        productDataTable.ajax.reload();
-        localStorage.removeItem('productCreated');
-    }
-
-    function showSuccessMessage(message) {
-        $('#success-message').text(message);
-        $('#success-alert').removeClass('alert-danger').addClass('alert-success');
-        $('#success-alert').appendTo('body').show().delay(10000).fadeOut(); // Show for 10 seconds
-    }
-
-    function showErrorMessage(message) {
-        $('#error-message').text(message);
-        $('#error-alert').removeClass('alert-success').addClass('alert-danger');
-        $('#error-alert').appendTo('body').show().delay(10000).fadeOut(); // Show for 10 seconds
-    }
-
-    function validateForm() {
-        var isValid = true;
-        $('.form-control').each(function() {
-            if ($(this).val().trim() === '' && $(this).prop('required')) {
-                isValid = false;
-                $(this).addClass('is-invalid');
-            } else {
-                $(this).removeClass('is-invalid');
-            }
-        });
-        return isValid;
-    }
-
-    $('#product_form').on('submit', function(e) {
-        if (!validateForm()) {
-            e.preventDefault();
-            showErrorMessage('Please fill all required fields.');
+    function displayErrors(errors) {
+        if (errors.name) {
+            $('#name_error').text(errors.name[0]);
         }
-    });
+        if (errors.description) {
+            $('#description_error').text(errors.description[0]);
+        }
+        if (errors.price) {
+            $('#price_error').text(errors.price[0]);
+        }
+        if (errors.category) {
+            $('#category_error').text(errors.category[0]);
+        }
+        if (errors.stock) {
+            $('#stock_error').text(errors.stock[0]);
+        }
+        if (errors.image) {
+            $('#image_error').text(errors.image[0]);
+        }
+    }
 
-    $('.form-control').on('input', function() {
-        $(this).removeClass('is-invalid');
-    });
-
-    $(document).on('stockUpdated', function() {
-        productDataTable.ajax.reload();
-    });
-
-    if (localStorage.getItem('stockUpdated') === 'true') {
-        productDataTable.ajax.reload();
-        localStorage.removeItem('stockUpdated');
+    function showNotification(message, type) {
+        var alert = type === 'error' ? '#error-alert' : '#success-alert';
+        $(alert).show();
+        if (type === 'error') {
+            $('#error-message').text(message);
+        } else {
+            $('#success-message').text(message);
+        }
+        setTimeout(function() {
+            $(alert).hide();
+        }, 5000);
     }
 });
