@@ -17,7 +17,8 @@
 
     <!-- Select2 CSS -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.13/css/select2.min.css" rel="stylesheet" />
-
+    <!--Toastr-->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" rel="stylesheet"/>
     <!-- Custom CSS Files -->
     <link rel="stylesheet" href="{{ asset('css/orderindex.css') }}">
     <link rel="stylesheet" href="{{ asset('css/user-datatable.css') }}">
@@ -65,6 +66,10 @@
     <!-- Custom JS Files -->
     <script src="{{ asset('js/header.js') }}"></script>
     <script src="{{ asset('js/app.js') }}"></script>
+    
+    <!--Toastr? Wth is this-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+
 
     <!-- Other custom JS files -->
     <script src="{{ asset('js/admin/user-datatable.js') }}"></script>

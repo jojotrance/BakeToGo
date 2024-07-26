@@ -143,19 +143,19 @@ Route::prefix('admin')->middleware(['auth:sanctum'])->group(function () {
 //Route::get('/charts/customer-per-address', [ChartController::class, 'customerPerAddress'])->name('api.charts.customerPerAddress');
 //Route::get('/charts/totalSupplier', [ChartController::class, 'totalSupplier'])->name('api.charts.totalSupplier');
 
-Route::group(['middleware' => ['auth:sanctum', 'is_customer']], function () {
-    Route::get('/profile', [UserProfileController::class, 'show'])->name('api.customer.profile.show');
-    Route::post('/profile', [UserProfileController::class, 'update'])->name('api.customer.profile.update');
-    Route::post('/profile/deactivate', [UserProfileController::class, 'deactivate'])->name('api.customer.profile.deactivate');
-    Route::delete('/profile', [UserProfileController::class, 'destroy'])->name('api.customer.profile.destroy');
+    Route::group(['middleware' => ['auth:sanctum', 'is_customer']], function () {
+        Route::get('/profile', [UserProfileController::class, 'show'])->name('api.customer.profile.show');
+        Route::post('/profile', [UserProfileController::class, 'update'])->name('api.customer.profile.update');
+        Route::post('/profile/deactivate', [UserProfileController::class, 'deactivate'])->name('api.customer.profile.deactivate');
+        Route::delete('/profile', [UserProfileController::class, 'destroy'])->name('api.customer.profile.destroy');
 
-    // Order routes
-    Route::get('/customer/orders/history', [ApiCustomerController::class, 'history'])->name('api.customer.orders.history');
-    Route::post('/customer/orders/status', [ApiCustomerController::class, 'updateOrderStatus'])->name('api.customer.orders.updateStatus');
+        // Order routes
+        Route::get('/customer/orders/history', [ApiCustomerController::class, 'history'])->name('api.customer.orders.history');
+        Route::post('/customer/orders/status', [ApiCustomerController::class, 'updateOrderStatus'])->name('api.customer.orders.updateStatus');
 
 
-    Route::post('/addtoCart', [ShopController::class, 'addToCart']);
-    Route::post('/checkout',[ShopController::class, 'checkout']);
-    // Review routes
-    Route::get('/customer/reviews/history', [ReviewController::class, 'history'])->name('api.customer.reviews.history');
-});
+        Route::post('/addtoCart', [ShopController::class, 'addToCart']);
+        Route::post('/checkout',[ShopController::class, 'checkout']);
+        // Review routes
+        Route::get('/customer/reviews/history', [ReviewController::class, 'history'])->name('api.customer.reviews.history');
+    });

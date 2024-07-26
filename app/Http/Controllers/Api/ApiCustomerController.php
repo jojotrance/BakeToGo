@@ -16,9 +16,13 @@ class ApiCustomerController extends Controller
     {
         try {
             $user = Auth::user();
-            $orders = Order::with(['products'])
-                ->where('customer_id', $user->id)
-                ->get();
+            $query = Order::with(['products'])->where('customer_id', $user->id);
+            
+            if ($request->has('status') && $request->status != 'all') {
+                $query->where('status', $request->status);
+            }
+            
+            $orders = $query->get();
     
             return response()->json(['orders' => $orders]);
         } catch (\Exception $e) {

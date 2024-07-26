@@ -28,31 +28,34 @@ class ShopController extends Controller
 
     /**
      * Show the form for creating a new resource.
-     */public function addToCart(Request $request)
-{
-
-    $request->validate([
-        'product_id' => 'required|integer|exists:products,id',
-        'quantity' => 'required|integer|min:1'
-    ]);
+     */  
     
-    $user = Auth::user();
+     public function addToCart(Request $request)
+    {
+        $request->validate([
+            'product_id' => 'required|integer|exists:products,id',
+            'quantity' => 'required|integer|min:1'
+        ]);
 
-    $customer = $user->customer;
+        $user = Auth::user();
+        $customer = $user->customer;
 
-    $product_id = $request->input('product_id');
-    $quantity = $request->input('quantity', 1);
+        $product_id = $request->input('product_id');
+        $quantity = $request->input('quantity', 1);
 
-    $cartItems = $customer->products()->where('product_id', $product_id)->first();
+        $cartItem = $customer->products()->where('product_id', $product_id)->first();
 
-    if ($cartItems) {
-        $customer->products()->updateExistingPivot($product_id, ['quantity' => $quantity]);
-    } else {
-        $customer->products()->attach($product_id, ['quantity' => $quantity]);
+        if ($cartItem) {
+            // Increment the quantity instead of replacing it
+            $newQuantity = $cartItem->pivot->quantity + $quantity;
+            $customer->products()->updateExistingPivot($product_id, ['quantity' => $newQuantity]);
+        } else {
+            $customer->products()->attach($product_id, ['quantity' => $quantity]);
+        }
+
+        $updatedCartItem = $customer->products()->where('product_id', $product_id)->first();
+        return response()->json(['message' => 'Successfully updated cart!', 'cartItems' => $updatedCartItem]);
     }
-    $updatedCartItem = $customer->products()->where('product_id', $product_id)->first();
-    return response()->json(['message' => 'Successfully updated cart!', 'cartItems' => $updatedCartItem]);
-}
 
     public function mycart()
     {

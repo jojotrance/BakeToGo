@@ -83,8 +83,7 @@ window.renderHeader = function(user, hideComponents, role, myCartUrl) {
                             <div class="cart-icon-container">
                                 <li class="nav-link">
                                     <a href="${myCartUrl}" class="nav-link-item">
-                                        <i class='bx bx-cart icon'></i>
-                                        <span class="text nav-text">Cart</span>
+                                        <i class="fas fa-shopping-cart"></i>
                                     </a>
                                 </li>
                             </div>

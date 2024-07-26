@@ -214,8 +214,8 @@
 }
 
 .cart-icon {
-    color: #333;
-    font-size: 24px;
+    color: #333; /* Set color to black */
+    font-size: 28px; /* Increase the size a bit */
     transition: transform 0.3s ease;
 }
 

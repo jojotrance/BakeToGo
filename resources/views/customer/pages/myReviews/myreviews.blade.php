@@ -9,7 +9,9 @@
         <div class="tab" data-status="reviewed">Reviewed</div>
     </div>
     
-    <div class="review-status-sections">
+   
+</div>
+<div class="review-status-sections">
         @foreach (['not_reviewed', 'reviewed'] as $status)
             <div class="review-section" id="review-section-{{ $status }}">
                 <div class="reviews">
@@ -18,6 +20,5 @@
             </div>
         @endforeach
     </div>
-</div>
 @endsection
 

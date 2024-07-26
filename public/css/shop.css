@@ -1,15 +1,22 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap');
 
+:root {
+    --color-1: #ffe162;
+    --color-2: #f47b5e;
+    --color-3: #feae93;
+    --color-4: #fe7678;
+    --color-5: #e82b27;
+}
+
 body {
     font-family: 'Montserrat', sans-serif;
     background-color: #f5f5f5;
 }
 
 .container {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 20px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr); /* Four columns per row */
+    gap: 20px; /* Spacing between items */
     padding: 20px;
 }
 
@@ -18,7 +25,7 @@ body {
     border-radius: 30px; /* Rounded corners for the menu card */
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     overflow: hidden;
-    width: 300px; /* Width of the card */
+    width: 100%; /* Make width 100% to utilize grid cell */
     position: relative;
     transition: transform 0.3s ease;
     display: flex;
@@ -61,24 +68,33 @@ body {
     justify-content: flex-start;
 }
 
+.item-name, .item-price, .item-description {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
 .item-name {
     font-size: 1.2rem;
     font-weight: 600;
     margin-bottom: 10px;
-    color: #333;
+    color: var(--color-4);
+    height: 1.4em; /* Fixed height */
 }
 
 .item-price {
     font-size: 1rem;
     font-weight: 500;
-    color: #4a4a4a;
+    color: var(--color-5);
     margin-bottom: 10px;
+    height: 1.2em; /* Fixed height */
 }
 
 .item-description {
     font-size: 0.8rem;
     color: #666;
     margin-bottom: 15px;
+    height: 2.4em; /* Fixed height */
 }
 
 .quantity-container {
@@ -86,10 +102,12 @@ body {
     justify-content: center;
     align-items: center;
     margin-bottom: 10px;
+    margin-top: 10px; /* Added margin-top to push it down */
+    width: 100%;
 }
 
 .quantity-container button {
-    background-color: #8B4513;
+    background-color: var(--color-3);
     color: white;
     border: none;
     padding: 5px 10px;
@@ -100,7 +118,7 @@ body {
 }
 
 .quantity-container button:hover {
-    background-color: #6B3E0A;
+    background-color: var(--color-2);
 }
 
 .quantity-container input {
@@ -111,8 +129,13 @@ body {
     margin: 0 5px;
 }
 
+.item-stock {
+    text-align: center;
+    margin-bottom: 10px; /* Added margin-bottom to give space */
+}
+
 .btn-buy-now {
-    background-color: salmon; /* Salmon background for buttons */
+    background-color: var(--color-2); /* Use color scheme for buttons */
     color: white;
     border: none;
     padding: 15px; /* Adjusted padding */
@@ -129,6 +152,77 @@ body {
 }
 
 .btn-buy-now:hover {
-    background-color: #e9967a; /* Slightly darker shade of salmon on hover */
+    background-color: var(--color-1); /* Slightly darker shade on hover */
     color: white;
+}
+
+
+#custom-notifications {
+    position: fixed;
+    top: 10%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.custom-notification {
+    background-color: white;
+    border: 1px solid var(--color-4); /* Use your color scheme */
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    padding: 15px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    animation: fadein 0.5s;
+}
+
+@keyframes fadein {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.notification-logo {
+    width: 50px;
+    height: 50px;
+    margin-right: 15px;
+}
+
+.notification-content {
+    flex-grow: 1;
+}
+
+.notification-message {
+    margin: 0;
+    font-size: 1rem;
+}
+
+.notification-close {
+    background: none;
+    border: none;
+    font-size: 1.2rem;
+    cursor: pointer;
+    color: var(--color-5);
+}
+
+.notification-close:hover {
+    color: var(--color-4);
+}
+
+.notification-button {
+    background-color: var(--color-3);
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    cursor: pointer;
+    border-radius: 5px;
+    margin-top: 10px;
+    transition: background-color 0.3s ease;
+}
+
+.notification-button:hover {
+    background-color: var(--color-2);
 }

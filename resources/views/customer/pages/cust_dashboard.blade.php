@@ -26,4 +26,6 @@
 @section('body')
     <div class="container container-fluid" id="items">
     </div>
+
+    <div id="custom-notifications"></div>
 @endsection

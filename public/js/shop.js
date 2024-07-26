@@ -1,4 +1,48 @@
 $(document).ready(function () {
+    // Custom Notification Function
+    function showCustomNotification(message, type = 'success', buttonText = null, buttonCallback = null) {
+        const notificationsContainer = document.getElementById('custom-notifications');
+        
+        const notification = document.createElement('div');
+        notification.className = `custom-notification ${type}`;
+        
+        const logo = document.createElement('img');
+        logo.className = 'notification-logo';
+        logo.src = 'customer/images/bake-logo.jpg'; // Replace with the actual path to your logo
+        logo.alt = 'Logo';
+        
+        const content = document.createElement('div');
+        content.className = 'notification-content';
+        
+        const messageElement = document.createElement('p');
+        messageElement.className = 'notification-message';
+        messageElement.textContent = message;
+        
+        content.appendChild(messageElement);
+        
+        if (buttonText && buttonCallback) {
+            const button = document.createElement('button');
+            button.className = 'notification-button';
+            button.textContent = buttonText;
+            button.onclick = buttonCallback;
+            content.appendChild(button);
+        }
+        
+        const closeButton = document.createElement('button');
+        closeButton.className = 'notification-close';
+        closeButton.innerHTML = '&times;';
+        closeButton.onclick = () => notification.remove();
+        
+        notification.appendChild(logo);
+        notification.appendChild(content);
+        notification.appendChild(closeButton);
+        
+        notificationsContainer.appendChild(notification);
+        
+        // Auto-remove after 5 seconds
+        setTimeout(() => notification.remove(), 5000);
+    }
+
     // Load products
     $.ajax({
         type: "GET",
@@ -22,9 +66,9 @@ $(document).ready(function () {
                             <p>Category: ${value.category}</p>
                             <p class='item-price'>Price: Php <span class='price'>${value.price}</span></p>
                             <p class='item-description'>${value.description}</p>
-                            <p>Stock: ${stock}</p>
+                            <p class='item-stock'>Stock: ${stock}</p>
                             <div class='quantity-container'>
-                                <button class='quantity-minus'>-</button>
+                                <button class='quantity-minus' disabled>-</button>
                                 <input type='text' class='quantity' value='0' readonly>
                                 <button class='quantity-plus'>+</button>
                             </div>
@@ -37,7 +81,7 @@ $(document).ready(function () {
         },
         error: function () {
             console.log('AJAX load did not work');
-            alert("Error loading data.");
+            showCustomNotification("Error loading data.", "error");
         }
     });
 
@@ -46,6 +90,11 @@ $(document).ready(function () {
         var item = $(this).closest('.menu-item');
         var productId = item.find('.itemId').text();
         var quantity = parseInt(item.find('.quantity').val());
+
+        if (quantity === 0) {
+            showCustomNotification('Please add quantity first', 'error');
+            return;
+        }
 
         $.ajax({
             type: "POST",
@@ -59,12 +108,14 @@ $(document).ready(function () {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             },
             success: function (response) {
-                alert('Item added to cart successfully!');
+                // Reset quantity counter
+                item.find('.quantity').val('0');
+                item.find('.quantity-minus').prop('disabled', true).css('color', '#ccc');
+                
+                showCustomNotification('Item added to cart successfully!', 'success', 'View Cart', function() {
+                    // Add logic to view cart here
+                });
             },
-            error: function (xhr, status, error) {
-                console.error("Error adding item to cart:", status, error);
-                alert('Error adding item to cart.');
-            }
         });
     });
 
@@ -72,10 +123,12 @@ $(document).ready(function () {
     function handleQuantityChange(selector) {
         $(selector).on('click', '.quantity-plus', function () {
             var input = $(this).siblings('.quantity');
+            var minusButton = $(this).siblings('.quantity-minus');
             var max = input.attr('max') || 999;
             var currentVal = parseInt(input.val()) || 0;
             if (currentVal < max) {
                 input.val(currentVal + 1);
+                minusButton.prop('disabled', false).css('color', '#000');
                 if (selector === '#cart-items') {
                     updateQuantityBackend(input, 1);
                 }
@@ -88,6 +141,9 @@ $(document).ready(function () {
             var currentVal = parseInt(input.val()) || 0;
             if (currentVal > min) {
                 input.val(currentVal - 1);
+                if (currentVal - 1 === 0) {
+                    $(this).prop('disabled', true).css('color', '#ccc');
+                }
                 if (selector === '#cart-items') {
                     updateQuantityBackend(input, -1);
                 }
@@ -99,14 +155,14 @@ $(document).ready(function () {
     handleQuantityChange('#cart-items');
 
     function updateQuantityBackend(input, change) {
-        var productId = input.attr('id').split('-')[1];
+        var productId = input.closest('.menu-item').find('.itemId').text();
         var newQuantity = parseInt(input.val());
 
         $.ajax({
             type: "POST",
-            url: "/api/addtoCart", // Using the same route
+            url: "/api/addtoCart",
             data: JSON.stringify({
-                product_id: productId, // Adjust according to your logic
+                product_id: productId,
                 quantity: newQuantity
             }),
             contentType: "application/json",
@@ -115,10 +171,11 @@ $(document).ready(function () {
             },
             success: function (response) {
                 console.log('Quantity updated successfully');
+                showCustomNotification('Quantity updated successfully', 'success');
             },
             error: function (xhr, status, error) {
                 console.error("Error updating quantity:", status, error);
-                alert('Error updating quantity.');
+                showCustomNotification('Error updating quantity. Please try again.', 'error');
             }
         });
     }
@@ -137,10 +194,11 @@ $(document).ready(function () {
             success: function (response) {
                 $('tr[data-id="' + productId + '"]').remove();
                 console.log('Item removed successfully');
+                showCustomNotification('Item removed from cart successfully', 'success');
             },
             error: function (xhr, status, error) {
                 console.error("Error removing item:", status, error);
-                alert('Error removing item.');
+                showCustomNotification('Error removing item. Please try again.', 'error');
             }
         });
     }
@@ -183,16 +241,17 @@ $(document).ready(function () {
             contentType: "application/json",
             success: function(response) {
                 if (response.code === 200) {
-                    window.location.href = '/customer/dashboard';
-                    alert('Successfully ordered!');
+                    showCustomNotification('Successfully ordered!', 'success', 'View Order', function() {
+                        window.location.href = '/customer/dashboard';
+                    });
                 } else {
-                    alert(response.error); 
+                    showCustomNotification(response.error, 'error');
                 }
             },
             error: function (xhr, status, error) {
                 console.error('Error status:', status);
                 console.error('Error details:', error);
-                alert('Error processing checkout. Status: ' + status + '. Error: ' + error);
+                showCustomNotification('Error processing checkout. Please try again.', 'error');
             }
         });
     });
