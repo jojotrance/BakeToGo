@@ -47,6 +47,20 @@ $(document).ready(function () {
         setTimeout(() => notification.remove(), 5000);
     }
 
+    // Function to fetch cart count
+    function fetchCartCount() {
+        $.ajax({
+            type: "GET",
+            url: "/api/cart/count",
+            success: function (data) {
+                $('#cart-count').text(data.count);
+            },
+            error: function () {
+                console.error('Failed to fetch cart count');
+            }
+        });
+    }
+
     function loadProducts(page) {
         if (loading) return;
         loading = true;
@@ -59,10 +73,10 @@ $(document).ready(function () {
                 console.log(data); // Debug: Log the data received from the API
                 lastPage = data.last_page;
 
-                $.each(data.data, function (key, value) {
+                $.each(data.data, function (key, value) { // Change from data to data.data
                     console.log(value); // Debug: Log each product's data
-                    var imageUrl = value.image ? `/storage/product_images/${value.image}` : '/storage/product_images/default-placeholder.png';
-                    var stock = value.stock !== undefined ? value.stock : 'Unavailable';
+                    var imageUrl = value.image_url ? value.image_url : '/storage/product_images/default-placeholder.png';
+                    var stock = value.total_stock !== undefined ? value.total_stock : 'Unavailable';
                     console.log('Stock:', stock); // Debug: Log the stock value
 
                     var item = `
@@ -143,7 +157,13 @@ $(document).ready(function () {
                 showCustomNotification('Item added to cart successfully!', 'success', 'View Cart', function() {
                     // Add logic to view cart here
                 });
+
+                fetchCartCount(); // Update cart count
             },
+            error: function (xhr, status, error) {
+                console.error("Error adding item to cart:", status, error);
+                showCustomNotification('Error adding item to cart.', 'error');
+            }
         });
     });
 
@@ -200,6 +220,7 @@ $(document).ready(function () {
             success: function (response) {
                 console.log('Quantity updated successfully');
                 showCustomNotification('Quantity updated successfully', 'success');
+                fetchCartCount(); // Update cart count
             },
             error: function (xhr, status, error) {
                 console.error("Error updating quantity:", status, error);
@@ -223,6 +244,7 @@ $(document).ready(function () {
                 $('tr[data-id="' + productId + '"]').remove();
                 console.log('Item removed successfully');
                 showCustomNotification('Item removed from cart successfully', 'success');
+                fetchCartCount(); // Update cart count
             },
             error: function (xhr, status, error) {
                 console.error("Error removing item:", status, error);
@@ -272,6 +294,7 @@ $(document).ready(function () {
                     showCustomNotification('Successfully ordered!', 'success', 'View Order', function() {
                         window.location.href = '/customer/dashboard';
                     });
+                    fetchCartCount(); // Update cart count after checkout
                 } else {
                     showCustomNotification(response.error, 'error');
                 }
@@ -283,4 +306,7 @@ $(document).ready(function () {
             }
         });
     });
+
+    // Initial cart count fetch
+    fetchCartCount();
 });

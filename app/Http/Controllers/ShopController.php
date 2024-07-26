@@ -20,11 +20,17 @@ class ShopController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
-    {
-        $items = Product::all();
-        return response()->json($items);
-    }
+    //public function index(Request $request)
+//{
+   // $products = Product::with('stocks')->paginate(10);
+    //Log::debug('Products fetched:', ['products' => $products->toArray()]); // Add this line for debugging
+    //return response()->json($products);
+//}
+public function index()
+{
+    $items = Product::all();
+    return response()->json($items);
+}
 
     /**
      * Show the form for creating a new resource.

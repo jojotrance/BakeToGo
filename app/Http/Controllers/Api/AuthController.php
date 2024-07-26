@@ -73,7 +73,11 @@ class AuthController extends Controller
     public function authenticate(Request $request)
     {
         $credentials = $request->only('name', 'password');
-
+    
+        // Check if the credentials are an email or a username
+        $fieldType = filter_var($credentials['name'], FILTER_VALIDATE_EMAIL) ? 'email' : 'name';
+        $credentials = [$fieldType => $credentials['name'], 'password' => $credentials['password']];
+    
         if (Auth::attempt($credentials)) {
             $user = Auth::user();
             if ($user->role === User::ROLE_GUEST) {
@@ -83,14 +87,14 @@ class AuthController extends Controller
                     'message' => 'Your account is not yet confirmed. Please wait for the admin to confirm your registration.'
                 ], 403);
             }
-
+    
             if (!$user->active_status) {
                 Auth::logout();
                 return response()->json(['status' => 'inactive', 'message' => 'Your account is inactive. Please contact the administrator.'], 403);
             }
-
+    
             $token = $user->createToken('auth_token')->plainTextToken;
-
+    
             return response()->json([
                 'success' => true,
                 'message' => 'Login successful',
@@ -98,13 +102,13 @@ class AuthController extends Controller
                 'token' => $token,
             ]);
         }
-
+    
         return response()->json([
             'success' => false,
             'message' => 'The provided credentials do not match our records.',
         ], 401);
     }
-
+    
     public function updateRole(Request $request, User $user)
     {
         $this->authorize('update', $user);

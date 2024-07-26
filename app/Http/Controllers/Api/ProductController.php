@@ -12,51 +12,57 @@ use Illuminate\Support\Facades\Log;
 class ProductController extends Controller
 {
     public function index(Request $request)
-    {
-        $query = Product::with('stocks');
+{
+    $query = Product::with('stocks');
 
-        // Get the total number of records before applying filters
-        $totalRecords = $query->count();
+    // Get the total number of records before applying filters
+    $totalRecords = $query->count();
 
-        // Handle search functionality
-        if ($request->has('search') && $request->input('search.value')) {
-            $searchTerm = $request->input('search.value');
-            Log::info('Search term:', ['term' => $searchTerm]); // Log the search term
-            $query->where(function ($q) use ($searchTerm) {
-                $q->where('name', 'LIKE', "%{$searchTerm}%")
-                    ->orWhere('description', 'LIKE', "%{$searchTerm}%")
-                    ->orWhere('category', 'LIKE', "%{$searchTerm}%");
-            });
-        }
-
-        // Get the total number of records after applying filters but before pagination
-        $totalFilteredRecords = $query->count();
-
-        // Handle ordering
-        if ($request->has('order')) {
-            $orderColumnIndex = $request->input('order.0.column');
-            $orderDir = $request->input('order.0.dir');
-            $columns = $request->input('columns');
-            $orderColumnName = $columns[$orderColumnIndex]['data'];
-
-            $query->orderBy($orderColumnName, $orderDir);
-        }
-
-        // Handle pagination
-        if ($request->has('length') && $request->input('length') != -1) {
-            $length = $request->input('length');
-            $start = $request->input('start');
-            $query->offset($start)->limit($length);
-        }
-
-        $products = $query->get();
-
-        return response()->json([
-            'data' => ProductResource::collection($products),
-            'recordsTotal' => $totalRecords,
-            'recordsFiltered' => $totalFilteredRecords,
-        ]);
+    // Handle search functionality
+    if ($request->has('search') && $request->input('search.value')) {
+        $searchTerm = $request->input('search.value');
+        Log::info('Search term:', ['term' => $searchTerm]); // Log the search term
+        $query->where(function ($q) use ($searchTerm) {
+            $q->where('name', 'LIKE', "%{$searchTerm}%")
+                ->orWhere('description', 'LIKE', "%{$searchTerm}%")
+                ->orWhere('category', 'LIKE', "%{$searchTerm}%");
+        });
     }
+
+    // Get the total number of records after applying filters but before pagination
+    $totalFilteredRecords = $query->count();
+
+    // Handle ordering
+    if ($request->has('order')) {
+        $orderColumnIndex = $request->input('order.0.column');
+        $orderDir = $request->input('order.0.dir');
+        $columns = $request->input('columns');
+        $orderColumnName = $columns[$orderColumnIndex]['data'];
+
+        $query->orderBy($orderColumnName, $orderDir);
+    }
+
+    // Handle pagination
+    if ($request->has('length') && $request->input('length') != -1) {
+        $length = $request->input('length');
+        $start = $request->input('start');
+        $query->offset($start)->limit($length);
+    }
+
+    $products = $query->get();
+
+    // Calculate total stock for each product
+    foreach ($products as $product) {
+        $product->total_stock = $product->stocks->sum('quantity');
+    }
+
+    return response()->json([
+        'data' => ProductResource::collection($products),
+        'recordsTotal' => $totalRecords,
+        'recordsFiltered' => $totalFilteredRecords,
+    ]);
+}
+    
 
     public function store(Request $request)
     {

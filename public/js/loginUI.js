@@ -24,6 +24,9 @@ jQuery(document).ready(function($) {
         var password = $("#loginPassword").val();
         var isValid = true;
 
+        console.log('Name:', name);  // Debugging statement
+        console.log('Password:', password);  // Debugging statement
+
         if (isEmpty(name)) {
             $("#error-name").text('This field is required');
             isValid = false;
