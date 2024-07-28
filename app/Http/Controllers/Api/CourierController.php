@@ -8,6 +8,9 @@ use App\Models\Courier;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use App\Imports\CourierImport;
+use Maatwebsite\Excel\Facades\Excel;
+
 class CourierController extends Controller
 {
     public function listCouriers(Request $request)
@@ -101,6 +104,19 @@ class CourierController extends Controller
                               ->get();
 
         return response()->json($courierData);
+    }
+
+    public function courierImport(Request $request)
+    {
+        $request->validate([
+            'item_upload' => [
+                'required',
+                'file'
+            ],
+        ]);
+
+        Excel::import(new CourierImport, $request->file('item_upload'));
+        return redirect('/admin/courier')->with('success', 'Excel file Imported Successfully');
     }
 }
 

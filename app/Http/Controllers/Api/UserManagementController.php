@@ -11,6 +11,8 @@ use App\Models\Customer;
 use App\Http\Resources\UserResource;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Validator;
+use App\Imports\UserManagementImport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class UserManagementController extends Controller
 {
@@ -250,5 +252,16 @@ public function getTotalRoles()
     return response()->json($roleData);
 }
 
+public function usermanagementImport(Request $request)
+    {
+        $request->validate([
+            'item_upload' => [
+                'required',
+                'file'
+            ],
+        ]);
 
+        Excel::import(new UserManagementImport, $request->file('item_upload'));
+        return redirect('/admin/usermanagement')->with('success', 'Excel file Imported Successfully');
+    }
 }

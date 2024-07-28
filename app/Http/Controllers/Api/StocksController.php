@@ -8,6 +8,8 @@ use App\Models\Stock;
 use App\Events\StockUpdated;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use App\Imports\StockImport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class StocksController extends Controller
 {
@@ -26,9 +28,9 @@ class StocksController extends Controller
             }
 
             $stocks = $query->paginate(
-                $request->get('length', 10), 
-                ['*'], 
-                'page', 
+                $request->get('length', 10),
+                ['*'],
+                'page',
                 $request->get('start', 0) / $request->get('length', 10) + 1
             );
 
@@ -117,5 +119,18 @@ class StocksController extends Controller
             Log::error('Failed to delete stock: ' . $e->getMessage());
             return response()->json(['error' => 'Failed to delete stock'], 500);
         }
+    }
+
+    public function stockImport(Request $request)
+    {
+        $request->validate([
+            'item_upload' => [
+                'required',
+                'file'
+            ],
+        ]);
+
+        Excel::import(new StockImport, $request->file('item_upload'));
+        return redirect('/admin/stock')->with('success', 'Excel file Imported Successfully');
     }
 }

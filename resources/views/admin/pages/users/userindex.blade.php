@@ -11,9 +11,17 @@
                     <h5 class="card-title">Welcome to User Management</h5>
                     <p class="card-text">Here you can select the roles and active status of the user accounts.</p>
                 </div>
-                <div>
-                    <button type="button" id="import_excel" class="btn btn-warning btn-sm">Import to Excel</button>
-                    <button type="button" id="export_excel" class="btn btn-warning btn-sm">Export to Excel</button>
+                <div class="d-flex align-items-center">
+                    <div class="card me-3">
+                        <div class="card-body">
+                            <form method="POST" enctype="multipart/form-data" action="{{ route('imports.usermanagement') }}" class="d-flex align-items-center">
+                                @csrf
+                                <input type="file" id="uploadName" name="item_upload" class="form-control me-2" required>
+                                <button id="import-form-submit" type="submit" class="btn btn-primary">Import Excel File</button>
+                            </form>
+                        </div>
+                    </div>
+                    <button type="button" id="create_courier" class="btn btn-primary btn-sm">Create User</button>
                 </div>
             </div>
         </div>

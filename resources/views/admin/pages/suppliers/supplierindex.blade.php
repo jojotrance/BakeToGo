@@ -11,9 +11,17 @@
                     <h5 class="card-title">Supplier Management</h5>
                     <p class="card-text">Manage suppliers with ease.</p>
                 </div>
-                <div>
-                    <button type="button" id="export_excel" class="btn btn-success btn-sm">Export to Excel</button>
-                    <button type="button" id="create_supplier" class="btn btn-primary btn-sm">Create Supplier</button>
+                <div class="d-flex align-items-center">
+                    <div class="card me-3">
+                        <div class="card-body">
+                            <form method="POST" enctype="multipart/form-data" action="{{ route('imports.supplier') }}" class="d-flex align-items-center">
+                                @csrf
+                                <input type="file" id="uploadName" name="item_upload" class="form-control me-2" required>
+                                <button id="import-form-submit" type="submit" class="btn btn-primary">Import Excel File</button>
+                            </form>
+                        </div>
+                    </div>
+                    <button type="button" id="create_courier" class="btn btn-primary btn-sm">Create Supplier</button>
                 </div>
             </div>
         </div>

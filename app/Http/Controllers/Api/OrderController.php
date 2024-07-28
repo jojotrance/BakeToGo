@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use Illuminate\Http\Request;
-use Yajra\DataTables\Facades\DataTables;    
+use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Log;
+use App\Imports\OrderImport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class OrderController extends Controller
 {
@@ -14,7 +16,7 @@ class OrderController extends Controller
         if ($request->ajax()) {
             try {
                 $orders = Order::with(['customer', 'paymentMethod', 'courier']);
-                
+
                 return DataTables::of($orders)
                     ->addColumn('customer', function (Order $order) {
                         return $order->customer ? $order->customer->fname . ' ' . $order->customer->lname : 'N/A';
@@ -36,7 +38,7 @@ class OrderController extends Controller
                 return response()->json(['error' => 'An error occurred while processing your request.'], 500);
             }
         }
-    
+
         return view('admin.orders.index');
     }
 
@@ -88,13 +90,25 @@ class OrderController extends Controller
         try {
             $order = Order::findOrFail($id);
             $order->delete();
-    
+
             return response()->json(['message' => 'Order deleted successfully']);
         } catch (\Exception $e) {
             Log::error('Error in OrderController@destroy: ' . $e->getMessage());
             return response()->json(['error' => 'An error occurred while deleting the order.'], 500);
         }
     }
-    
-    
+
+    public function orderImport(Request $request)
+    {
+        $request->validate([
+            'item_upload' => [
+                'required',
+                'file'
+            ],
+        ]);
+
+        Excel::import(new OrderImport, $request->file('item_upload'));
+        return redirect('/admin/orders')->with('success', 'Excel file Imported Successfully');
+    }
+
 }

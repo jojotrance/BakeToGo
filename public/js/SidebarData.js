@@ -51,9 +51,9 @@ window.SidebarData = [
                 link: "/admin/charts/total-role"
             },
             {
-                title: "Customer Per Address",
+                title: "Total Category",
                 icon: '<i class="fas fa-chart-line"></i>',
-                link: "/admin/charts/customer-per-address"
+                link: "/admin/charts/total-category"
             },
             {
                 title: "Courier Per Branch",

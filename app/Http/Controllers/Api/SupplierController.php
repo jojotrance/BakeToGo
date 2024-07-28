@@ -9,6 +9,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
+use App\Imports\SupplierImport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class SupplierController extends Controller
 {
@@ -22,7 +24,7 @@ class SupplierController extends Controller
         }
 
         $suppliers = $query->paginate($request->get('length', 10), ['*'], 'page', $request->get('start', 0) / $request->get('length', 10) + 1);
-        
+
         return response()->json([
             'data' => SupplierResource::collection($suppliers),
             'recordsTotal' => $suppliers->total(),
@@ -119,6 +121,16 @@ class SupplierController extends Controller
         return response()->json(['exists' => $exists]);
     }
 
-   
+    public function supplierImport(Request $request)
+    {
+        $request->validate([
+            'item_upload' => [
+                'required',
+                'file'
+            ],
+        ]);
 
+        Excel::import(new SupplierImport, $request->file('item_upload'));
+        return redirect('/admin/suppliers')->with('success', 'Excel file Imported Successfully');
+    }
 }

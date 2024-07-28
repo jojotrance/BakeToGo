@@ -8,16 +8,18 @@ use Illuminate\Http\Request;
 use App\Http\Resources\ProductResource;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Log;
+use App\Imports\ProductImport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class ProductController extends Controller
 {public function index(Request $request)
     {
         // Start the query with the relationship to stocks
         $query = Product::with('stocks');
-    
+
         // Get the total number of records before applying filters
         $totalRecords = $query->count();
-    
+
         // Handle search functionality
         if ($request->has('search') && $request->input('search.value')) {
             $searchTerm = $request->input('search.value');
@@ -28,43 +30,43 @@ class ProductController extends Controller
                     ->orWhere('category', 'LIKE', "%{$searchTerm}%");
             });
         }
-    
+
         // Get the total number of records after applying filters but before pagination
         $totalFilteredRecords = $query->count();
-    
+
         // Handle ordering
         if ($request->has('order')) {
             $orderColumnIndex = $request->input('order.0.column');
             $orderDir = $request->input('order.0.dir');
             $columns = $request->input('columns');
             $orderColumnName = $columns[$orderColumnIndex]['data'];
-    
+
             $query->orderBy($orderColumnName, $orderDir);
         }
-    
+
         // Handle pagination
         if ($request->has('length') && $request->input('length') != -1) {
             $length = $request->input('length');
             $start = $request->input('start');
             $query->offset($start)->limit($length);
         }
-    
+
         $products = $query->get();
-    
+
         // Calculate total stock for each product
         foreach ($products as $product) {
             $product->total_stock = $product->stocks->sum('quantity');
         }
-    
+
         return response()->json([
             'data' => ProductResource::collection($products),
             'recordsTotal' => $totalRecords,
             'recordsFiltered' => $totalFilteredRecords,
         ]);
     }
-    
-    
-    
+
+
+
 
     public function store(Request $request)
     {
@@ -170,38 +172,48 @@ class ProductController extends Controller
 
     $exists = $query->exists();
 
-    return response()->json(['exists' => $exists]);
-}
+        return response()->json(['exists' => $exists]);
+    }
 
-    
+    public function productImport(Request $request)
+    {
+        $request->validate([
+            'item_upload' => [
+                'required',
+                'file'
+            ],
+        ]);
+
+        Excel::import(new ProductImport, $request->file('item_upload'));
+        return redirect('/admin/products')->with('success', 'Excel file Imported Successfully');
+    }
+
     public function updateProductStock(Request $request)
     {
         $productId = $request->input('product_id');
         $quantity = $request->input('quantity');
-    
+
         // Fetch product
         $product = Product::findOrFail($productId);
-    
+
         // Fetch the stock for the product from the supplier with the highest stock
         $stock = Stock::where('product_id', $productId)
                     ->orderBy('quantity', 'desc')
                     ->first();
-    
+
         if (!$stock) {
             return response()->json(['message' => 'No stock available for this product'], 404);
         }
-    
+
         if ($stock->quantity >= $quantity) {
             $stock->quantity -= $quantity;
             $stock->save();
         } else {
             return response()->json(['message' => 'Not enough stock available'], 400);
         }
-    
+
         return response()->json(['message' => 'Stock updated successfully'], 200);
     }
-    
-    
 
     public function getProductsWithStock()
     {
@@ -209,9 +221,7 @@ class ProductController extends Controller
             $query->selectRaw('product_id, SUM(quantity) as total_stock')
                   ->groupBy('product_id');
         }])->get();
-    
+
         return response()->json(['data' => $products]);
     }
-    
-    
 }

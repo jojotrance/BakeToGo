@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
 use App\Http\Resources\PaymentMethodResource;
 use Illuminate\Support\Facades\Log;
+use App\Imports\PaymentMethodImport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class PaymentMethodController extends Controller
 {
@@ -165,5 +167,18 @@ class PaymentMethodController extends Controller
             ]);
             return response()->json(['error' => 'An error occurred while deleting the payment method.'], 500);
         }
+    }
+
+    public function paymentmethodImport(Request $request)
+    {
+        $request->validate([
+            'item_upload' => [
+                'required',
+                'file'
+            ],
+        ]);
+
+        Excel::import(new PaymentMethodImport, $request->file('item_upload'));
+        return redirect('/admin/payments')->with('success', 'Excel file Imported Successfully');
     }
 }
