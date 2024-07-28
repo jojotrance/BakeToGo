@@ -1,3 +1,5 @@
+import $ from 'jquery';
+
 $(document).ready(function () {
     // Custom Notification Function
     function showCustomNotification(message, type = 'success', buttonText = null, buttonCallback = null) {
@@ -58,111 +60,99 @@ $(document).ready(function () {
         });
     }
 
-    // Quantity change handlers
-    function handleQuantityChange(selector) {
-        $(selector).on('click', '.quantity-plus', function () {
-            var input = $(this).siblings('.quantity');
-            var minusButton = $(this).siblings('.quantity-minus');
-            var max = input.attr('max') || 999;
-            var currentVal = parseInt(input.val()) || 0;
-            if (currentVal < max) {
-                input.val(currentVal + 1);
-                minusButton.prop('disabled', false).css('color', '#000');
-                if (selector === '#cart-items') {
-                    updateQuantityBackend(input, 1);
-                }
-                calculateTotal();
-            }
+    // Function to handle quantity change
+    function handleQuantityChange() {
+        $('#cart-items').on('click', '.quantity-plus', function () {
+            const input = $(this).siblings('.quantity-input');
+            const newQuantity = parseInt(input.val()) + 1;
+            const productId = $(this).data('id');
+            input.val(newQuantity);
+            updateQuantity(productId, newQuantity);
         });
 
-        $(selector).on('click', '.quantity-minus', function () {
-            var input = $(this).siblings('.quantity');
-            var min = input.attr('min') || 0;
-            var currentVal = parseInt(input.val()) || 0;
-            if (currentVal > min) {
-                input.val(currentVal - 1);
-                if (currentVal - 1 === 0) {
-                    $(this).prop('disabled', true).css('color', '#ccc');
-                }
-                if (selector === '#cart-items') {
-                    updateQuantityBackend(input, -1);
-                }
-                calculateTotal();
+        $('#cart-items').on('click', '.quantity-minus', function () {
+            const input = $(this).siblings('.quantity-input');
+            const newQuantity = parseInt(input.val()) - 1;
+            if (newQuantity >= 1) {
+                const productId = $(this).data('id');
+                input.val(newQuantity);
+                updateQuantity(productId, newQuantity);
             }
         });
     }
 
-    handleQuantityChange('#cart-items');
-
-    function updateQuantityBackend(input, change) {
-        var productId = input.closest('.menu-item').find('.itemId').text();
-        var newQuantity = parseInt(input.val());
-
+    // Function to update quantity
+    function updateQuantity(productId, quantity) {
         $.ajax({
-            type: "POST",
-            url: "/api/addtoCart",
-            data: JSON.stringify({
-                product_id: productId,
-                quantity: newQuantity
-            }),
+            type: "PUT",
+            url: `/api/updateCart/${productId}`,
+            data: JSON.stringify({ quantity: quantity }),
             contentType: "application/json",
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             },
-            success: function (response) {
-                console.log('Quantity updated successfully');
-                showCustomNotification('Quantity updated successfully', 'success');
-                fetchCartCount(); // Update cart count
-                calculateTotal(); // Update total amount
+            success: function () {
+                showCustomNotification('Quantity updated successfully.');
+                calculateTotal();
             },
-            error: function (xhr, status, error) {
-                console.error("Error updating quantity:", status, error);
-                showCustomNotification('Error updating quantity. Please try again.', 'error');
+            error: function () {
+                console.error('Failed to update quantity');
             }
         });
     }
 
+    // Function to remove item from cart
     function removeItem(productId) {
+        console.log(`Attempting to remove item with ID: ${productId}`);
         $.ajax({
-            type: "POST",
-            url: "/api/removeFromCart",
-            data: JSON.stringify({
-                product_id: productId
-            }),
+            type: "DELETE",
+            url: `/api/removeFromCart/${productId}`,
             contentType: "application/json",
             headers: {
                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             },
             success: function (response) {
-                $('tr[data-id="' + productId + '"]').remove();
-                console.log('Item removed successfully');
-                showCustomNotification('Item removed from cart successfully', 'success');
-                fetchCartCount(); // Update cart count
-                calculateTotal(); // Update total amount
+                console.log('Remove item response:', response);
+                showCustomNotification('Item removed successfully.');
+                $(`tr[data-id="${productId}"]`).remove();
+                calculateTotal();
+                fetchCartCount();
             },
             error: function (xhr, status, error) {
-                console.error("Error removing item:", status, error);
-                showCustomNotification('Error removing item. Please try again.', 'error');
+                console.error('Failed to remove item:', error);
+                console.error('Response:', xhr.responseText);
             }
         });
     }
-
-    $('#cart-items').on('click', '.btn-remove', function () {
-        var productId = $(this).data('id');
-        removeItem(productId);
-    });
-
-    // Initial cart count fetch
-    fetchCartCount();
 
     // Calculate total amount function
     function calculateTotal() {
         let total = 0;
         $('#cart-items tr').each(function () {
             const price = parseFloat($(this).find('.price').text());
-            const quantity = parseInt($(this).find('.quantity').val());
+            const quantity = parseInt($(this).find('.quantity-input').val());
             total += price * quantity;
         });
         $('#total-amount').text(total.toFixed(2));
     }
+
+    // Set default quantity to 1 if not already set
+    $('#cart-items .quantity-input').each(function() {
+        if (!$(this).val()) {
+            $(this).val(1);
+        }
+    });
+
+    // Initial cart count fetch
+    fetchCartCount();
+
+    // Event listeners
+    handleQuantityChange();
+    $('#cart-items').on('click', '.btn-remove', function () {
+        const productId = $(this).data('id');
+        removeItem(productId);
+    });
+
+    // Calculate total amount on initial load
+    calculateTotal();
 });

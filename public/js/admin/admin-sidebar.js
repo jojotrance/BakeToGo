@@ -1,4 +1,3 @@
-// File: /js/admin/admin-sidebar.js
 $(document).ready(function () {
     const user = JSON.parse($('#app-root').attr('data-user'));
     const role = user.role === 'admin' ? 'admin' : 'customer';
@@ -34,7 +33,7 @@ $(document).ready(function () {
         window.location.href = link;
     };
 
-    function renderSidebar() {
+    window.renderSidebar = function() {
         console.log('Rendering sidebar');
         if (!Array.isArray(window.SidebarData)) {
             console.error('SidebarData is not an array:', window.SidebarData);
@@ -83,6 +82,6 @@ $(document).ready(function () {
     }
 
     if (role === 'admin' && !hideComponents) {
-        renderSidebar();
+        window.renderSidebar();
     }
 });

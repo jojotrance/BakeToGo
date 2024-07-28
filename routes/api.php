@@ -154,9 +154,9 @@ Route::prefix('admin')->middleware(['auth:sanctum'])->group(function () {
         // Order routes
         Route::get('/customer/orders/history', [ApiCustomerController::class, 'history'])->name('api.customer.orders.history');
         Route::post('/customer/orders/status', [ApiCustomerController::class, 'updateOrderStatus'])->name('api.customer.orders.updateStatus');
-        Route::post('/removeFromCart', [ShopController::class, 'removeFromCart']);
         Route::get('/cart/count', [ShopController::class, 'cartCount']);
-
+        Route::post('/updateCart/{id}', [ShopController::class, 'updateCart'])->name('api.customer.updateCart');  // New update route
+        Route::delete('/removeFromCart/{id}', [ShopController::class, 'removeFromCart'])->name('api.customer.removeFromCart');
         Route::post('/addtoCart', [ShopController::class, 'addToCart']);
         Route::post('/checkout',[ShopController::class, 'checkout']);
         // Review routes

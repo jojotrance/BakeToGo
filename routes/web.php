@@ -49,6 +49,7 @@ Route::group(['prefix' => 'customer', 'middleware' => ['auth', 'is_customer']], 
     //  Route::get('/cart', [CartController::class, 'show'])->name('customer.cart.show');
     // Route::post('/cart', [CartController::class, 'addToCart']);
     // Profile routes
+    Route::get('/mycarts', [ShopController::class, 'mycart'])->name('mycarts');
     Route::get('/profile', [CustomerController::class, 'profile'])->name('customer.profile.edit');
     Route::post('/profile', [CustomerController::class, 'updateProfile'])->name('customer.profile.update');
     Route::get('/purchase', [CustomerController::class, 'history'])->name('customer.history');
@@ -62,6 +63,6 @@ Route::group(['prefix' => 'auth', 'middleware' => 'guest'], function () {
 });
 
 Route::view('/shop', 'cust_dashboard');
-Route::get('/mycarts', [ShopController::class, 'mycart'])->name('mycart');
+
 Route::get('/checkoutDetails', [ShopController::class, 'checkoutDetails'])->name('checkoutDetails');
 

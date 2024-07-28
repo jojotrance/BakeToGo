@@ -314,7 +314,26 @@ public function index()
      */
     public function update(Request $request, string $id)
     {
-        //
+        // Validate the request data
+        $validated = $request->validate([
+            'quantity' => 'required|integer|min:1',
+        ]);
+
+        // Find the cart item for the authenticated user
+        $cart = Auth::user()->cart()->where('product_id', $id)->first();
+
+        // Check if the cart item exists
+        if ($cart) {
+            // Update the quantity
+            $cart->pivot->quantity = $validated['quantity'];
+            $cart->pivot->save();
+
+            // Return a success response
+            return response()->json(['message' => 'Quantity updated successfully.']);
+        } else {
+            // Return a not found response if the item doesn't exist
+            return response()->json(['message' => 'Item not found in cart.'], 404);
+        }
     }
 
     /**

@@ -60,7 +60,10 @@ $(document).ready(function () {
         });
 
         let courierId = $('#courier').val();
-        let paymentMethod = $('#paymentMethod').val();
+        let paymentMethod = $('#payment-method').val();
+
+        // Debugging: Check the value of paymentMethod
+        console.log('Selected Payment Method:', paymentMethod);
 
         $.ajax({
             type: "POST",

@@ -2,22 +2,20 @@
 
 @section('body')
 <div class="checkout-header">
-        <div class="checkout-header-left">
-            <img src="{{ asset('images/logo-placeholder.png') }}" alt="Logo" class="checkout-logo">
-        </div>
-        <div class="checkout-header-right">
-            <h1>Checkout</h1>
-        </div>
-        <div class="progress-indicator">
-            <div class="step active">1. Order Summary</div>
-            <div class="step">2. Customer Details</div>
-            <div class="step">3. Payment</div>
-            <div class="step">4. Confirmation</div>
-        </div>
+    <div class="checkout-header-left">
+        <img src="{{ asset('images/logo-placeholder.png') }}" alt="Logo" class="checkout-logo">
     </div>
+    <div class="checkout-header-right">
+        <h1>Checkout</h1>
+    </div>
+    <div class="progress-indicator">
+        <div class="step active">1. Order Summary</div>
+        <div class="step">2. Customer Details</div>
+        <div class="step">3. Payment</div>
+        <div class="step">4. Confirmation</div>
+    </div>
+</div>
 <div class="checkout-container">
-    
-
     <div class="checkout-section">
         <h2 class="section-title">Products Ordered</h2>
         <table class="checkout-table">
@@ -79,4 +77,8 @@
         <button class="btn checkout-btn" id="checkout">Checkout</button>
     </div>
 </div>
+
+<!-- Add the custom notifications container -->
+<div id="custom-notifications"></div>
+
 @endsection

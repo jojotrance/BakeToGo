@@ -21,7 +21,7 @@
     });
 </script>
 @endpush --}}
-
+<!-- resources/views/customer/pages/custo_dashboard.blade.php -->
 @extends('layouts.shop')
 @section('body')
     <div class="container container-fluid" id="items">
@@ -29,3 +29,12 @@
 
     <div id="custom-notifications"></div>
 @endsection
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        window.dispatchEvent(new CustomEvent('search-query', { detail: '' }));
+    });
+</script>
+<script src="{{ asset('js/shop.js') }}"></script>
+@endpush
