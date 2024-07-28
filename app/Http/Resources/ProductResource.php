@@ -15,7 +15,7 @@ class ProductResource extends JsonResource
             'price' => $this->price,
             'category' => $this->category,
             'image' => $this->image, // Ensure this field is included
-            'stock' => $this->stocks->first() ? $this->stocks->first()->quantity : 0, // Include the stock quantity
+            'total_stock' => $this->total_stock, // Add this line
         ];
     }
 }

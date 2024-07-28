@@ -64,3 +64,4 @@ Route::group(['prefix' => 'auth', 'middleware' => 'guest'], function () {
 Route::view('/shop', 'cust_dashboard');
 Route::get('/mycarts', [ShopController::class, 'mycart'])->name('mycart');
 Route::get('/checkoutDetails', [ShopController::class, 'checkoutDetails'])->name('checkoutDetails');
+

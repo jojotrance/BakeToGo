@@ -79,6 +79,8 @@ Route::prefix('admin')->middleware(['auth:sanctum'])->group(function () {
         Route::put('/{product}', [ProductController::class, 'update'])->name('api.admin.updateProduct');
         Route::delete('/{product}', [ProductController::class, 'destroy'])->name('api.admin.deleteProduct');
         Route::get('/check-duplicate-name', [ProductController::class, 'checkDuplicateName'])->name('api.admin.checkDuplicateName'); // Use GET method
+        Route::post('/updateProductStock', [ProductController::class, 'updateProductStock']);
+       
     });
 
     // Suppliers Routes
@@ -152,10 +154,15 @@ Route::prefix('admin')->middleware(['auth:sanctum'])->group(function () {
         // Order routes
         Route::get('/customer/orders/history', [ApiCustomerController::class, 'history'])->name('api.customer.orders.history');
         Route::post('/customer/orders/status', [ApiCustomerController::class, 'updateOrderStatus'])->name('api.customer.orders.updateStatus');
-
+        Route::post('/removeFromCart', [ShopController::class, 'removeFromCart']);
+        Route::get('/cart/count', [ShopController::class, 'cartCount']);
 
         Route::post('/addtoCart', [ShopController::class, 'addToCart']);
         Route::post('/checkout',[ShopController::class, 'checkout']);
         // Review routes
         Route::get('/customer/reviews/history', [ReviewController::class, 'history'])->name('api.customer.reviews.history');
+        Route::get('/customer/products/with-stock', [ProductController::class, 'getProductsWithStock'])->name('api.customer.getProductsWithStock');
     });
+
+
+    Route::get('/test-with-stock', [ProductController::class, 'getProductsWithStock']);

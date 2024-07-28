@@ -94,7 +94,37 @@ $(document).ready(function () {
     };
 
     const renderCustomerCart = () => {
-        $('#customer-cart').html('<h2>Shopping Cart</h2><p>Your cart items will appear here.</p>');
+        $.get('/api/cart', function(data) {
+            let cartItemsHtml = '';
+            data.forEach(cart => {
+                cartItemsHtml += `
+                    <tr data-id="${cart.id}">
+                        <td class="product-info">
+                            <img src="${cart.image ? '/storage/product_images/' + cart.image : '/storage/product_images/default-placeholder.png'}" alt="${cart.name}" class="product-image">
+                            <div class="product-details">
+                                <h5>${cart.name}</h5>
+                                <p>Category: ${cart.category}</p>
+                            </div>
+                        </td>
+                        <td class="product-price">
+                            ₱<span class="price">${cart.price}</span>
+                        </td>
+                        <td class="product-quantity">
+                            <div class="quantity-container">
+                                <button class="quantity-minus btn-quantity" data-id="${cart.id}">-</button>
+                                <input type="text" id="quantity-${cart.id}" class="quantity quantity-input" value="${cart.pivot_quantity ?? 1}" readonly>
+                                <button class="quantity-plus btn-quantity" data-id="${cart.id}">+</button>
+                            </div>
+                        </td>
+                        <td class="product-remove">
+                            <button class="btn-remove" data-id="${cart.id}">✖</button>
+                        </td>
+                    </tr>
+                `;
+            });
+            $('#cart-items').html(cartItemsHtml);
+            calculateTotal();
+        });
     };
 
     const renderCustomerDashboard = () => {
@@ -191,12 +221,27 @@ $(document).ready(function () {
     };
 
     fetchUserProfile();
-    
+
+    // Function to calculate total
+    function calculateTotal() {
+        let total = 0;
+        $('#cart-items tr').each(function () {
+            const price = parseFloat($(this).find('.price').text());
+            const quantity = parseInt($(this).find('.quantity-input').val());
+            total += price * quantity;
+        });
+        $('#total-amount').text(total.toFixed(2));
+    }
+
     // Add to cart functionality
     $('#hits').on('click', '.add', function () {
         const item = $(this).closest('.menu-item');
         const productId = item.find('.itemId').text();
-        const quantity = parseInt(item.find('.quantity').val());
+        let quantity = parseInt(item.find('.quantity').val());
+
+        if (isNaN(quantity) || quantity === 0) {
+            quantity = 1; // Set default quantity to 1 if it's the first add to cart
+        }
 
         $.ajax({
             type: "POST",
@@ -211,6 +256,7 @@ $(document).ready(function () {
             },
             success: function (response) {
                 alert('Item added to cart successfully!');
+                renderCustomerCart(); // Re-render cart to get updated contents
             },
             error: function (xhr, status, error) {
                 console.error("Error adding item to cart:", status, error);
@@ -228,8 +274,9 @@ $(document).ready(function () {
             if (currentVal < max) {
                 input.val(currentVal + 1);
                 if (selector === '#cart-items') {
-                    updateQuantityBackend(input, 1);
+                    updateQuantityBackend(input);
                 }
+                calculateTotal();
             }
         });
 
@@ -240,8 +287,9 @@ $(document).ready(function () {
             if (currentVal > min) {
                 input.val(currentVal - 1);
                 if (selector === '#cart-items') {
-                    updateQuantityBackend(input, -1);
+                    updateQuantityBackend(input);
                 }
+                calculateTotal();
             }
         });
     }
@@ -249,7 +297,7 @@ $(document).ready(function () {
     handleQuantityChange('#hits');
     handleQuantityChange('#cart-items');
 
-    function updateQuantityBackend(input, change) {
+    function updateQuantityBackend(input) {
         const productId = input.attr('id').split('-')[1];
         const newQuantity = parseInt(input.val());
 
@@ -288,6 +336,7 @@ $(document).ready(function () {
             success: function (response) {
                 $('tr[data-id="' + productId + '"]').remove();
                 console.log('Item removed successfully');
+                calculateTotal();
             },
             error: function (xhr, status, error) {
                 console.error("Error removing item:", status, error);
@@ -347,4 +396,8 @@ $(document).ready(function () {
             }
         });
     });
+
+    // Initial cart count fetch and initial total calculation
+    fetchUserProfile();
+    calculateTotal();
 });

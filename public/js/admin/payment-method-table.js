@@ -216,18 +216,54 @@ $(document).ready(function() {
     $('#export_excel_payment_methods').on('click', function() {
         console.log('Export to Excel button clicked');
         var data = paymentMethodTable.rows({ search: 'applied' }).data().toArray();
-        var formattedData = data.map(function(paymentMethod) {
-            return {
-                ID: paymentMethod.id,
-                Name: paymentMethod.payment_name,
-                Image: paymentMethod.image
-            };
+        var formattedData = [];
+
+        var loadImagePromises = data.map(function(paymentMethod) {
+            return loadImage(paymentMethod.image).then(function(base64Image) {
+                formattedData.push({
+                    ID: paymentMethod.id,
+                    Name: paymentMethod.payment_name,
+                    Image: base64Image
+                });
+            });
         });
-        var ws = XLSX.utils.json_to_sheet(formattedData);
-        var wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "PaymentMethods");
-        XLSX.writeFile(wb, "payment_methods.xlsx");
+
+        Promise.all(loadImagePromises).then(function() {
+            var ws = XLSX.utils.json_to_sheet(formattedData, { skipHeader: false });
+            
+            // Adjust column widths
+            ws['!cols'] = [{ wpx: 50 }, { wpx: 200 }, { wpx: 300 }];
+            
+            var wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "PaymentMethods");
+            XLSX.writeFile(wb, "payment_methods.xlsx");
+        });
     });
+
+    function loadImage(url) {
+        return new Promise((resolve, reject) => {
+            if (!url) {
+                resolve('No Image');
+                return;
+            }
+
+            var img = new Image();
+            img.crossOrigin = 'Anonymous';
+            img.onload = function() {
+                var canvas = document.createElement('canvas');
+                canvas.width = img.width;
+                canvas.height = img.height;
+                var ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0);
+                var dataURL = canvas.toDataURL('image/png');
+                resolve(dataURL);
+            };
+            img.onerror = function() {
+                resolve('No Image');
+            };
+            img.src = url;
+        });
+    }
 
     function showNotification(message, type) {
         var alertDiv = type === 'success' ? $('#success-alert') : $('#error-alert');

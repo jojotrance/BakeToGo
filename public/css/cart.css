@@ -1,147 +1,192 @@
+* {
+  box-sizing: border-box;
+}
+
 html, body {
-    height: 100%;
-    margin: 0;
-    padding: 0;
-    background-color: #ffe4e1; /* Light salmon background */
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  background-color: #f8f8f8;
+  font-family: 'Roboto', sans-serif;
 }
 
 .cart-container {
-    width: 80%;
-    margin: 50px auto; /* Removed bottom margin */
-    padding: 20px;
-    background-color: white;
-    border-radius: 8px;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+  width: 90%; /* Increase the width to 90% of the viewport */
+  max-width: 1400px; /* Increase the max-width for wider screens */
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.cart-title {
+  text-align: center;
+  font-size: 2em;
+  margin-bottom: 20px;
+  color: #333;
 }
 
 #cart-table {
-    width: 100%;
-    margin-bottom: 20px;
-    border-collapse: separate;
-    border-spacing: 0 15px;
+  width: 100%;
+  margin: 20px auto;
+  background: #FFFFFF;
+  box-shadow: 1px 2px 3px 0px rgba(0,0,0,0.10);
+  border-radius: 6px;
+  border-collapse: separate;
+  border-spacing: 0 10px; /* Add space between rows */
 }
 
-#cart-table th, #cart-table td {
-    padding: 10px;
-    text-align: center; /* Ensure all columns are centered */
+#cart-table tr {
+  display: flex;
+  align-items: center;
+  padding: 20px 30px;
+  background: #FFF;
+  box-shadow: 0 0 5px rgba(0,0,0,0.1); /* Add shadow for distinct separation */
+  border-radius: 6px;
 }
 
-#cart-table th {
-    text-transform: uppercase;
-    font-weight: bold;
-    background-color: #fa8072; /* Salmon color */
-    color: white;
-}
-
-#cart-table tbody tr {
-    background-color: white;
-    border-radius: 8px;
-    box-shadow: 0 0 5px rgba(0,0,0,0.1);
-    overflow: hidden;
-}
-
-#cart-table tbody tr td {
-    border: none;
-    vertical-align: middle; /* Ensure content is vertically centered */
-    text-align: center;
+#cart-table td {
+  padding: 10px;
+  border: none; /* Remove border from cells */
 }
 
 .product-info {
-    display: flex;
-    align-items: center;
-    justify-content: center; /* Ensure the image and text are centered */
+  display: flex;
+  align-items: center;
+  width: 40%;
 }
 
 .product-image {
-    width: 60px;
-    height: 60px;
-    object-fit: cover;
-    margin-right: 15px;
-    border-radius: 8px;
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-right: 20px;
 }
 
 .product-details {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start; /* Align text to the start */
+  flex-grow: 1;
 }
 
-.product-details h5 {
-    margin: 0;
-    font-size: 16px;
+.product-details h5, .product-details p {
+  margin: 0;
+  color: #43484D;
 }
 
 .product-details p {
-    margin: 5px 0 0;
-    font-size: 14px;
-    color: #888;
+  font-size: 14px;
+  color: #86939E;
+  margin-top: 8px;
+}
+
+.product-price, .product-quantity, .product-remove {
+  width: 20%;
+  text-align: center;
 }
 
 .quantity-container {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.btn-quantity {
-    background-color: #fa8072; /* Salmon color */
-    color: white;
-    border: none;
-    padding: 5px 10px;
-    cursor: pointer;
-    border-radius: 5px;
-    margin: 0 5px;
-}
-
-.btn-quantity:disabled {
-    background-color: #ccc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
 }
 
 .quantity-input {
-    width: 40px;
-    text-align: center;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    padding: 5px;
-    margin: 0 5px;
+  -webkit-appearance: none;
+  border: none;
+  text-align: center;
+  width: 32px;
+  font-size: 16px;
+  color: #43484D;
+  font-weight: 300;
+}
+
+.btn-quantity {
+  width: 30px;
+  height: 30px;
+  background-color: #E1E8EE;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-quantity:focus,
+.quantity-input:focus {
+  outline: 0;
 }
 
 .btn-remove {
-    background: none;
-    border: none;
-    color: #ff0000;
-    font-size: 20px;
-    cursor: pointer;
+  background: none;
+  border: none;
+  color: #ff0000;
+  font-size: 20px;
+  cursor: pointer;
 }
 
 .btn-remove:hover {
-    color: #cc0000;
+  color: #cc0000;
 }
 
-.checkout-container {
-    position: bottom;
-    bottom: 20rem;
-    left: 0;
-    width: 100%;
-    height: auto; /* Adjusted height */
-    background-color: white;
-    padding: 0px 0; /* Adjusted padding */
-    box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
-    text-align: center;
-    z-index: 1000;
+.unique-checkout-container {
+  display: flex;
+  justify-content: space-between; /* Adjust alignment */
+  align-items: center;
+  padding: 20px;
+  background-color: white;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 40px); /* Adjust width */
+  max-width: 1200px;
+}
+
+.total-amount {
+  font-size: 1.5em;
+  color: #333;
 }
 
 #checkout-button {
-    padding: 10px 20px;
-    background-color: #fa8072; /* Salmon color */
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    text-align: center;
-    text-decoration: none;
+  padding: 10px 20px;
+  background-color: #fa8072;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  text-decoration: none;
+  font-size: 16px;
 }
 
 #checkout-button:hover {
-    background-color: #ff6347; /* Darker salmon color */
+  background-color: #ff6347;
+}
+
+@media (max-width: 800px) {
+  .cart-container {
+    width: 95%; /* Slightly reduce the width for mobile */
+  }
+  
+  #cart-table tr {
+      flex-wrap: wrap;
+      justify-content: center;
+  }
+
+  .product-image {
+      width: 50%;
+  }
+
+  .product-details, .quantity-container, .product-price, .product-remove {
+      width: 100%;
+      text-align: center;
+      margin: 6px 0;
+  }
+  
+  .unique-checkout-container {
+    flex-direction: column; /* Stack elements vertically on mobile */
+    width: 90%; /* Adjust width */
+  }
+  
+  .total-amount {
+    margin-bottom: 10px; /* Add margin to separate from button */
+  }
 }

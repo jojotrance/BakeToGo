@@ -171,7 +171,7 @@ $(document).ready(function() {
                 ID: courier.id,
                 Courier_Name: courier.courier_name,
                 Branch: courier.branch,
-                Image: courier.image
+                Image: shortenUrl(courier.image ? '/storage/' + courier.image : 'No Image')
             };
         });
         var ws = XLSX.utils.json_to_sheet(formattedData);
@@ -232,4 +232,15 @@ $(document).ready(function() {
             reader.readAsDataURL(file);
         }
     });
+
+    function shortenUrl(url) {
+        const maxLength = 30;
+        if (!url) {
+            return 'No Image';
+        }
+        if (url.length <= maxLength) {
+            return url;
+        }
+        return url.substring(0, maxLength) + '...';
+    }
 });

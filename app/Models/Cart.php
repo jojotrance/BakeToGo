@@ -8,9 +8,12 @@ use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Scout\Searchable;
 
+// use Laravel\Scout\Searchable;
+
 class Product extends Model
 {
     use HasFactory, HasApiTokens, Notifiable, Searchable;
+    // use Searchable;
 
     protected $table = 'products';
 
@@ -55,7 +58,6 @@ class Product extends Model
             'supplier_names' => $this->suppliers->pluck('supplier_name')->implode(' '),
         ];
     }
-
     public function orders()
     {
         return $this->belongsToMany(Order::class, 'order_product', 'product_id', 'order_id')->withPivot('quantity');

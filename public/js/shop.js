@@ -47,20 +47,6 @@ $(document).ready(function () {
         setTimeout(() => notification.remove(), 5000);
     }
 
-    // Function to fetch cart count
-    function fetchCartCount() {
-        $.ajax({
-            type: "GET",
-            url: "/api/cart/count",
-            success: function (data) {
-                $('#cart-count').text(data.count);
-            },
-            error: function () {
-                console.error('Failed to fetch cart count');
-            }
-        });
-    }
-
     function loadProducts(page) {
         if (loading) return;
         loading = true;
@@ -70,14 +56,11 @@ $(document).ready(function () {
             url: `/api/shop?page=${page}`,
             dataType: 'json',
             success: function (data) {
-                console.log(data); // Debug: Log the data received from the API
                 lastPage = data.last_page;
 
-                $.each(data.data, function (key, value) { // Change from data to data.data
-                    console.log(value); // Debug: Log each product's data
+                $.each(data.data, function (key, value) {
                     var imageUrl = value.image_url ? value.image_url : '/storage/product_images/default-placeholder.png';
                     var stock = value.total_stock !== undefined ? value.total_stock : 'Unavailable';
-                    console.log('Stock:', stock); // Debug: Log the stock value
 
                     var item = `
                         <div class='menu-item'>
@@ -159,6 +142,7 @@ $(document).ready(function () {
                 });
 
                 fetchCartCount(); // Update cart count
+                calculateTotal(); // Update total amount
             },
             error: function (xhr, status, error) {
                 console.error("Error adding item to cart:", status, error);
@@ -167,146 +151,32 @@ $(document).ready(function () {
         });
     });
 
-    // Quantity change handlers
-    function handleQuantityChange(selector) {
-        $(selector).on('click', '.quantity-plus', function () {
-            var input = $(this).siblings('.quantity');
-            var minusButton = $(this).siblings('.quantity-minus');
-            var max = input.attr('max') || 999;
-            var currentVal = parseInt(input.val()) || 0;
-            if (currentVal < max) {
-                input.val(currentVal + 1);
-                minusButton.prop('disabled', false).css('color', '#000');
-                if (selector === '#cart-items') {
-                    updateQuantityBackend(input, 1);
-                }
-            }
-        });
-
-        $(selector).on('click', '.quantity-minus', function () {
-            var input = $(this).siblings('.quantity');
-            var min = input.attr('min') || 0;
-            var currentVal = parseInt(input.val()) || 0;
-            if (currentVal > min) {
-                input.val(currentVal - 1);
-                if (currentVal - 1 === 0) {
-                    $(this).prop('disabled', true).css('color', '#ccc');
-                }
-                if (selector === '#cart-items') {
-                    updateQuantityBackend(input, -1);
-                }
+    // Function to fetch cart count and total amount
+    function fetchCartCount() {
+        $.ajax({
+            type: "GET",
+            url: "/api/cart/count",
+            success: function (data) {
+                $('#cart-count').text(data.count);
+                calculateTotal();
+            },
+            error: function () {
+                console.error('Failed to fetch cart count');
             }
         });
     }
-
-    handleQuantityChange('#items');
-    handleQuantityChange('#cart-items');
-
-    function updateQuantityBackend(input, change) {
-        var productId = input.closest('.menu-item').find('.itemId').text();
-        var newQuantity = parseInt(input.val());
-
-        $.ajax({
-            type: "POST",
-            url: "/api/addtoCart",
-            data: JSON.stringify({
-                product_id: productId,
-                quantity: newQuantity
-            }),
-            contentType: "application/json",
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            },
-            success: function (response) {
-                console.log('Quantity updated successfully');
-                showCustomNotification('Quantity updated successfully', 'success');
-                fetchCartCount(); // Update cart count
-            },
-            error: function (xhr, status, error) {
-                console.error("Error updating quantity:", status, error);
-                showCustomNotification('Error updating quantity. Please try again.', 'error');
-            }
-        });
-    }
-
-    function removeItem(productId) {
-        $.ajax({
-            type: "POST",
-            url: "/api/removeFromCart",
-            data: JSON.stringify({
-                product_id: productId
-            }),
-            contentType: "application/json",
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            },
-            success: function (response) {
-                $('tr[data-id="' + productId + '"]').remove();
-                console.log('Item removed successfully');
-                showCustomNotification('Item removed from cart successfully', 'success');
-                fetchCartCount(); // Update cart count
-            },
-            error: function (xhr, status, error) {
-                console.error("Error removing item:", status, error);
-                showCustomNotification('Error removing item. Please try again.', 'error');
-            }
-        });
-    }
-
-    $('#cart-items').on('click', '.btn-remove', function () {
-        var productId = $(this).data('id');
-        removeItem(productId);
-    });
-
-    // Checkout functionality
-    $('#checkout').click(function(e) {
-        e.preventDefault();
-
-        const csrfToken = $('meta[name="csrf-token"]').attr('content');
-
-        let items = [];
-        $(".menu-item").each(function() {
-            let itemid = parseInt($(this).find(".itemId").html()); 
-            let qty = parseInt($(this).find(".quantity").val()); 
-            items.push({
-                "item_id": itemid,
-                "quantity": qty
-            });
-        });
-
-        let courierId = $('#courier').val();
-        let paymentMethod = $('#paymentMethod').val();
-
-        $.ajax({
-            type: "POST",
-            url: "/api/checkout",
-            headers: {
-                'X-CSRF-TOKEN': csrfToken 
-            },
-            data: JSON.stringify({
-                items: items,
-                courier_id: courierId,
-                payment_method: paymentMethod
-            }),
-            contentType: "application/json",
-            success: function(response) {
-                if (response.code === 200) {
-                    showCustomNotification('Successfully ordered!', 'success', 'View Order', function() {
-                        window.location.href = '/customer/dashboard';
-                    });
-                    fetchCartCount(); // Update cart count after checkout
-                } else {
-                    showCustomNotification(response.error, 'error');
-                }
-            },
-            error: function (xhr, status, error) {
-                console.error('Error status:', status);
-                console.error('Error details:', error);
-                showCustomNotification('Error processing checkout. Please try again.', 'error');
-            }
-        });
-    });
 
     // Initial cart count fetch
     fetchCartCount();
+
+    // Calculate total amount function
+    function calculateTotal() {
+        let total = 0;
+        $('#cart-items tr').each(function () {
+            const price = parseFloat($(this).find('.price').text());
+            const quantity = parseInt($(this).find('.quantity').val());
+            total += price * quantity;
+        });
+        $('#total-amount').text(total.toFixed(2));
+    }
 });

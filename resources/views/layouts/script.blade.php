@@ -13,6 +13,17 @@
  <script type="module" src="/js/app.js"></script> <!-- Ensure this line is present -->
     <script type="module" src="/js/components/builds/header.js"></script>
 <script src="{{ asset('js/shop.js') }}"></script>
+<script src="{{ asset('js/cart.js') }}"></script>
+<script src="{{ asset('js/checkout.js') }}"></script>
 <script src="{{ asset('js/admin/payment.js') }}"></script>
+<script src="{{ asset('js/components/builds/header.js') }}" defer></script>
+<script src="{{ asset('js/app.js') }}" defer></script>
+<script src="{{ asset('js/admin/payment.js') }}"></script>
+<script src="{{ asset('vendor/datatables/buttons.server-side.js') }}"></script>
+
+
+<!--Customer js-->
+<script src="{{ asset('js/customer/my-reviews.js') }}"></script>
+<script src="{{ asset('js/customer/order-history.js') }}"></script>
 <!--<script src="{{ asset('vendor/datatables/buttons.server-side.js') }}"></script>-->
 @vite(['resources/css/app.css', 'public/js/app.js'])

@@ -1,10 +1,8 @@
 <?php
-
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Http\Request;
 
 class Customer extends Model
 {
@@ -35,9 +33,7 @@ class Customer extends Model
 
     public function history()
     {
-        $orders = Order::where('customer_id', auth()->id())->get();
+        $orders = $this->orders()->with('products')->get();
         return view('customer.history', compact('orders'));
     }
-
- 
 }

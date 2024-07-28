@@ -36,7 +36,7 @@ $(document).ready(function() {
             { data: 'description', name: 'description', width: '30%' },
             { data: 'price', name: 'price', width: '10%' },
             { data: 'category', name: 'category', width: '10%' },
-            { data: 'stock', name: 'stock', width: '10%' },
+            { data: 'total_stock', name: 'total_stock', width: '10%' },
             {
                 data: 'image',
                 name: 'image',
@@ -95,11 +95,40 @@ $(document).ready(function() {
     // Submit handler for the product form
     $('#product_form').on('submit', function(event) {
         event.preventDefault();
+        checkDuplicateAndSubmit();
+    });
+
+    function checkDuplicateAndSubmit() {
+        var name = $('#name').val();
+        var id = $('#hidden_id').val();
+
+        // Check for duplicate name before submitting the form
+        $.ajax({
+            url: ' api/admin/products/check-duplicate-name',
+            method: 'GET',
+            data: { name: name, id: id },
+            success: function(response) {
+                if (response.exists) {
+                    $('#name_error').text('Product name already exists.');
+                    $('#action_button').attr('disabled', true);
+                } else {
+                    $('#action_button').attr('disabled', false); // Ensure button is enabled if name is unique
+                    submitProductForm();
+                }
+            },
+            error: function(xhr) {
+                console.error("Error in checking duplicate name:", xhr.responseText);
+                showNotification('Failed to validate product name. Please try again.', 'error');
+            }
+        });
+    }
+
+    function submitProductForm() {
         var actionUrl = $('#hidden_id').val() ? `/api/admin/products/${$('#hidden_id').val()}` : "/api/admin/products";
         var method = $('#hidden_id').val() ? 'POST' : 'POST';  // Always POST, but include _method for PUT
 
         console.log("Submitting form to URL:", actionUrl, "with method:", method);
-        var formData = new FormData(this);
+        var formData = new FormData($('#product_form')[0]);
         if ($('#hidden_id').val()) {
             formData.append('_method', 'PUT');
         }
@@ -135,7 +164,7 @@ $(document).ready(function() {
                 showNotification('Failed to save product. Please check the form for errors.', 'error');
             }
         });
-    });
+    }
 
     // Event listener for the edit product button
     $('#product_datatable').on('click', '.product-edit-btn', function() {
@@ -153,7 +182,7 @@ $(document).ready(function() {
                 $('#description').val(data.description);
                 $('#price').val(data.price);
                 $('#category').val(data.category);
-                $('#stock').val(data.stock);
+                $('#stock').val(data.total_stock); // Use total_stock here
                 $('#hidden_id').val(data.id);
                 clearErrors();
             },
@@ -184,6 +213,29 @@ $(document).ready(function() {
                     showNotification('Failed to delete product. Please try again.', 'error');
                 }
             });
+        });
+    });
+
+    // Check for duplicate product name on blur event
+    $('#name').on('blur', function() {
+        var name = $(this).val();
+        var id = $('#hidden_id').val();
+        $.ajax({
+            url: '/api/admin/products/check-duplicate-name',
+            method: 'GET',
+            data: { name: name, id: id },
+            success: function(response) {
+                if (response.exists) {
+                    $('#name_error').text('Product name already exists.');
+                    $('#action_button').attr('disabled', true);
+                } else {
+                    $('#name_error').text('');
+                    $('#action_button').attr('disabled', false);
+                }
+            },
+            error: function(xhr) {
+                console.error("Error in checking duplicate name:", xhr.responseText);
+            }
         });
     });
 

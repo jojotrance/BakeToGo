@@ -70,8 +70,12 @@
     <!--Toastr? Wth is this-->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
+    <!--Xlxs JS-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
 
     <!-- Other custom JS files -->
+     
+    <script src="{{ asset('js/components/builds/header.js') }}"></script>
     <script src="{{ asset('js/admin/user-datatable.js') }}"></script>
     <script src="{{ asset('js/admin/product-datatable.js') }}"></script>
     <script src="{{ asset('js/admin/courier-datatable.js') }}"></script>
@@ -83,7 +87,6 @@
     <script src="{{ asset('js/admin/admin-sidebar.js') }}"></script>
     <script src="{{ asset('js/admin/payment-method-table.js') }}"></script>
     @include('layouts.script')
-    <script src="{{ asset('js/components/builds/header.js') }}"     ></script>
 
 <script src="{{ asset('js/app.js') }}" defer></script>
 
