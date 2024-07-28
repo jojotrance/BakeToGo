@@ -6,7 +6,7 @@ $(document).ready(function () {
     const searchClient = algoliasearch('SKGEMY1IVJ', '90477025cfd3896f776e79b8d0625bca');
     const index = searchClient.initIndex('products');
 
-    //YUNG PRODUCT NASA HEADER.JS HEHE sorry
+    //YUNG PRODUCT NASA HEADER.JS HEHE Yun yung gumagana hehe sorry
 
     // Function to add event listeners to items
     function addEventListenersToItems() {
