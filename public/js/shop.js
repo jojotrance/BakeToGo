@@ -6,45 +6,7 @@ $(document).ready(function () {
     const searchClient = algoliasearch('SKGEMY1IVJ', '90477025cfd3896f776e79b8d0625bca');
     const index = searchClient.initIndex('products');
 
-    // Function to load products
-    function loadProducts() {
-        $.ajax({
-            type: "GET",
-            url: "/api/shop",
-            dataType: 'json',
-            success: function (data) {
-                $('#items').empty(); // Clear previous items
-                $.each(data, function (key, value) {
-                    const imageUrl = value.image ? `/storage/product_images/${value.image}` : '/storage/product_images/default-placeholder.png';
-                    const stock = value.total_stock !== undefined ? value.total_stock : 'Unavailable'; // Ensure total_stock is used
-
-                    const item = `
-                        <div class='menu-item'>
-                            <div class='item-image'>
-                                <img src='${imageUrl}' alt='${value.name}' />
-                            </div>
-                            <div class='item-details'>
-                                <h5 class='item-name'>${value.name}</h5>
-                                <p>Category: ${value.category}</p>
-                                <p class='item-price'>Price: Php <span class='price'>${value.price}</span></p>
-                                <p class='item-description'>${value.description}</p>
-                                <p>Stock: ${stock}</p>
-                                <p class='itemId' hidden>${value.id}</p>
-                            </div>
-                            <button type='button' class='btn btn-buy-now add'>Add to cart</button>
-                        </div>`;
-                    $("#items").append(item);
-                });
-
-                // Add event listeners for the new items
-                addEventListenersToItems();
-            },
-            error: function () {
-                console.log('AJAX load did not work');
-                alert("Error loading data.");
-            }
-        });
-    }
+    //YUNG PRODUCT NASA HEADER.JS HEHE sorry
 
     // Function to add event listeners to items
     function addEventListenersToItems() {
